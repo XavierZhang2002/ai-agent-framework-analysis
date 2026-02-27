@@ -1,6 +1,6 @@
 # AI Agent Framework Analysis
 
-> Deep Code Audit of 9 Open-Source Agent Frameworks
+> Deep Code Audit of 12 Open-Source Agent Frameworks
 
 **English** | [中文](README.zh.md)
 
@@ -8,14 +8,14 @@
 
 ## 📖 Quick Navigation
 
-- **[Read the Blog (English)](BLOG.en.md)** - Core insights from auditing 9 agent frameworks
-- **[Read the Blog (中文)](BLOG.zh.md)** - 审计9个Agent框架的核心洞察
+- **[Read the Blog (English)](BLOG.en.md)** - Core insights from auditing 12 agent frameworks
+- **[Read the Blog (中文)](BLOG.zh.md)** - 审计12个Agent框架的核心洞察
 - **[Framework Comparison](COMPARISON.md)** - Detailed feature comparison matrix
 - **[Deep Dive Reports](deep-dive/)** - Source code analysis for each framework
 
 ## 🎯 TL;DR
 
-After auditing ~300KB of source code from 9 mainstream agent frameworks, we discovered a counter-intuitive fact:
+After auditing ~400KB of source code from 12 mainstream agent frameworks, we discovered a counter-intuitive fact:
 
 > **The core Agent Loop logic is highly similar across all frameworks. The real differences lie in "Capability Differentiation"** — 30+ engineering features like state management, security controls, and protocol support.
 
@@ -41,10 +41,13 @@ This "capability differentiation" creates an invisible gap between academia and 
 | [Qwen Code](deep-dive/Qwen-Code-DEEP-DIVE.md) | TypeScript | Qwen Ecosystem | Skills + SubAgents |
 | [SWE-agent](deep-dive/SWE-agent-DEEP-DIVE.md) | Python | Research | Trajectory Recording |
 | [OpenManus](deep-dive/OpenManus-DEEP-DIVE.md) | Python | Quick Experiment | MCP Dual Role |
+| [Aider](deep-dive/Aider-DEEP-DIVE.md) | Python | Git-Native Coding | Repo Map, Tree-sitter |
+| [Goose](deep-dive/Goose-DEEP-DIVE.md) | Rust | MCP-Native Framework | MCP-Native Architecture |
+| [OpenHands](deep-dive/OpenHands-DEEP-DIVE.md) | Python | Full Platform | Docker Sandbox, Micro-Agents |
 
 ## 📊 Research Methodology
 
-- **Source Code Audit**: ~300KB of actual source code analyzed
+- **Source Code Audit**: ~400KB of actual source code analyzed
 - **Line-Level Analysis**: Specific file paths and line numbers referenced
 - **No Hallucination**: All technical claims backed by code evidence
 - **Dual Perspective**: Both academic research and industrial production viewpoints

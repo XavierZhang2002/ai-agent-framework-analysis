@@ -1,6 +1,6 @@
 # AI Agent 框架分析
 
-> 9 个开源 Agent 框架的深度代码审计
+> 12 个开源 Agent 框架的深度代码审计
 
 [English](README.md) | **中文**
 
@@ -8,14 +8,14 @@
 
 ## 📖 快速导航
 
-- **[阅读博客（中文）](BLOG.zh.md)** - 审计9个Agent框架的核心洞察
-- **[Read the Blog (English)](BLOG.en.md)** - Core insights from auditing 9 agent frameworks
+- **[阅读博客（中文）](BLOG.zh.md)** - 审计12个Agent框架的核心洞察
+- **[Read the Blog (English)](BLOG.en.md)** - Core insights from auditing 12 agent frameworks
 - **[框架对比](COMPARISON.md)** - 详细的特性对比矩阵
 - **[深度调研报告](deep-dive/)** - 每个框架的源代码分析
 
 ## 🎯 核心观点
 
-在审计了 9 个主流 Agent 框架约 300KB 源代码后，我们发现了一个反直觉的事实：
+在审计了 12 个主流 Agent 框架约 400KB 源代码后，我们发现了一个反直觉的事实：
 
 > **各框架的核心 Agent Loop 逻辑高度相似。真正的差异在于"特性分化"**——状态管理、安全控制、协议支持等 30+ 个工程特性的不同实现。
 
@@ -41,10 +41,13 @@
 | [Qwen Code](deep-dive/Qwen-Code-DEEP-DIVE.md) | TypeScript | Qwen 生态 | Skills + SubAgents |
 | [SWE-agent](deep-dive/SWE-agent-DEEP-DIVE.md) | Python | 研究框架 | Trajectory Recording |
 | [OpenManus](deep-dive/OpenManus-DEEP-DIVE.md) | Python | 快速实验 | MCP 双角色 |
+| [Aider](deep-dive/Aider-DEEP-DIVE.md) | Python | Git-Native 编码助手 | Repo Map、Tree-sitter |
+| [Goose](deep-dive/Goose-DEEP-DIVE.md) | Rust | MCP-Native 框架 | MCP-Native 架构 |
+| [OpenHands](deep-dive/OpenHands-DEEP-DIVE.md) | Python | 完整平台 | Docker 沙箱、微代理 |
 
 ## 📊 研究方法
 
-- **源代码审计**：分析了约 300KB 实际源代码
+- **源代码审计**：分析了约 400KB 实际源代码
 - **行级分析**：引用具体文件路径和行号
 - **无幻觉**：所有技术主张都有代码证据支持
 - **双重视角**：学术研究 + 工业生产两个视角

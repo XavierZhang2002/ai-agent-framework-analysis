@@ -65,6 +65,9 @@
 | **Qwen Code** | ✅ ✅ MCP + IDE integration | `BaseDeclarativeTool` + dynamic schema | Extensions (agents/skills/tools), MCP | 30+ 内置工具 |
 | **SWE-agent** | ❌ 无 MCP | Tool bundles (YAML + shell scripts in `tools/`) | Custom agents, tool bundles, parsers | 15+ tool bundles |
 | **OpenManus** | ✅ ✅ MCP Client + Server（双角色） | `BaseTool` + Pydantic | Subclass BaseTool, MCP servers, Flow system | 8 个内置工具 |
+| **Aider** | ❌ 无 MCP | Python 函数 + 内置命令 | Git-native workflow, custom commands | 10+ 内置命令 |
+| **Goose** | ✅ ✅ ✅ MCP-Native | Rust `Tool` trait | MCP servers, extensions | 通过 MCP 扩展 |
+| **OpenHands** | ✅ ✅ MCP Client | Python 类 + 内置工具 | Micro-agents, Docker sandbox | 15+ 内置工具 |
 
 ### 2.3 权限与安全控制对比
 
@@ -79,6 +82,9 @@
 | **Qwen Code** | Approval mode + tool config | JSON settings, allowed/exclude tools | ✅ ✅ Tool-level | ⚠️ 可配置 Docker sandbox |
 | **SWE-agent** | Command blocklists | YAML config, tool bundles | ⚠️ 基础 | ✅ Docker/Modal 容器 |
 | **OpenManus** | 运行环境约束 | 配置文件 | ⚠️ 基础 | ❌ |
+| **Aider** | Git-native rollback | Git commands | ⚠️ 文件级 | ❌ |
+| **Goose** | MCP server isolation | Runtime config | ✅ ✅ Process-level | ⚠️ Optional Docker |
+| **OpenHands** | Docker sandbox + approval | Policy config | ✅ ✅ ✅ Container-level | ✅ ✅ Docker (default) |
 
 ### 2.4 Multi-Agent / 子代理能力对比
 
@@ -93,6 +99,9 @@
 | **Qwen Code** | SubAgent system + Skills | • Context variable templating<br>• Precedence: session>project>user<br>• ContextState isolation | `subagents/subagent.ts:183-272`<br>`subagents/subagent-manager.ts:147-195` |
 | **SWE-agent** | 单 agent 为主 | • RetryAgent（multi-attempt）<br>• Reviewer/Chooser 机制 | `sweagent/agent/agents.py:257-441` |
 | **OpenManus** | PlanningFlow（实验性） | • Agent 选择器<br>• LLM-driven planning | `app/flow/planning.py:77-92` |
+| **Aider** | ❌ 无内置 | • 单线程交互<br>• Git 分支管理 | N/A |
+| **Goose** | ⚠️ 实验性 | • Agent composition<br>• Recipe system | `crates/goose-core/src/recipe/` |
+| **OpenHands** | ✅ ✅ 内置 | • Micro-agent orchestration<br>• Delegator agent<br>• Agent hub | `openhands/agenthub/` |
 
 ### 2.5 Session/会话管理对比
 
@@ -107,6 +116,9 @@
 | **Qwen Code** | ✅ Session system | 未详细说明 | 未详细说明 | ⚠️ 未明确 |
 | **SWE-agent** | ✅ Trajectory files | JSON/JSONL | Trajectory steps | ❌ |
 | **OpenManus** | ❌ Memory in-memory | In-memory list | 无持久化 | ❌ |
+| **Aider** | ⚠️ Git history | Git commits | Commit messages | ❌ |
+| **Goose** | ✅ Session files | JSON/JSONL | Session state | ⚠️ 未明确 |
+| **OpenHands** | ✅ ✅ 内置 | SQLite/JSON | Conversation + state | ✅ Context management |
 
 ### 2.6 Tracing/可观测性对比
 
@@ -121,6 +133,9 @@
 | **Qwen Code** | ⚠️ 基础日志 | 日志系统 | 无 | 无 |
 | **SWE-agent** | ❌ 无（仅 trajectory） | Trajectory recording | 无 | 无 |
 | **OpenManus** | ❌ 无 | 仅日志 | 无 | 无 |
+| **Aider** | ⚠️ 基础日志 | 日志输出 | 无 | 无 |
+| **Goose** | ⚠️ 基础 telemetry | Event logs | 无 | 无 |
+| **OpenHands** | ⚠️ 实验性 | Logging + metrics | 无 | 无 |
 
 ---
 
@@ -232,9 +247,12 @@
 6. **Gemini CLI**: Apache-2.0，TypeScript 开源（866 files）
 7. **Codex CLI**: Apache-2.0，Rust core 开源（9,712 lines in codex.rs）
 8. **Kimi CLI**: Apache-2.0，Python + TS 开源
+9. **Aider**: Apache-2.0，Git-native 代码库理解（~8k lines）
+10. **Goose**: Apache-2.0，MCP-Native Rust 核心（~3k lines）
+11. **OpenHands**: MIT，完整平台开源（~15k lines）
 
 **B 级（SDK 开源但执行链路含闭源组件）**:
-9. **Claude Agent SDK**: MIT + Anthropic ToS，SDK 开源但依赖闭源 Claude Code CLI
+12. **Claude Agent SDK**: MIT + Anthropic ToS，SDK 开源但依赖闭源 Claude Code CLI
 
 ### 4.2 Python 生态可嵌入性
 
@@ -246,12 +264,15 @@
 - **OpenManus**: 可运行框架，ReAct 继承链
 - **SWE-agent**: 研究框架，YAML 驱动
 - **Kimi CLI**: CLI 本体，`pip install kimi-cli`
+- **Aider**: CLI 工具，`pip install aider-chat`
+- **OpenHands**: 完整平台，Python SDK
 
-**Tier 3: 非 Python（但有 SDK）**
+**Tier 3: 非 Python（有 Rust/TS）**
 - **Codex CLI**: Rust CLI + TypeScript SDK
 - **Gemini CLI**: TypeScript CLI（Node.js）
 - **Qwen Code**: TypeScript CLI + TS/Java SDK
 - **OpenCode**: TypeScript CLI（Bun）
+- **Goose**: Rust CLI + core library
 
 ### 4.3 Provider-agnostic（跨模型）能力分级
 
@@ -266,6 +287,9 @@
 - **Codex CLI**: ✅ 支持多 LLMs，OpenAI 为主
 - **Gemini CLI**: ✅ 支持 OpenAI/Anthropic，Gemini 为主
 - **Qwen Code**: ✅ 支持 OpenAI/Anthropic/Gemini，Qwen 优化
+- **Aider**: ✅ ✅ 支持 OpenAI/Anthropic/Gemini/本地模型，无绑定
+- **Goose**: ✅ 支持多 LLMs，通过配置切换
+- **OpenHands**: ✅ ✅ 支持 100+ LLMs via LiteLLM
 
 **Level 3: 严格绑定供应商**
 - **Claude Agent SDK**: ❌ Claude-only，无法使用其他 LLMs
@@ -279,11 +303,14 @@
 4. **Gemini CLI**: ✅ ✅ (Google 官方，monorepo)
 5. **Kimi CLI**: ✅ (Moonshot AI 官方，PyPI 发布)
 6. **Qwen Code**: ✅ (阿里云通义千问团队)
+7. **Aider**: ✅ ✅ (41k stars, 活跃维护，生产验证)
+8. **Goose**: ✅ ✅ (Block 公司生产验证，企业级)
+9. **OpenHands**: ✅ ✅ ✅ (68k stars, $18.8M 融资，完整平台)
 
 **实验性/社区驱动**:
-7. **OpenCode**: ⚠️ 社区驱动（非大厂官方）
-8. **OpenManus**: ⚠️ 社区实验（Flow 系统标注为不稳定）
-9. **SWE-agent**: ⚠️ 研究框架（非生产目的）
+10. **OpenCode**: ⚠️ 社区驱动（非大厂官方）
+11. **OpenManus**: ⚠️ 社区实验（Flow 系统标注为不稳定）
+12. **SWE-agent**: ⚠️ 研究框架（非生产目的）
 
 ---
 
