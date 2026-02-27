@@ -817,7 +817,6 @@ The landmark event of this shift was the release of **OpenAI Agents SDK** (2025)
 
 ## Author and Acknowledgments
 
-**Research Team**: Deep Technical Research Team
 
 **AI Assistance**: This research and blog writing process used [Opencode](https://opencode.ai) for code auditing, architecture analysis, and content writing. Opencode is an AI-powered software engineering assistant that helped complete the analysis and documentation generation of approximately 300KB of source code.
 
