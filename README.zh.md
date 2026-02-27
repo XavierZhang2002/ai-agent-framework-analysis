@@ -62,19 +62,6 @@
 
 MIT 许可证 - 详见 [LICENSE](LICENSE)
 
-## 📝 引用
-
-如果您在研究中使用了本工作，请引用：
-
-```bibtex
-@misc{agent-framework-analysis-2026,
-  title={AI Agent Framework Capability Differentiation: A Deep Code Audit},
-  author={Research Team},
-  year={2026},
-  howpublished={\url{https://github.com/yourusername/ai-agent-framework-analysis}}
-}
-```
-
 ---
 
 **最后更新**：2026-02-27
