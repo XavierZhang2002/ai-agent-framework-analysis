@@ -97,31 +97,56 @@ Manus (manus.py)
 - **主循环**: `run()` 方法 (Lines 116-154)
 - **抽象方法**: `step()` 必须由子类实现
 
-**关键代码**:
+**关键代码** (`app/agent/base.py:116-154`):
 ```python
 async def run(self, request: Optional[str] = None) -> str:
+    """Execute the agent's main loop asynchronously."""
+    if self.state != AgentState.IDLE:
+        raise RuntimeError(f"Cannot run agent from state: {self.state}")
+
     if request:
         self.update_memory("user", request)
-    
+
     results: List[str] = []
     async with self.state_context(AgentState.RUNNING):
-        while self.current_step < self.max_steps and self.state != AgentState.FINISHED:
+        while (
+            self.current_step < self.max_steps and self.state != AgentState.FINISHED
+        ):
             self.current_step += 1
+            logger.info(f"Executing step {self.current_step}/{self.max_steps}")
             step_result = await self.step()
-            
-            if self.is_stuck():  # 检测重复响应
-                self.handle_stuck_state()  # Lines 144-145
-            
+
+            # Check for stuck state
+            if self.is_stuck():
+                self.handle_stuck_state()
+
             results.append(f"Step {self.current_step}: {step_result}")
+
+        if self.current_step >= self.max_steps:
+            self.current_step = 0
+            self.state = AgentState.IDLE
+            results.append(f"Terminated: Reached max steps ({self.max_steps})")
+    await SANDBOX_CLIENT.cleanup()
+    return "\n".join(results) if results else "No steps executed"
 ```
 
-**ReActAgent** (`app/agent/react.py:11-38`):
+**ReActAgent** (`app/agent/react.py`):
 ```python
-async def step(self) -> str:
-    should_act = await self.think()  # 规划阶段
-    if not should_act:
-        return "Thinking complete - no action needed"
-    return await self.act()  # 执行阶段
+class ReActAgent(BaseAgent, ABC):
+    @abstractmethod
+    async def think(self) -> bool:
+        """Process current state and decide next action"""
+
+    @abstractmethod
+    async def act(self) -> str:
+        """Execute decided actions"""
+
+    async def step(self) -> str:
+        """Execute a single step: think and act."""
+        should_act = await self.think()
+        if not should_act:
+            return "Thinking complete - no action needed"
+        return await self.act()
 ```
 
 **ToolCallAgent** (`app/agent/toolcall.py:18-250`):
@@ -131,37 +156,31 @@ async def step(self) -> str:
   - `act()`: 执行工具调用并处理结果 (Lines 131-164)
   - `execute_tool()`: 处理单个工具执行 (Lines 166-208)
 
-**关键代码 - 工具执行**:
+**关键代码 - 工具执行** (`app/agent/toolcall.py`):
 ```python
 async def think(self) -> bool:
-    # 使用工具选项询问 LLM
+    """Process current state and decide next actions using tools"""
     response = await self.llm.ask_tool(
         messages=self.messages,
-        system_msgs=[Message.system_message(self.system_prompt)],
         tools=self.available_tools.to_params(),
-        tool_choice=self.tool_choices,  # Lines 47-56
+        tool_choice=self.tool_choices,
     )
-    
     self.tool_calls = response.tool_calls if response else []
-    
-    # 添加带工具调用的 assistant 消息
-    assistant_msg = Message.from_tool_calls(
-        content=content, 
-        tool_calls=self.tool_calls  # Lines 107-112
-    )
-    self.memory.add_message(assistant_msg)
+    return bool(self.tool_calls)
 
 async def act(self) -> str:
+    """Execute tool calls and handle their results"""
+    results = []
     for command in self.tool_calls:
-        result = await self.execute_tool(command)  # Line 145
-        
-        # 添加工具响应到 memory
+        result = await self.execute_tool(command)
         tool_msg = Message.tool_message(
             content=result,
             tool_call_id=command.id,
-            name=command.function.name,  # Lines 155-161
+            name=command.function.name,
         )
         self.memory.add_message(tool_msg)
+        results.append(result)
+    return "\n\n".join(results)
 ```
 
 ---
@@ -228,47 +247,27 @@ async def connect_mcp_server(self, server_url: str, server_id: str):
 
 ### 3.2 MCP 实现 - Client & Server
 
-#### **MCP Client** (`app/tool/mcp.py:37-194`)
+#### **MCP Client** (`app/tool/mcp.py`)
 
 **MCPClients 类架构**:
 ```python
 class MCPClients(ToolCollection):
-    sessions: Dict[str, ClientSession] = {}  # 活跃 MCP sessions
-    exit_stacks: Dict[str, AsyncExitStack] = {}  # Context managers
+    sessions: Dict[str, ClientSession] = {}
     
-    async def connect_sse(self, server_url: str, server_id: str):
+    async def connect_sse(self, server_url: str, server_id: str = "") -> None:
         exit_stack = AsyncExitStack()
-        streams_context = sse_client(url=server_url)
-        streams = await exit_stack.enter_async_context(streams_context)
+        streams = await exit_stack.enter_async_context(sse_client(url=server_url))
         session = await exit_stack.enter_async_context(ClientSession(*streams))
-        self.sessions[server_id] = session  # Lines 62-67
+        self.sessions[server_id] = session
         
-        await self._initialize_and_list_tools(server_id)
+    async def connect_stdio(self, command: str, args: List[str], server_id: str = "") -> None:
+        server_params = StdioServerParameters(command=command, args=args)
+        transport = await exit_stack.enter_async_context(stdio_client(server_params))
+        session = await exit_stack.enter_async_context(ClientSession(*transport))
+        self.sessions[server_id] = session
 ```
 
-**工具代理模式** (Lines 97-126):
-```python
-async def _initialize_and_list_tools(self, server_id: str):
-    await session.initialize()
-    response = await session.list_tools()
-    
-    # 为每个 server 工具创建代理工具
-    for tool in response.tools:
-        original_name = tool.name
-        tool_name = f"mcp_{server_id}_{original_name}"
-        
-        server_tool = MCPClientTool(
-            name=tool_name,
-            description=tool.description,
-            parameters=tool.inputSchema,
-            session=session,
-            server_id=server_id,
-            original_name=original_name,  # Lines 112-119
-        )
-        self.tool_map[tool_name] = server_tool
-```
-
-**MCPClientTool** - 远程工具代理 (Lines 14-34):
+**MCPClientTool** - 远程工具代理:
 ```python
 class MCPClientTool(BaseTool):
     session: Optional[ClientSession] = None
@@ -284,23 +283,20 @@ class MCPClientTool(BaseTool):
         return ToolResult(output=content_str or "No output returned.")
 ```
 
-#### **MCP Server** (`app/mcp/server.py:24-180`)
+#### **MCP Server** (`app/mcp/server.py`)
 
 **服务器架构**:
 ```python
 class MCPServer:
     def __init__(self, name: str = "openmanus"):
-        self.server = FastMCP(name)  # 使用 FastMCP 框架
-        self.tools: Dict[str, BaseTool] = {}
-        
-        # 注册标准工具
+        self.server = FastMCP(name)
         self.tools["bash"] = Bash()
         self.tools["browser"] = BrowserUseTool()
         self.tools["editor"] = StrReplaceEditor()
-        self.tools["terminate"] = Terminate()  # Lines 32-35
+        self.tools["terminate"] = Terminate()
 ```
 
-**工具注册** (Lines 37-76):
+**工具注册**:
 ```python
 def register_tool(self, tool: BaseTool, method_name: Optional[str] = None):
     tool_name = method_name or tool.name
@@ -315,7 +311,7 @@ def register_tool(self, tool: BaseTool, method_name: Optional[str] = None):
             return json.dumps(result.model_dump())
         elif isinstance(result, dict):
             return json.dumps(result)
-        return result  # Lines 44-54
+        return result
     
     # 从工具参数构建函数签名
     tool_method.__name__ = tool_name
@@ -344,7 +340,7 @@ class BaseFlow(BaseModel, ABC):
         """Execute the flow with given input"""
 ```
 
-#### **PlanningFlow** (`app/flow/planning.py:45-442`)
+#### **PlanningFlow** (`app/flow/planning.py`)
 
 **核心架构**:
 ```python
@@ -356,31 +352,22 @@ class PlanningFlow(BaseFlow):
     current_step_index: Optional[int] = None
 ```
 
-**执行流程** (Lines 94-134):
+**执行流程**:
 ```python
 async def execute(self, input_text: str) -> str:
-    # 1. 创建初始计划
-    await self._create_initial_plan(input_text)
-    
-    # 2. 按顺序执行步骤
-    while True:
-        # 获取下一步
-        self.current_step_index, step_info = await self._get_current_step_info()
+    if input_text:
+        await self._create_initial_plan(input_text)
         
+    while True:
+        self.current_step_index, step_info = await self._get_current_step_info()
         if self.current_step_index is None:
             result += await self._finalize_plan()
             break
-        
-        # 选择合适的 agent
+            
         step_type = step_info.get("type") if step_info else None
         executor = self.get_executor(step_type)
-        
-        # 执行步骤
         step_result = await self._execute_step(executor, step_info)
         result += step_result + "\n"
-        
-        if executor.state == AgentState.FINISHED:
-            break
 ```
 
 **Agent 选择** (Lines 77-92):
@@ -677,5 +664,33 @@ flows = {
 
 ---
 
-**文档版本**: 1.0  
-**最后更新**: 2026-02-26
+## 6. 关键文件清单
+
+### Core Implementation Files
+
+| 文件路径 | 描述 |
+|---------|------|
+| `app/agent/base.py` | 核心 Agent 循环，BaseAgent 抽象类 |
+| `app/agent/react.py` | ReAct 模式实现 |
+| `app/agent/toolcall.py` | 工具调用 Agent 实现 |
+| `app/mcp/server.py` | MCP 服务器实现 |
+| `app/tool/mcp.py` | MCP 客户端实现 |
+| `app/flow/planning.py` | Flow 编排系统 |
+| `app/tool/tool_collection.py` | 工具集合管理 |
+
+### Agent 继承链
+
+```
+BaseAgent (app/agent/base.py)
+    ↓
+ReActAgent (app/agent/react.py)
+    ↓
+ToolCallAgent (app/agent/toolcall.py)
+    ↓
+Manus (app/agent/manus.py)
+```
+
+---
+
+**文档版本**: 1.1  
+**最后更新**: 2026-02-27

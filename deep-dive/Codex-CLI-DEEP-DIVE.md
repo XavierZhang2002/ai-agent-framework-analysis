@@ -93,6 +93,181 @@ ExecPolicyManager (审批策略)
 SandboxPolicy (沙箱执行)
 ```
 
+### 2.3 Core Agent Loop - 三层架构 (Verified)
+
+**文件**: `codex-rs/core/src/codex.rs` (9,712 lines)
+
+Codex 的核心采用**Actor Model**实现三层消息循环架构，实现高并发、事件驱动的 agent 执行：
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Layer 1: Submission Loop                 │
+│                   (lines 3685-3855)                         │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  Actor Model Message Loop                           │   │
+│  │  - Op::UserInput     - 用户消息提交                 │   │
+│  │  - Op::ExecApproval  - 命令执行审批                 │   │
+│  │  - Op::Interrupt     - 中断信号                     │   │
+│  │  - Op::Shutdown      - 关闭信号                     │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                            ↓                                │
+│                    Layer 2: Turn Execution                  │
+│                   (lines 4837-5199)                         │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  Main Turn Processing Loop                          │   │
+│  │  - 单 turn 内多 sampling 请求处理                   │   │
+│  │  - Context Compaction (上下文压缩)                  │   │
+│  │  - Follow-up 判断与执行                             │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                            ↓                                │
+│                    Layer 3: Sampling Loop                   │
+│                   (lines 6220-6554)                         │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  LLM Streaming Response Processing                  │   │
+│  │  - Parallel Tool Execution (FuturesOrdered)         │   │
+│  │  - Event-driven: OutputItemDone, Completed          │   │
+│  │  - Real-time streaming to UI                        │   │
+│  └─────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### Layer 1: Submission Loop (lines 3685-3855)
+
+**Actor 模型的消息循环**，通过 channel 接收外部操作：
+
+```rust
+// codex-rs/core/src/codex.rs (lines 3685-3855)
+async fn submission_loop(
+    &self,
+    mut rx_sub: mpsc::Receiver<Submission>,
+    event_tx: mpsc::Sender<Event>,
+    // ...
+) {
+    while let Ok(sub) = rx_sub.recv().await {
+        match sub.op {
+            Op::UserInput { items, reply_to } => {
+                handlers::user_input_or_turn(...).await
+            }
+            Op::ExecApproval { id, decision } => {
+                handlers::exec_approval(...).await
+            }
+            Op::Interrupt { id } => {
+                // 处理中断
+            }
+            Op::Shutdown => break,
+        }
+    }
+}
+```
+
+**关键特性**:
+- **Actor Model**: Session 作为 Actor，通过消息传递实现并发安全
+- **结构化并发**: 每个 operation 有唯一 ID，支持追踪和取消
+- **背压处理**: Channel-based 通信防止内存溢出
+
+#### Layer 2: Turn Execution (lines 4837-5199)
+
+**单 turn 内的主执行循环**，处理 LLM 请求和后续动作：
+
+```rust
+// codex-rs/core/src/codex.rs (lines 4837-5199)
+pub(crate) async fn run_turn(
+    &self,
+    items_for_next_turn: Vec<ConvertibleItem>,
+    // ...
+) -> TurnResult {
+    loop {
+        // 构建 sampling 请求输入
+        let sampling_request_input = build_sampling_request(...);
+        
+        // 执行 sampling 请求
+        match run_sampling_request(...).await {
+            Ok(result) => {
+                // 判断是否需要进行 follow-up turn
+                if !result.needs_follow_up { 
+                    break; 
+                }
+                continue;
+            }
+            Err(e) => {
+                // 错误处理和 context compaction
+            }
+        }
+    }
+}
+```
+
+**关键特性**:
+- **多 Sampling 支持**: 单 turn 可包含多个独立的 LLM 调用
+- **Context Compaction**: 自动上下文压缩，管理 token 限制
+- **Follow-up 逻辑**: 智能判断是否需要继续执行
+
+#### Layer 3: Sampling Loop (lines 6220-6554)
+
+**LLM 流式响应处理**，支持并行工具执行：
+
+```rust
+// codex-rs/core/src/codex.rs (lines 6220-6554)
+async fn try_run_sampling_request(
+    &self,
+    client_session: &mut ClientSession,
+    prompt: impl Into<PromptInput>,
+    // ...
+) -> Result<SamplingResult, Error> {
+    // 创建 LLM 流
+    let mut stream = client_session.stream(prompt, ...).await?;
+    
+    // 并行工具执行队列 (FuturesOrdered 保持顺序)
+    let mut in_flight: FuturesOrdered<ToolCallFuture> = FuturesOrdered::new();
+    
+    loop {
+        match stream.next().await {
+            ResponseEvent::OutputItemDone(item) => {
+                // 工具调用入队
+                if let Some(tool_future) = output_result.tool_future {
+                    in_flight.push_back(tool_future);
+                }
+            }
+            ResponseEvent::OutputTextDelta { delta, .. } => {
+                // 实时流式输出到 UI
+                event_tx.send(Event::OutputTextDelta { ... }).await?;
+            }
+            ResponseEvent::Completed { ... } => break,
+            ResponseEvent::ErrorOccurred { error } => {
+                return Err(error.into());
+            }
+        }
+    }
+}
+```
+
+**关键特性**:
+- **Parallel Tool Execution**: 使用 `FuturesOrdered` 实现并发工具调用，同时保持输出顺序
+- **Streaming Architecture**: LLM 流式响应实时转发到 UI，降低延迟
+- **Event-driven**: 基于事件的架构，支持 OutputItemDone、Completed、OutputTextDelta 等事件
+
+### 2.4 架构亮点总结
+
+| 特性 | 实现 | 优势 |
+|------|------|------|
+| **Actor Model** | Session 作为 Actor，消息传递 | 并发安全、状态隔离 |
+| **三层循环** | Submission → Turn → Sampling | 清晰的职责分离 |
+| **并行工具执行** | `FuturesOrdered` | 并发性能 + 顺序保证 |
+| **流式架构** | 实时 event streaming | 低延迟、实时反馈 |
+| **审批系统** | 所有命令需 approval | 安全可控 |
+| **三层沙箱** | OS-level + Policy + Network | 企业级安全 |
+
+### 2.5 关键支持文件
+
+| 文件 | 行数 | 功能 |
+|------|------|------|
+| `core/src/codex.rs` | 9,712 | 核心 agent 编排，三层循环架构 |
+| `core/src/tools/router.rs` | ~300 | 工具路由调度 |
+| `core/src/tools/parallel.rs` | ~150 | 并行工具执行支持 |
+| `core/src/seatbelt.rs` | ~200 | macOS Seatbelt 沙箱 |
+| `core/src/landlock.rs` | ~180 | Linux Landlock 沙箱 |
+| `core/src/exec_policy.rs` | 2,149 | 审批策略引擎 |
+
 ---
 
 ## 3. 底层实现原理
@@ -609,16 +784,20 @@ server.setRequestHandler(ListResourcesRequestSchema, async (request) => {
 
 ### A. 关键文件速查
 
-| 文件 | 行数 | 关键内容 |
-|------|-----|---------|
-| `cli/src/main.rs` | 1,469 | CLI 入口和子命令 |
-| `core/src/codex.rs` | 9,712 | 核心 agent 编排 |
-| `core/src/thread_manager.rs` | 745 | Thread 生命周期 |
-| `core/src/exec_policy.rs` | 2,149 | 审批策略引擎 |
-| `mcp-server/src/message_processor.rs` | 603 | MCP 请求处理 |
-| `tools/handlers/shell.rs` | 621 | Shell 执行 |
+| 文件 | 行数 | 关键内容 | 关键代码行 |
+|------|------|---------|-----------|
+| `cli/src/main.rs` | 1,469 | CLI 入口和子命令 | - |
+| `core/src/codex.rs` | 9,712 | 核心 agent 编排 | L3685-3855 Submission Loop<br>L4837-5199 Turn Execution<br>L6220-6554 Sampling Loop |
+| `core/src/thread_manager.rs` | 745 | Thread 生命周期 | L200-300 |
+| `core/src/exec_policy.rs` | 2,149 | 审批策略引擎 | L198-400 |
+| `core/src/tools/router.rs` | ~300 | 工具路由调度 | - |
+| `core/src/tools/parallel.rs` | ~150 | 并行工具执行 | FuturesOrdered 实现 |
+| `core/src/seatbelt.rs` | ~200 | macOS Seatbelt 沙箱 | - |
+| `core/src/landlock.rs` | ~180 | Linux Landlock 沙箱 | - |
+| `mcp-server/src/message_processor.rs` | 603 | MCP 请求处理 | L81-154 |
+| `tools/handlers/shell.rs` | 621 | Shell 执行 | - |
 
 ---
 
-**文档版本**: 1.0  
-**最后更新**: 2026-02-26
+**文档版本**: 1.1  
+**最后更新**: 2026-02-27

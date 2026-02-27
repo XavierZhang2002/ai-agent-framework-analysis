@@ -74,22 +74,41 @@ Agent Core ──→ MCP Client ──→ MCP Server A (文件系统)
 
 ```
 Goose 架构分层
-┌─────────────────────────────────────┐
-│  CLI / GUI Interface               │  ← 用户界面层
-├─────────────────────────────────────┤
-│  Session Manager                   │  ← 会话管理层
-├─────────────────────────────────────┤
-│  Agent Loop (Rust Core)            │  ← 核心循环层
-│  ├── LLM Client                    │
-│  ├── MCP Client                    │
-│  └── Tool Router                   │
-├─────────────────────────────────────┤
-│  MCP Protocol Layer                │  ← MCP 协议层
-│  ├── Transport (STDIO/SSE)         │
-│  └── Capability Negotiation        │
-├─────────────────────────────────────┤
-│  MCP Servers (External Processes)  │  ← 工具层
-└─────────────────────────────────────┘
+┌─────────────────────────────────────────┐
+│  CLI / GUI / Gateway Interface         │  ← 用户界面层
+├─────────────────────────────────────────┤
+│  Session Manager (SQLite-backed)       │  ← 会话管理层
+│  ├── User Session                      │
+│  ├── Scheduled Session                 │
+│  ├── SubAgent Session                  │
+│  └── Terminal Session                  │
+├─────────────────────────────────────────┤
+│  Agent Loop (crates/goose/src/agents)  │  ← 核心循环层
+│  ├── reply_internal()                  │
+│  ├── MOIM Injection                    │
+│  ├── Context Compaction                │
+│  └── Tool Pair Summarization           │
+├─────────────────────────────────────────┤
+│  Extension Manager                     │  ← 扩展管理层
+│  ├── MCP Client (Trait-based)          │
+│  ├── Tool Discovery                    │
+│  └── Tool Dispatch                     │
+├─────────────────────────────────────────┤
+│  Provider Layer                        │  ← Provider 层
+│  ├── OpenAI / Anthropic                │
+│  ├── Google / Ollama                   │
+│  └── Custom Providers                  │
+├─────────────────────────────────────────┤
+│  MCP Protocol Layer                    │  ← MCP 协议层
+│  ├── Transport (STDIO/SSE)             │
+│  └── Capability Negotiation            │
+├─────────────────────────────────────────┤
+│  MCP Servers (External Processes)      │  ← 工具层
+│  ├── Built-in Extensions               │
+│  ├── Stdio Servers                     │
+│  ├── HTTP Servers                      │
+│  └── Frontend Extensions               │
+└─────────────────────────────────────────┘
 ```
 
 ---
@@ -101,175 +120,241 @@ Goose 架构分层
 ```
 goose/
 ├── crates/
-│   ├── goose-core/              # Rust 核心库 ★★★
+│   ├── goose/                   # Rust 核心库 ★★★
 │   │   ├── src/
-│   │   │   ├── agent.rs         # Agent 循环 (800+ lines)
-│   │   │   ├── mcp/             # MCP 客户端实现 ★★★★★
-│   │   │   │   ├── client.rs    # MCP Client (600+ lines)
-│   │   │   │   ├── transport.rs # 传输层 (STDIO/SSE)
-│   │   │   │   └── registry.rs  # 服务器注册表
-│   │   │   ├── llm/             # LLM 接口
-│   │   │   └── session.rs       # 会话管理
+│   │   │   ├── agents/          # Agent 核心实现 ★★★★★
+│   │   │   │   ├── agent.rs     # Agent 循环，reply_internal() (700+ lines)
+│   │   │   │   ├── extension_manager.rs  # Extension 管理
+│   │   │   │   ├── mcp_client.rs         # MCP Client trait
+│   │   │   │   └── moim.rs               # MOIM 注入
+│   │   │   ├── session/         # 会话管理
+│   │   │   │   ├── session_manager.rs    # Session 定义
+│   │   │   │   └── storage.rs            # 持久化存储
+│   │   │   ├── providers/       # LLM Provider 抽象 ★★★★
+│   │   │   │   ├── base.rs               # Provider trait
+│   │   │   │   ├── openai.rs
+│   │   │   │   ├── anthropic.rs
+│   │   │   │   └── ollama.rs
+│   │   │   ├── tool_inspection/ # 工具安全检查 ★★★
+│   │   │   └── context_mgmt/    # 上下文管理
 │   │   └── Cargo.toml
 │   │
 │   ├── goose-cli/               # CLI 实现 ★★
-│   ├── goose-gui/               # GUI 实现
-│   └── goose-server/            # 服务器模式
+│   ├── goose-server/            # 服务器模式
+│   └── mcp-core/                # MCP 核心协议实现
 │
 ├── ui/                          # React 前端
 ├── documentation/               # 文档
 └── extensions/                  # 内置 MCP 服务器
 ```
 
-### 3.2 MCP Client 实现 (crates/goose-core/src/mcp/client.rs: 600+ lines)
+### 3.2 MCP Client 实现 (crates/goose/src/agents/mcp_client.rs)
 
-**核心职责**: 管理 MCP 服务器生命周期和通信
+**核心职责**: 定义 MCP 客户端 trait，管理 MCP 服务器通信
 
 ```rust
-// 简化版核心逻辑
-pub struct McpClient {
-    servers: HashMap<String, ServerConnection>,
-    transport: Box<dyn Transport>,
-}
-
-impl McpClient {
-    pub async fn connect_server(
-        &mut self,
-        name: String,
-        command: String,
-        args: Vec<String>,
-    ) -> Result<(), McpError> {
-        // 1. 启动 MCP 服务器进程
-        let mut child = Command::new(command)
-            .args(args)
-            .stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            .spawn()?;
-        
-        // 2. 初始化 MCP 协议握手
-        let init_request = InitializeRequest {
-            protocol_version: "2024-11-05".to_string(),
-            capabilities: ClientCapabilities::default(),
-            client_info: Implementation {
-                name: "goose".to_string(),
-                version: env!("CARGO_PKG_VERSION").to_string(),
-            },
-        };
-        
-        // 3. 发送初始化请求
-        let response = self.send_request(&name, init_request).await?;
-        
-        // 4. 保存连接
-        self.servers.insert(name, ServerConnection {
-            process: child,
-            capabilities: response.capabilities,
-        });
-        
-        Ok(())
-    }
+#[async_trait::async_trait]
+pub trait McpClientTrait: Send + Sync {
+    async fn list_tools(
+        &self, 
+        session_id: &str, 
+        cursor: Option<String>,
+        cancellation_token: CancellationToken
+    ) -> Result<ListToolsResult, Error>;
     
-    pub async fn call_tool(
-        &self,
-        server_name: &str,
-        tool_name: &str,
+    async fn call_tool(
+        &self, 
+        session_id: &str, 
+        name: &str, 
         arguments: Value,
-    ) -> Result<CallToolResult, McpError> {
-        // 1. 查找服务器连接
-        let server = self.servers.get(server_name)
-            .ok_or(McpError::ServerNotFound)?;
-        
-        // 2. 构造工具调用请求
-        let request = CallToolRequest {
-            name: tool_name.to_string(),
-            arguments,
-        };
-        
-        // 3. 发送请求并等待响应
-        let response = self.send_request(server, request).await?;
-        
-        Ok(response)
-    }
+        cancellation_token: CancellationToken
+    ) -> Result<CallToolResult, Error>;
+    
+    async fn read_resource(
+        &self, 
+        session_id: &str, 
+        uri: &str, 
+        cancellation_token: CancellationToken
+    ) -> Result<ReadResourceResult, Error>;
+    
+    async fn subscribe(&self) -> mpsc::Receiver<ServerNotification>;
 }
 ```
 
 **关键设计**:
-- **进程隔离**: 每个 MCP 服务器是独立进程，崩溃不影响主程序
-- **协议版本协商**: 自动协商 MCP 协议版本
-- **能力发现**: 运行时动态发现服务器提供的工具和资源
+- **Trait-Based**: 通过 trait 抽象 MCP 客户端行为，支持多种实现
+- **Session-Aware**: 所有操作都需要 session_id，支持多会话隔离
+- **Cancellation Support**: 支持取消令牌，实现优雅中断
+- **订阅模式**: 支持服务器通知订阅，实现异步消息推送
 
-### 3.3 Agent 循环 (crates/goose-core/src/agent.rs: 800+ lines)
+### 3.3 Agent 循环 (crates/goose/src/agents/agent.rs, reply_internal() 方法)
 
-**MCP-Aware 循环**:
+**核心方法**: `reply_internal()` (Lines 575-700+)
 
 ```rust
-pub async fn run(
-    &mut self,
-    user_message: String,
-) -> Result<Vec<Message>, AgentError> {
-    let mut messages = vec![Message::user(user_message)];
+async fn reply_internal(
+    &self,
+    conversation: Conversation,
+    session_config: SessionConfig,
+    session: Session,
+    cancel_token: Option<CancellationToken>,
+) -> Result<BoxStream<'_>, Result<AgentEvent>>> {
+    let context = self.prepare_reply_context(&session.id, conversation, ...).await?;
     
-    loop {
-        // 1. 获取所有可用工具
-        let tools = self.mcp_client.list_all_tools().await?;
+    Ok(Box::pin(async_stream::try_stream! {
+        let mut turns_taken = 0u32;
+        let max_turns = session_config.max_turns.unwrap_or(DEFAULT_MAX_TURNS);
         
-        // 2. 调用 LLM
-        let response = self.llm_client.complete(
-            messages.clone(),
-            tools,
-        ).await?;
-        
-        messages.push(Message::assistant(response.content.clone()));
-        
-        // 3. 处理工具调用
-        if let Some(tool_calls) = response.tool_calls {
-            for call in tool_calls {
-                // 通过 MCP Client 调用工具
-                let result = self.mcp_client
-                    .call_tool(&call.server, &call.name, call.arguments)
-                    .await?;
-                
-                messages.push(Message::tool_result(result));
+        loop {
+            if is_token_cancelled(&cancel_token) {
+                break;
             }
-        } else {
-            // 4. 无工具调用，任务完成
-            break;
+            
+            // Check for final output
+            if let Some(final_output_tool) = self.final_output_tool.lock().await.as_ref() {
+                if final_output_tool.final_output.is_some() {
+                    yield AgentEvent::Message(Message::assistant().with_text(...));
+                    break;
+                }
+            }
+            
+            turns_taken += 1;
+            if turns_taken > max_turns {
+                yield AgentEvent::Message(Message::assistant().with_text(
+                    "I've reached the maximum number of actions..."
+                ));
+                break;
+            }
+            
+            // Tool pair summarization for context management
+            let tool_pair_summarization_task = crate::context_mgmt::maybe_summarize_tool_pair(...);
+            
+            // MOIM injection
+            let conversation_with_moim = super::moim::inject_moim(...).await;
+            
+            // Stream response from LLM provider
+            let mut stream = Self::stream_response_from_provider(...).await?;
+            
+            while let Some(next) = stream.next().await {
+                match next {
+                    // Process messages, tool calls, etc.
+                }
+            }
         }
-    }
-    
-    Ok(messages)
+    }))
 }
 ```
 
-**与传统循环的区别**:
-- 工具列表动态获取（来自 MCP 服务器）
-- 工具调用通过 MCP Client 代理
-- 支持服务器热插拔
+**关键特性**:
+- **流式响应**: 使用 `BoxStream` 返回异步流，支持实时输出
+- **回合限制**: `max_turns` 防止无限循环，默认限制保护
+- **取消支持**: 通过 `CancellationToken` 实现优雅中断
+- **最终输出检测**: 支持 `final_output_tool` 终止条件
+- **MOIM 注入**: Model-Optimized Intermediate Messages 优化上下文
+- **工具对摘要**: 自动上下文压缩，管理 token 使用
 
-### 3.4 Session 管理
+### 3.4 Session 管理 (crates/goose/src/session/session_manager.rs)
 
-**持久化策略**:
+**Session 结构**:
 ```rust
 pub struct Session {
-    id: Uuid,
-    messages: Vec<Message>,
-    mcp_servers: Vec<ServerConfig>,  // 保存已连接的 MCP 服务器
+    pub id: String,
+    pub working_dir: PathBuf,
+    pub session_type: SessionType,  // User, Scheduled, SubAgent, etc.
+    pub extension_data: ExtensionData,
+    pub conversation: Option<Conversation>,
+    pub provider_name: Option<String>,
+    pub model_config: Option<ModelConfig>,
 }
 
-impl Session {
-    pub async fn save(&self, storage: &dyn Storage
-) -> Result<(), StorageError> {
-        storage.save_session(
-            self.id.to_string(),
-            &serde_json::to_string(self)?,
-        ).await
-    }
+pub enum SessionType {
+    User,      // Standard user-initiated sessions
+    Scheduled, // Sessions triggered by scheduler
+    SubAgent,  // Child agent sessions for parallel tasks
+    Hidden,    // Internal/system sessions
+    Terminal,  // Terminal UI sessions
+    Gateway,   // Gateway/API sessions
 }
 ```
 
 **特性**:
-- 会话包含 MCP 服务器配置
-- 恢复会话时自动重新连接服务器
-- 支持 SQLite / Redis 后端
+- **多类型会话**: 支持用户、调度、子代理等多种会话类型
+- **工作目录隔离**: 每个会话有独立的工作目录
+- **扩展数据**: 存储扩展相关的状态数据
+- **对话持久化**: SQLite-backed 持久化存储
+- **Provider 配置**: 每个会话可配置独立的 LLM Provider
+
+### 3.5 Extension Manager (crates/goose/src/agents/extension_manager.rs)
+
+**核心职责**: 管理所有 MCP 扩展的生命周期和工具分发
+
+```rust
+pub struct ExtensionManager {
+    extensions: Mutex<HashMap<String, Extension>>,
+    tools_cache: Mutex<Option<Arc<Vec<Tool>>>>,
+    tools_cache_version: AtomicU64,
+}
+
+impl ExtensionManager {
+    pub async fn dispatch_tool_call(
+        &self,
+        session_id: &str,
+        tool_call: CallToolRequestParams,
+        working_dir: Option<&std::path::Path>,
+        cancellation_token: CancellationToken,
+    ) -> Result<ToolCallResult> {
+        let resolved = self.resolve_tool(session_id, &tool_name_str).await?;
+        let client = resolved.client.clone();
+        
+        let fut = async move {
+            client.call_tool(&session_id, &actual_tool_name, arguments, ..., cancellation_token).await
+        };
+        
+        Ok(ToolCallResult {
+            result: Box::new(fut.boxed()),
+            notification_stream: Some(Box::new(ReceiverStream::new(notifications_receiver))),
+        })
+    }
+}
+```
+
+**设计要点**:
+- **工具缓存**: 原子版本控制的工具列表缓存
+- **工具名前缀**: 自动添加 `{extension}__{tool_name}` 前缀避免冲突
+- **异步流返回**: 支持通知流，实现工具执行状态实时反馈
+- **会话隔离**: 工具调用按 session_id 隔离
+
+### 3.6 工具发现流程
+
+```
+ExtensionManager.get_prefixed_tools(session_id)
+  ↓
+fetch_all_tools()
+  ↓
+Iterate all MCP clients
+  ↓
+client.list_tools(session_id, cursor, token)
+  ↓
+Prefix tool names: "{extension}__{tool_name}"
+```
+
+**特性**:
+- **动态发现**: 运行时从所有连接的服务器获取工具列表
+- **分页支持**: 支持 cursor 分页，处理大量工具场景
+- **取消支持**: 发现过程可被取消
+- **命名空间隔离**: 通过前缀避免工具名冲突
+
+### 3.7 关键特性总结
+
+| 特性 | 实现方式 | 价值 |
+|------|----------|------|
+| **MCP-Native** | 所有工具通过 MCP 暴露，非 ad-hoc 函数 | 标准化、可移植 |
+| **Extension-Centric** | 一切都是扩展（built-in、stdio、HTTP、frontend） | 统一模型、灵活扩展 |
+| **Session-Based** | SQLite-backed 持久化会话 | 状态管理、恢复能力 |
+| **Provider-Agnostic** | 可插拔 LLM Provider | OpenAI、Anthropic、Google、Ollama |
+| **Security-First** | 多层工具检查 | 防止恶意工具执行 |
+| **MOIM** | Model-Optimized Intermediate Messages | 上下文优化 |
+| **Context Compaction** | 自动压缩超阈值上下文 | Token 管理、成本控制 |
 
 ---
 
@@ -338,10 +423,12 @@ impl Session {
 
 | 模块 | 文件 | 代码行数 | 关键功能 |
 |------|------|---------|---------|
-| MCP Client | `crates/goose-core/src/mcp/client.rs` | ~600 | MCP 服务器管理、工具调用 |
-| Agent 循环 | `crates/goose-core/src/agent.rs` | ~800 | 核心编排逻辑 |
-| 传输层 | `crates/goose-core/src/mcp/transport.rs` | ~400 | STDIO/SSE 传输 |
-| Session | `crates/goose-core/src/session.rs` | ~300 | 会话持久化 |
+| Agent 循环 | `crates/goose/src/agents/agent.rs` | ~700+ | 核心编排逻辑，reply_internal() |
+| Extension Manager | `crates/goose/src/agents/extension_manager.rs` | ~500+ | MCP 服务器管理、工具分发 |
+| MCP Client Trait | `crates/goose/src/agents/mcp_client.rs` | ~200+ | MCP 客户端 trait 定义 |
+| Session Manager | `crates/goose/src/session/session_manager.rs` | ~400+ | 会话存储、SessionType 定义 |
+| Provider 抽象 | `crates/goose/src/providers/base.rs` | ~300+ | LLM Provider 抽象层 |
+| 工具检查 | `crates/goose/src/tool_inspection/` | ~400+ | 安全检查和验证 |
 | CLI | `crates/goose-cli/src/main.rs` | ~500 | 命令行界面 |
 
 ---

@@ -1,6 +1,6 @@
 # OpenCode - 深度技术调研
 
-**调研日期**: 2026-02-26  
+**调研日期**: 2026-02-26 (Updated: 2026-02-27)  
 **仓库**: https://github.com/anomalyco/opencode  
 **许可证**: MIT  
 **主要语言**: TypeScript  
@@ -73,7 +73,7 @@ AgentProfile (build/plan/general/explore)
     ↓
 Session (会话管理)
     ↓
-SessionPrompt.loop() (主执行循环)
+SessionPrompt.loop() (主执行循环) ← 核心文件: packages/opencode/src/session/prompt.ts:347-738
     ↓
 Provider (LLM 调用)
     ↓
@@ -82,12 +82,29 @@ Tool Registry (工具执行)
 Permission Engine (权限检查)
 ```
 
-### 2.3 关键设计模式
+### 2.3 系统架构
+
+```
+TUI (SolidJS) → SDK (@opencode-ai/sdk) → HTTP API → Core Loop (prompt.ts)
+                                    ↓
+                              Event Bus (SSE)
+```
+
+### 2.4 关键设计模式
 
 1. **Event-Driven**: 中央事件总线用于 pub/sub 消息传递
 2. **Instance-Scoped State**: `Instance.state()` 模式用于per-project状态隔离
 3. **Functional API**: `fn()` wrapper使用Zod schemas进行输入验证
 4. **Plugin-Based**: 基于 hook 的插件系统，带生命周期回调
+
+### 2.5 核心模块清单
+
+| 模块 | 文件路径 | 功能描述 |
+|------|----------|----------|
+| **Core Loop** | `packages/opencode/src/session/prompt.ts` | 主执行循环 (lines 347-738) |
+| **Context Compaction** | `packages/opencode/src/session/compaction.ts` | 上下文压缩与Token管理 |
+| **LLM Processor** | `packages/opencode/src/session/processor.ts` | LLM请求处理与流式响应 |
+| **Permission Engine** | `packages/opencode/src/permission/next.ts` | 权限规则评估引擎 |
 
 ---
 
@@ -380,59 +397,137 @@ streamSSE(c, async (stream) => {
 })
 ```
 
-**处理循环** (`src/session/prompt.ts:274-724`):
+### 3.5 核心 Agent 循环 (SessionPrompt.loop)
+
+**文件**: `packages/opencode/src/session/prompt.ts`  
+**函数**: `SessionPrompt.loop()`  
+**代码行**: 347-738
+
+这是 OpenCode 的核心执行引擎，负责协调 LLM 调用、工具执行、上下文管理和子任务调度。
+
+#### 3.5.1 核心循环实现
 
 ```typescript
-export const loop = fn(LoopInput, async (input) => {
+export async function loop(sessionID: string, options?: LoopOptions): Promise<MessageV2.WithParts> {
+  let step = 0
+  const session = await Session.get(sessionID)
+  
   while (true) {
+    SessionStatus.set(sessionID, { type: "busy" })
+    
+    // 1. 过滤已压缩的消息，获取当前有效消息列表
     let msgs = await MessageV2.filterCompacted(MessageV2.stream(sessionID))
     
-    // 查找最后的 user/assistant 消息
+    // 2. 反向遍历查找最后的关键消息
     let lastUser, lastAssistant, lastFinished
-    
-    // 退出条件
-    if (lastAssistant?.finish && !["tool-calls", "unknown"].includes(lastAssistant.finish)) {
-      break  // 模型停止，原因非工具调用
+    for (let i = msgs.length - 1; i >= 0; i--) {
+      const msg = msgs[i]
+      if (!lastUser && msg.info.role === "user") lastUser = msg.info
+      if (!lastAssistant && msg.info.role === "assistant") lastAssistant = msg.info
+      if (!lastFinished && msg.info.role === "assistant" && msg.info.finish)
+        lastFinished = msg.info
     }
     
-    // 处理待处理的 subtasks
+    // 3. 退出条件：Assistant 已完成响应且晚于最后一条用户消息
+    if (lastAssistant?.finish && lastUser.id < lastAssistant.id) {
+      break
+    }
+    
+    step++
+    
+    // 4. 处理子任务（Subtask）- 并行Agent调用
+    const task = tasks.pop()
     if (task?.type === "subtask") {
-      // 同步执行 task 工具
+      // 执行 task 工具，创建子Session执行并行任务
+      // 结果通过消息系统返回给父Session
       continue
     }
     
-    // 处理 compaction
+    // 5. 处理上下文压缩任务
     if (task?.type === "compaction") {
-      await SessionCompaction.process(...)
+      const result = await SessionCompaction.process({...})
+      if (result === "stop") break  // 压缩失败或用户取消
       continue
     }
     
-    // 检查上下文溢出
-    if (await SessionCompaction.isOverflow(...)) {
-      await SessionCompaction.create(...)
-      continue
+    // 6. 检查上下文Token溢出
+    if (await SessionCompaction.isOverflow({ tokens: lastFinished.tokens, model })) {
+      await SessionCompaction.create({ sessionID, auto: true })
+      continue  // 触发压缩后重新循环
     }
     
-    // 正常 LLM 流式传输
-    const processor = SessionProcessor.create(...)
+    // 7. 正常 LLM 处理流程
+    const processor = SessionProcessor.create({...})
+    const tools = await resolveTools({...})
+    
     const result = await processor.process({
-      system: await SystemPrompt.environment(model),
-      messages: MessageV2.toModelMessages(msgs, model),
-      tools: await resolveTools(...),
+      user: lastUser,
+      tools,
+      model,
     })
     
+    // 8. 处理结果状态
     if (result === "stop") break
-    if (result === "compact") { /* 队列 compaction */ }
+    if (result === "compact") {
+      await SessionCompaction.create({...})
+    }
   }
-})
+}
 ```
 
-**关键特性**:
-- 每个 session ID 的持久化 shell sessions
-- 工具调用重试（权限被拒绝时，可配置）
-- 上下文压缩（超过 token 限制时）
-- Subtask 在主循环内执行
-- 结构化输出支持（通过合成工具）
+#### 3.5.2 循环阶段详解
+
+| 阶段 | 代码位置 | 功能描述 |
+|------|----------|----------|
+| **消息过滤** | Lines 360-365 | 过滤已压缩消息，维护有效上下文 |
+| **消息扫描** | Lines 368-378 | 反向遍历找 lastUser/lastAssistant/lastFinished |
+| **退出检测** | Lines 381-385 | 判断 Assistant 是否已完成对用户请求的响应 |
+| **子任务处理** | Lines 390-396 | 执行 Task 工具，创建子Agent并行执行 |
+| **Compaction** | Lines 399-406 | 处理上下文压缩队列任务 |
+| **溢出检查** | Lines 409-413 | 检测 Token 是否超过模型限制 |
+| **LLM 调用** | Lines 416-426 | 创建 Processor，解析工具，发起 LLM 请求 |
+| **结果处理** | Lines 429-435 | 处理 stop/compact 等返回状态 |
+
+#### 3.5.3 核心特性详解
+
+**1. 上下文压缩（Context Compaction）**
+
+- **触发条件**: Token 数超过模型限制的阈值（通常 20k-40k tokens）
+- **实现文件**: `packages/opencode/src/session/compaction.ts`
+- **压缩策略**:
+  - **Pruning**: 移除旧的工具输出和中间结果
+  - **Summarization**: 创建合成继续提示，保留关键上下文
+- **自动触发**: 每次循环检查 `SessionCompaction.isOverflow()`
+
+**2. 子任务系统（Subtask System）**
+
+- **实现方式**: Task 工具 (`src/tool/task.ts`)
+- **工作机制**:
+  - 通过 `task` 工具创建子 Session
+  - 子 Agent 独立执行，结果通过消息系统返回
+  - 支持任务恢复（通过 `task_id`）
+- **并发控制**: 通过 `tasks` 队列管理待执行的子任务
+
+**3. 权限系统（Permission System）**
+
+- **实现文件**: `packages/opencode/src/permission/next.ts`
+- **规则引擎**: 基于通配符的模式匹配（Wildcard matching）
+- **评估流程**:
+  1. Agent 默认规则 → 2. 用户配置 → 3. Session 特定规则
+  4. 对于每个工具调用，评估 action: `allow`/`deny`/`ask`
+- **用户交互**: 通过 SSE 事件流触发 UI 权限询问
+
+**4. 多 Agent 支持（Multi-Agent）**
+
+- **Agent 类型**: Primary (用户可选择) / Subagent (通过 task 调用)
+- **Agent Profile**: 每个 Agent 可配置独立的模型、提示词、权限
+- **Agent 切换**: 通过 `SessionPrompt.loop()` 的 `agent` 参数指定
+
+**5. Doom Loop 检测**
+
+- **检测机制**: 跟踪最近 3+ 次相同的工具调用
+- **处理策略**: 检测到循环时触发上下文压缩或终止执行
+- **防护目的**: 防止 Agent 在错误的代码/配置中无限循环
 
 ---
 
@@ -786,5 +881,5 @@ OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
 
 ---
 
-**文档版本**: 1.0  
-**最后更新**: 2026-02-26
+**文档版本**: 1.1  
+**最后更新**: 2026-02-27

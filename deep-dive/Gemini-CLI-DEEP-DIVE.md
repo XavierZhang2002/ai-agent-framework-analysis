@@ -16,6 +16,8 @@
 - ✅ **MCP 原生支持**: Transport (Stdio/SSE/HTTP)
 - ✅ **多层安全**: Policy engine, approval modes, trusted folders
 - ✅ **Monorepo 架构**: CLI + Core + SDK + VS Code extension + A2A server
+- ✅ **免费额度**: 1,000 requests/day (Google OAuth 认证)
+- ✅ **分层记忆系统**: GEMINI.md (Global/Project/JIT 三级)
 
 ---
 
@@ -60,10 +62,20 @@ core/src/
 
 ## 3. 底层实现
 
-### 3.1 Terminal Agent 架构
+### 3.1 Terminal Agent 架构 (Core Agent Loop)
 
+```
+GeminiClient (Orchestrator)
+  ↓
+processTurn() - Single turn processing (Lines 248-358)
+  ↓
+Turn.run() - Stream from Gemini API
+  ↓
+Scheduler - Tool execution with policy checks
+```
+
+**核心入口** (`packages/cli/src/gemini.tsx` lines 1-906):
 ```typescript
-// packages/cli/src/gemini.tsx (lines 1-906)
 1. initializeApp() - 认证 & 设置
 2. render(<AppContainer />) - 启动 React UI
 3. GeminiClient.sendMessageStream() - 流式 LLM 响应
@@ -72,20 +84,60 @@ core/src/
 ```
 
 **GeminiClient** (`/packages/core/src/core/client.ts` lines 82-1120):
+
+核心方法:
+- `sendMessageStream()` - Lines 360-450 - 主消息流处理
+- `processTurn()` - Lines 248-358 - 单轮次处理
+
 ```typescript
 class GeminiClient {
   async *sendMessageStream(
     request: PartListUnion,
-    tools: Tool[],
     signal: AbortSignal,
-    routingContext?: RoutingContext
-  ): AsyncGenerator<ServerGeminiStreamEvent>
+    prompt_id: string,
+    turns: number = MAX_TURNS,
+  ): AsyncGenerator<ServerGeminiStreamEvent, Turn> {
+    
+    // 1. 检查会话轮次限制
+    this.sessionTurnCount++;
+    if (this.sessionTurnCount > this.config.getMaxSessionTurns()) {
+      yield { type: GeminiEventType.MaxSessionTurns };
+      return turn;
+    }
+    
+    // 2. 尝试对话压缩 (Chat Compression)
+    const compressed = await this.tryCompressChat(prompt_id, false);
+    
+    // 3. 循环检测 (Loop Detection)
+    if (this.loopDetector.addAndCheck(event)) {
+      yield { type: GeminiEventType.LoopDetected };
+      return turn;
+    }
+    
+    // 4. 执行单轮对话
+    const turn = new Turn(this.getChat(), prompt_id);
+    const resultStream = turn.run(modelConfigKey, requestToSent, signal);
+    
+    // 5. 处理流式响应
+    for await (const event of resultStream) {
+      yield event;
+    }
+    
+    // 6. 下一位说话者检查 - 必要时自动继续
+    if (!turn.pendingToolCalls.length) {
+      const nextSpeakerCheck = await checkNextSpeaker(...);
+      if (nextSpeakerCheck?.next_speaker === 'model') {
+        const nextRequest = [{ text: 'Please continue.' }];
+        yield* this.sendMessageStream(nextRequest, signal, prompt_id, boundedTurns - 1);
+      }
+    }
+  }
 }
 ```
 
-### 3.2 MCP 集成
+### 3.2 MCP 集成 (Full MCP Support with OAuth)
 
-**发现层** (`/packages/core/src/tools/mcp-client.ts` - 2073 lines):
+**MCP Client** (`/packages/core/src/tools/mcp-client.ts` - 2073 lines):
 
 ```typescript
 class McpClient {
@@ -97,12 +149,13 @@ class McpClient {
 }
 ```
 
-**Transport 层** (lines 158-195):
-- **Stdio**: 生成子进程
-- **SSE**: Server-Sent Events
-- **Streamable HTTP**: HTTP streaming
+**Transport 层**:
+- **StdioClientTransport**: 生成子进程 (Stdio)
+- **SSEClientTransport**: Server-Sent Events
+- **StreamableHTTPClientTransport**: HTTP streaming
 
 **认证** (`/packages/core/src/mcp/`):
+- **自动 OAuth 发现**: Automatic OAuth discovery
 - OAuth provider (`oauth-provider.ts`)
 - Google auth (`google-auth-provider.ts`)
 - Service account impersonation (`sa-impersonation-provider.ts`)
@@ -133,7 +186,30 @@ class WebSearchToolInvocation extends BaseToolInvocation {
 }
 ```
 
-### 3.4 工具执行流程
+### 3.4 GEMINI.md - 分层记忆系统
+
+**实现** (`/packages/core/src/utils/memoryDiscovery.ts`):
+
+```
+GEMINI.md 层级结构 (Hierarchical Memory):
+
+Global Level    →  ~/.gemini/GEMINI.md
+                    (用户级全局配置)
+                       ↓
+Project Level   →  <workspace>/GEMINI.md
+                    (项目级上下文)
+                       ↓
+JIT Level       →  工具访问文件时动态扫描
+                    (即时上下文注入)
+```
+
+**特点**:
+- 自动发现机制
+- 支持 Markdown 格式
+- 文件变更自动重载
+- 与工具执行上下文集成
+
+### 3.5 工具执行流程
 
 **Scheduler** (`/packages/core/src/scheduler/scheduler.ts` lines 1-758):
 
@@ -166,10 +242,40 @@ class PolicyEngine {
 }
 ```
 
+**分层策略系统 (Tiered Policy Engine)**:
+```
+优先级 (从低到高)     规则来源
+    ↓
+Tier 1              →  Default (系统默认)
+    ↓
+Tier 2              →  Extension (扩展定义)
+    ↓
+Tier 3              →  Workspace (工作空间级)
+    ↓
+Tier 4              →  User (用户级)
+    ↓
+Tier 5              →  Admin (管理员级)
+    ↓
+              【Last Match Wins - 最后匹配的规则生效】
+```
+
 **Policy Decisions**:
 - `ALLOW` - 立即执行
 - `DENY` - 阻止执行
 - `ASK_USER` - 请求确认
+
+### 3.6 高级功能
+
+**循环检测 (Loop Detection)**:
+- 防止无限循环执行
+- 通过 `loopDetector.addAndCheck(event)` 检测模式
+- 触发时返回 `GeminiEventType.LoopDetected`
+
+**对话压缩 (Chat Compression)**:
+- XML 结构化的摘要机制
+- 通过 `tryCompressChat(prompt_id, force)` 触发
+- 减少上下文窗口占用
+- 保持关键对话历史
 
 ---
 
@@ -238,8 +344,11 @@ export class MyTool extends BaseDeclarativeTool<MyParams, ToolResult> {
 ### 优势
 
 1. ✅ **Google 生态**: Search grounding, Code Assist
-2. ✅ **企业就绪**: OAuth, policy engine
-3. ✅ **丰富工具**: 30+ 内置工具 + MCP
+2. ✅ **企业就绪**: OAuth, tiered policy engine
+3. ✅ **丰富工具**: 30+ 内置工具 + MCP (Stdio/SSE/HTTP)
+4. ✅ **免费额度**: 1,000 requests/day (Google OAuth)
+5. ✅ **智能机制**: Loop detection, chat compression, auto-continue
+6. ✅ **分层记忆**: GEMINI.md (Global/Project/JIT 三级)
 
 ### 限制
 
@@ -254,5 +363,20 @@ export class MyTool extends BaseDeclarativeTool<MyParams, ToolResult> {
 
 ---
 
-**文档版本**: 1.0  
-**最后更新**: 2026-02-26
+## 6. 关键源文件索引
+
+| 功能模块 | 文件路径 | 说明 |
+|---------|---------|------|
+| **核心 Agent 循环** | `packages/core/src/core/client.ts` | 主循环 (sendMessageStream: 360-450, processTurn: 248-358) |
+| **单轮次执行** | `packages/core/src/core/turn.ts` | Turn.run() 实现 |
+| **策略引擎** | `packages/core/src/policy/policy-engine.ts` | Tiered policy 系统 (792 lines) |
+| **MCP 客户端** | `packages/core/src/tools/mcp-client.ts` | MCP 发现层 (2073 lines) |
+| **GEMINI.md** | `packages/core/src/utils/memoryDiscovery.ts` | 分层记忆系统 |
+| **调度器** | `packages/core/src/scheduler/scheduler.ts` | 工具执行调度 (758 lines) |
+| **循环检测** | `packages/core/src/core/client.ts` | loopDetector.addAndCheck() |
+| **对话压缩** | `packages/core/src/core/client.ts` | tryCompressChat() |
+
+---
+
+**文档版本**: 1.1  
+**最后更新**: 2026-02-27

@@ -37,7 +37,9 @@ src/kimi_cli/
 │   └── kaos.py       # ACPKaos 文件系统桥
 ├── session.py        # Session 生命周期 (274 lines)
 ├── soul/             # 核心 agent 运行时
-│   ├── kimisoul.py   # KimiSoul 主循环
+│   ├── kimisoul.py   # KimiSoul 主循环 (核心)
+│   ├── denwarenji.py # DenwaRenji - 时间旅行管理
+│   ├── context.py    # 上下文管理与 checkpoint/revert
 │   ├── agent.py      # 323 lines - Runtime, Agent, LaborMarket
 │   ├── toolset.py    # 466 lines - KimiToolset, MCP 集成
 │   ├── approval.py   # 审批系统
@@ -53,7 +55,7 @@ src/kimi_cli/
 ├── wire/             # Wire Protocol
 │   ├── server.py     # 732 lines - JSON-RPC over stdio
 │   ├── file.py       # WireFile 用于 session replay
-│   └── __init__.py   # Wire queue-based transport
+│   └── types.py      # Wire 消息类型定义
 ├── auth/             # OAuth 2.0
 │   ├── oauth.py      # 790 lines - OAuthManager, device flow
 │   └── platforms.py  # 平台特定 OAuth 配置
@@ -69,11 +71,108 @@ src/kimi_cli/
     └── acp/          # ACP UI wrapper
 ```
 
+**关键文件说明**:
+
+| 文件路径 | 功能描述 | 核心方法/类 |
+|---------|---------|------------|
+| `src/kimi_cli/soul/kimisoul.py` | 核心 Agent 循环 | `_agent_loop()`, `_step()` |
+| `src/kimi_cli/soul/denwarenji.py` | 时间旅行管理器 | `DenwaRenji`, `D-Mail` |
+| `src/kimi_cli/soul/context.py` | 上下文快照/回滚 | `revert_to()`, `checkpoint()` |
+| `src/kimi_cli/acp/server.py` | ACP 协议服务器 | `ACPServer`, `new_session()` |
+| `src/kimi_cli/wire/types.py` | Wire 消息类型 | `StepBegin`, `ToolResult` |
+
 ---
 
 ## 3. 底层实现原理
 
-### 3.1 CLI 入口流程
+### 3.1 Core Agent Loop (核心 Agent 循环)
+
+**文件**: `src/kimi_cli/soul/kimisoul.py`
+
+这是 Kimi CLI 最核心的 agent 执行循环，实现了独特的「时间旅行」机制。
+
+#### _agent_loop() - 主循环 (Lines 206-275)
+
+```python
+async def _agent_loop(self) -> TurnOutcome:
+    """The main agent loop for one run."""
+    step_no = 0
+    while True:
+        step_no += 1
+        if step_no > self._loop_control.max_steps_per_turn:
+            raise MaxStepsReached(...)
+            
+        wire_send(StepBegin(n=step_no))
+        
+        # Context compaction check
+        if self._context.token_count + reserved >= self._runtime.llm.max_context_size:
+            await self.compact_context()
+            
+        # Create checkpoint for time travel
+        await self._checkpoint()
+        
+        try:
+            step_outcome = await self._step()
+        except BackToTheFuture as e:
+            # Time travel!
+            await self._context.revert_to(e.checkpoint_id)
+            await self._context.append_message(e.messages)
+            continue
+            
+        if step_outcome is not None:
+            return TurnOutcome(...)
+```
+
+#### _step() - 单步执行 (Lines 277-348)
+
+```python
+async def _step(self) -> StepOutcome | None:
+    """Run a single step."""
+    result = await kosong.step(
+        chat_provider,
+        self._agent.system_prompt,
+        self._agent.toolset,
+        self._context.history,
+        on_message_part=wire_send,
+        on_tool_result=wire_send,
+    )
+    
+    # Wait for tool results
+    results = await result.tool_results()
+    await self._grow_context(result, results)
+    
+    # Handle D-Mail (time travel)
+    if dmail := self._denwa_renji.fetch_pending_dmail():
+        raise BackToTheFuture(dmail.checkpoint_id, [...])
+        
+    if result.tool_calls:
+        return None  # Continue loop
+    return StepOutcome(stop_reason="no_tool_calls", ...)
+```
+
+#### 循环控制流程
+
+```
+_agent_loop()
+  ├── StepBegin (发送 wire 事件)
+  ├── 检查上下文长度 → compact_context()
+  ├── 创建 checkpoint (时间旅行锚点)
+  └── _step()
+        ├── kosong.step() (LLM 调用)
+        ├── 等待 tool 执行结果
+        ├── _grow_context() (更新历史)
+        ├── 检查 D-Mail (时间旅行信号)
+        └── 返回 StepOutcome (结束) 或 None (继续)
+  
+  ← 捕获 BackToTheFuture 异常
+    ├── revert_to(checkpoint_id) (回滚)
+    ├── 注入新消息
+    └── continue (重新开始)
+```
+
+---
+
+### 3.3 CLI 入口流程
 
 **文件**: `src/kimi_cli/cli/__init__.py` (776 lines)
 
@@ -116,9 +215,70 @@ instance = await KimiCLI.create(
 )
 ```
 
-### 3.2 ACP Server 实现
+---
+
+### 3.4 Unique Features (独特机制)
+
+#### 3.4.1 D-Mail Time Travel (时间旅行系统)
+
+**灵感来源**: 《命运石之门》(Steins;Gate) 中的 D-Mail (DeLorean Mail)
+
+**核心组件**:
+- **DenwaRenji** (`src/kimi_cli/soul/denwarenji.py`): 「电话微波炉」管理时间旅行
+- **Checkpoint/Revert** (`src/kimi_cli/soul/context.py`): 上下文快照与回滚
+- **BackToTheFuture** 异常: 触发时间旅行的信号
+
+**工作原理**:
+```
+1. 每次 step 前创建 checkpoint (上下文快照)
+2. 工具执行时可发送 D-Mail 到过去的 checkpoint
+3. _agent_loop 捕获 BackToTheFuture 异常
+4. 调用 revert_to(checkpoint_id) 回滚状态
+5. 注入新消息，重新开始执行
+```
+
+**典型使用场景**:
+- 用户中途纠正 agent 的行为
+- 工具执行失败后的策略调整
+- 多分支探索 (尝试 A 路径失败，回滚尝试 B)
+
+#### 3.4.2 Steer Injection (实时转向)
+
+**机制**: 用户可在 agent 执行过程中发送纠正指令
+
+**实现**:
+- 存储于 `asyncio.Queue` 中
+- 转换为 synthetic tool call + result 形式
+- 在下一个 step 前注入到上下文
+
+#### 3.4.3 Context Compaction (上下文压缩)
+
+**触发条件**: `token_count + reserved >= max_context_size`
+
+**实现** (`src/kimi_cli/soul/compaction.py`):
+- 对旧消息进行摘要总结
+- 保留 system prompt 和最近对话
+- 将摘要作为新 context 的一部分
+
+#### 3.4.4 Tenacity Retry (指数退避重试)
+
+**用途**: LLM API 调用失败时的自动重试
+
+**策略**:
+- 指数退避 (exponential backoff)
+- 最大重试次数可配置 (`max_retries_per_step`)
+- 区分可重试错误 (网络) 和不可重试错误 (无效参数)
+
+---
+
+### 3.5 ACP Server 实现
 
 **文件**: `src/kimi_cli/acp/server.py` (351 lines)
+
+**核心功能**:
+- **多 Session 支持**: 同时管理多个独立的 agent sessions
+- **MCP 服务器转换**: 将 ACP MCP servers 转换为内部配置格式
+- **Session 生命周期**: create, load, list 操作
 
 **架构**:
 - **入口点**: `kimi acp` 命令 → `acp_main()` in `__init__.py`
@@ -159,7 +319,7 @@ class _ToolCallState:
         return f"{turn_id}/{self.tool_call.id}"
 ```
 
-### 3.3 Session 管理
+### 3.6 Session 管理
 
 **文件**: `src/kimi_cli/session.py` (274 lines)
 
@@ -192,7 +352,7 @@ class Session:
             └── state.json         # Session 状态
 ```
 
-### 3.4 工具执行流程
+### 3.7 工具执行流程
 
 **文件**: `src/kimi_cli/soul/toolset.py` (466 lines)
 
@@ -238,7 +398,7 @@ def handle(self, tool_call: ToolCall) -> HandleResult:
 - Timeout 处理（默认 60s）
 - OAuth 流程用于认证 MCP servers
 
-### 3.5 OAuth/认证
+### 3.8 OAuth/认证
 
 **文件**: `src/kimi_cli/auth/oauth.py` (790 lines)
 
@@ -377,5 +537,6 @@ agent:
 
 ---
 
-**文档版本**: 1.0  
-**最后更新**: 2026-02-26
+**文档版本**: 1.1  
+**最后更新**: 2026-02-27  
+**更新内容**: 添加 Core Agent Loop 详细分析、D-Mail 时间旅行机制、关键代码片段

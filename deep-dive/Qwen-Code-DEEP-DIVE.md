@@ -48,33 +48,102 @@ qwen-code/
 
 ## 3. 底层实现
 
-### 3.1 Agentic Workflow
+### 3.1 Core Agent Loop (Verified)
 
-**文件**: `packages/core/src/core/client.ts` (678 lines)
+**文件**: `packages/core/src/core/client.ts` (Lines 261-384)
+
+**主循环方法**: `sendMessageStream()` - 协调整个对话流转的核心引擎
 
 ```typescript
-class GeminiClient {
-  async chat(userMessage: string) {
-    // 1. 添加 IDE 上下文
-    const ideContext = this.getIdeContextParts(forceFullContext);
-    
-    // 2. 构建系统提示with tools
-    const systemInstruction = getCoreSystemPrompt(userMemory, model);
-    
-    // 3. 发送到模型with tools
-    const response = await this.geminiChat.sendMessage(...);
-    
-    // 4. 执行工具调用（如果有）
-    await this.coreToolScheduler.executeToolCalls(toolCalls);
-    
-    // 5. 循环直到模型停止请求工具 (MAX_TURNS = 100)
+async *sendMessageStream(
+  request: PartListUnion,
+  signal: AbortSignal,
+  prompt_id: string,
+  options?: { isContinuation: boolean },
+  turns: number = MAX_TURNS,
+): AsyncGenerator<ServerGeminiStreamEvent, Turn> {
+  
+  // 1. 初始化 Loop Detector
+  if (!options?.isContinuation) {
+    this.loopDetector.reset(prompt_id);
   }
+  
+  // 2. 检查会话轮次限制
+  this.sessionTurnCount++;
+  if (this.sessionTurnCount > this.config.getMaxSessionTurns()) {
+    yield { type: GeminiEventType.MaxSessionTurns };
+    return turn;
+  }
+  
+  // 3. 聊天历史压缩 (Context Management)
+  const compressed = await this.tryCompressChat(prompt_id, false);
+  
+  // 4. 注入 IDE 上下文 (仅 IDE 模式)
+  if (this.config.getIdeMode()) {
+    const { contextParts } = this.getIdeContextParts(...);
+    this.getChat().addHistory({ role: 'user', parts: contextParts });
+  }
+  
+  // 5. 动态系统提醒注入
+  const systemReminders = [];
+  if (hasTaskTool && subagents.length > 0) {
+    systemReminders.push(getSubagentSystemReminder(subagents));
+  }
+  if (this.config.getApprovalMode() === ApprovalMode.PLAN) {
+    systemReminders.push(getPlanModeSystemReminder(...));
+  }
+  
+  // 6. 执行当前 Turn
+  const turn = new Turn(this.getChat(), prompt_id);
+  const resultStream = turn.run(this.config.getModel(), requestToSent, signal);
+  
+  // 7. 流式处理响应 + Loop 检测
+  for await (const event of resultStream) {
+    if (this.loopDetector.addAndCheck(event)) {
+      yield { type: GeminiEventType.LoopDetected };
+      return turn;
+    }
+    yield event;
+  }
+  
+  // 8. Next Speaker 检查 (自动继续机制)
+  if (!turn.pendingToolCalls.length && signal && !signal.aborted) {
+    const nextSpeakerCheck = await checkNextSpeaker(...);
+    if (nextSpeakerCheck?.next_speaker === 'model') {
+      yield* this.sendMessageStream([{ text: 'Please continue.' }], ...);
+    }
+  }
+  
+  return turn;
 }
 ```
 
-### 3.2 Skills 系统
+**关键设计**:
+- **Loop Detection**: 防止重复模式导致的无限循环
+- **Context Compression**: 自动压缩聊天历史保持上下文窗口
+- **Multi-turn**: 支持最多 100 轮连续对话
+- **Next Speaker**: 智能判断是否需要模型继续输出
 
-**实现** (`packages/core/src/skills/skill-manager.ts`, 661 lines):
+### 3.2 Skills 系统 (Verified)
+
+**文件**: `packages/core/src/skills/skill-manager.ts` (661 lines)
+
+#### 文件结构
+- **位置**: `.qwen/skills/<skill-name>/SKILL.md`
+- **格式**: Markdown + YAML Frontmatter
+- **热重载**: 基于 `chokidar` 的文件系统监听
+
+**Skill 格式示例**:
+```yaml
+---
+name: terminal-capture
+description: Automates terminal UI screenshot testing
+---
+
+# Instructions...
+```
+
+#### 三级缓存架构
 
 ```typescript
 // Lines 82-130: Skill 发现with缓存
@@ -84,6 +153,9 @@ async listSkills(options: ListSkillsOptions = {}): Promise<SkillConfig[]> {
     : ['project', 'user', 'extension'];
   
   // 优先级: project > user > extension
+  // project: 当前项目 .qwen/skills/
+  // user:    ~/.qwen/skills/
+  // extension: VS Code 扩展自带
   for (const level of levelsToCheck) {
     const levelSkills = this.skillsCache?.get(level) || [];
     for (const skill of levelSkills) {
@@ -96,22 +168,45 @@ async listSkills(options: ListSkillsOptions = {}): Promise<SkillConfig[]> {
 }
 ```
 
-**Skill 格式** (`.qwen/skills/*/SKILL.md`):
-```yaml
----
-name: terminal-capture
-description: Automates terminal UI screenshot testing
----
+#### 热重载机制
 
-# Instructions...
+```typescript
+// 使用 chokidar 监听文件变化
+private watchSkillsDirectory(level: SkillLevel, skillsDir: string): void {
+  const watcher = chokidar.watch(skillsDir, {
+    persistent: true,
+    ignoreInitial: true,
+    depth: 2,  // 只监听 SKILL.md 文件
+  });
+  
+  watcher.on('change', async (filePath) => {
+    if (filePath.endsWith('SKILL.md')) {
+      await this.reloadSkill(filePath, level);
+    }
+  });
+}
 ```
 
-### 3.3 SubAgents 实现
+**关键设计**:
+- **三级覆盖**: project 配置覆盖 user，user 覆盖 extension
+- **热重载**: 开发时无需重启即可更新 Skill
+- **YAML 元数据**: 支持 name, description, triggers 等配置
+
+### 3.3 SubAgents 实现 (Verified)
 
 **文件**: `packages/core/src/subagents/subagent.ts` (1004 lines)
 
-**Context State with variable templating** (lines 29-98):
+#### Context Variable Templating
+
+**模板函数** (lines 29-98):
 ```typescript
+function templateString(template: string, context: ContextState): string {
+  const placeholderRegex = /\$\{(\w+)\}/g;
+  return template.replace(placeholderRegex, (_match, key) =
+    String(context.get(key)),
+  );
+}
+
 export class ContextState {
   private variables = new Map<string, string>();
   
@@ -122,14 +217,47 @@ export class ContextState {
   
   // 模板解析: ${variable_name}
   interpolate(template: string): string {
-    return template.replace(/\$\{(\w+)\}/g, (_, key) => {
-      return this.variables.get(key) || '';
-    });
+    return template.replace(/\$\{(\w+)\}/g, (_, key) =
+      this.variables.get(key) || '';
+    );
   }
 }
 ```
 
-**SubAgentScope** - 主执行类 (lines 183-272):
+#### SubAgent 执行循环
+
+**非交互模式** (`runNonInteractive`):
+```typescript
+async runNonInteractive(context: ContextState): Promise<void> {
+  while (true) {
+    // 1. 检查终止条件
+    if (turnCounter >= max_turns) break;
+    if (time_exceeded) break;
+    
+    // 2. 调用 LLM
+    const responseStream = await chat.sendMessageStream(model, messages, promptId);
+    
+    // 3. 流式处理响应
+    for await (const streamEvent of responseStream) {
+      if (streamEvent.type === 'chunk') {
+        if (resp.functionCalls) functionCalls.push(...resp.functionCalls);
+      }
+    }
+    
+    // 4. 处理工具调用或终止
+    if (functionCalls.length > 0) {
+      currentMessages = await this.processFunctionCalls(functionCalls);
+    } else {
+      // 无工具调用 - 生成最终答案
+      this.finalText = roundText.trim();
+      break;
+    }
+  }
+}
+```
+
+#### SubAgentScope 主执行类
+
 ```typescript
 export class SubAgentScope {
   async run(abortSignal: AbortSignal): Promise<SubAgentResult> {
@@ -155,6 +283,12 @@ export class SubAgentScope {
   }
 }
 ```
+
+**关键设计**:
+- **隔离执行**: 每个 SubAgent 有自己的工具注册表
+- **变量模板**: `${project_name}`, `${current_directory}` 等上下文变量
+- **流式处理**: 支持 chunked response 处理
+- **终止条件**: max_turns + 超时双重保护
 
 ### 3.4 Qwen OAuth
 
@@ -233,7 +367,22 @@ async openDiff(filePath: string, newContent: string): Promise<DiffUpdateResult> 
 
 ---
 
-## 4. 扩展开发指南
+## 4. 关键源文件索引
+
+| 文件路径 | 职责 | 代码行数 |
+|---------|------|---------|
+| `packages/core/src/core/client.ts` | 主 Agent 循环 (`sendMessageStream`) | 678 lines |
+| `packages/core/src/subagents/subagent.ts` | SubAgent 执行引擎 + 变量模板 | 1004 lines |
+| `packages/core/src/subagents/subagent-manager.ts` | SubAgent CRUD 管理 | ~300 lines |
+| `packages/core/src/skills/skill-manager.ts` | Skills 加载 + 热重载 + 三级缓存 | 661 lines |
+| `packages/core/src/tools/task.ts` | TaskTool - 子代理委托入口 | ~200 lines |
+| `packages/core/src/ide/ide-client.ts` | IDE MCP 集成 + Diff View | 860 lines |
+| `packages/core/src/qwen/qwenOAuth2.ts` | Qwen OAuth Device Flow | 1017 lines |
+| `packages/core/src/config/` | 配置管理 (1735 lines) | 多文件 |
+
+---
+
+## 5. 扩展开发指南
 
 ### 4.1 添加 Skills
 
@@ -268,7 +417,7 @@ System prompt with ${variable} templating...
 
 ---
 
-## 5. 评估
+## 6. 评估
 
 ### 优势
 
@@ -289,5 +438,9 @@ System prompt with ${variable} templating...
 
 ---
 
-**文档版本**: 1.0  
-**最后更新**: 2026-02-26
+**文档版本**: 1.1  
+**最后更新**: 2026-02-27
+
+### 更新记录
+- v1.1: 添加 `sendMessageStream()` 核心循环实现，SubAgent `runNonInteractive()` 详细逻辑，Skills 热重载机制，关键源文件索引
+- v1.0: 初始版本
