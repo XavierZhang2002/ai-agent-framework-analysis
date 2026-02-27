@@ -24,151 +24,83 @@
 
 ### 1.1 12 个框架的核心循环
 
-**重要声明**：本节列出的代码片段均为**伪代码（Pseudocode）**，用于说明各框架的核心逻辑模式，而非从源码逐字复制的真实代码。实际源码更为复杂，包含大量错误处理、状态管理和特性实现。
+**代码审计说明**：本节展示了部分框架的代码审计结果。标注为「已核实」的代码片段已通过 GitHub 直接验证；标注为「待核实」的框架代码结构需进一步调研确认。
 
-以下是 12 个框架的核心逻辑模式（所有项目均完全开源）：
+---
 
-**OpenAI Agents SDK**（Python，生产级 SDK）：
+**✅ 已核实框架**
+
+**OpenAI Agents SDK**（Python，生产级 SDK）- 已核实：
 ```python
-# src/agents/run.py:396-1329
+# src/agents/run.py:637（实际源码位置）
 while True:
-    response = await model.get_response(messages, tools)
-    
-    if response.has_tool_calls():
-        for tool_call in response.tool_calls:
-            result = await execute_tool(tool_call)
-            messages.append(tool_result_message(result))
-    else:
-        return RunResult(final_output=response.content)
+    # 600+ 行的复杂循环，包含状态恢复、guardrails、handoffs 等
+    # 简化逻辑：调用 LLM → 处理工具调用 → 检查终止条件
+    turn_result = await run_single_turn(agent, tools, ...)
+    if isinstance(turn_result.next_step, NextStepFinalOutput):
+        break
+    # 处理 handoffs、工具执行等
 ```
+*真实代码约 600+ 行，详见 [GitHub 源码](https://github.com/openai/openai-agents-python/blob/main/src/agents/run.py)*
 
-**Claude Agent SDK**（Python，SDK + 闭源 CLI）：
+**SWE-agent**（Python，研究框架）- 已核实：
 ```python
-# _internal/query.py:172-232
-while not done:
-    response = await cli.communicate(messages)
-    
-    if response.type == "tool_use":
-        # 通过 Hook 系统处理
-        result = await handle_hooks("PreToolUse", response.tool)
-        observation = await execute_tool(result)
-        messages.append(observation)
-    elif response.type == "stop":
-        done = True
-```
-
-**Codex CLI**（Rust，企业级安全）：
-```rust
-// codex-rs/core/src/codex.rs:500-800
-loop {
-    let response = self.llm.generate(&context).await?;
-    
-    match response.finish_reason {
-        FinishReason::ToolCalls(calls) => {
-            // 安全检查 + 审批
-            self.approval_manager.evaluate(&calls).await?;
-            let observations = self.execute_tools(calls).await?;
-            context.extend(observations);
-        }
-        FinishReason::Stop => break,
-    }
-}
-```
-
-**SWE-agent**（Python，研究框架）：
-```python
-# sweagent/agent/agents.py:1265
+# sweagent/agent/agents.py:350（实际源码位置）
 while not step_output.done:
     step_output = self.step()
-    # step() 内部：
-    #   thought, action = parse_react_output(llm_response)
-    #   observation = execute_action(action)
+    if step_output.done:
+        # 处理提交、重试逻辑
+        self._rloop.on_submit(...)
 ```
+*详见 [GitHub 源码](https://github.com/SWE-agent/SWE-agent/blob/main/sweagent/agent/agents.py)*
 
-**OpenManus**（Python，快速实验）：
+**Aider**（Python，完全开源 Apache-2.0）- 已核实（非传统 Agent）：
 ```python
-# app/agent/react.py:11-38
-while self.current_step < self.max_steps:
-    step_result = await self.step()  # think() -> act()
-    if self.is_stuck():  # 检测重复响应
-        self.handle_stuck_state()
-```
-
-**OpenCode**（TypeScript，100% 开源）：
-```typescript
-// src/session/prompt.ts:274-724
-while (true) {
-    const result = await processor.process({ messages, tools });
-    
-    if (result === "stop") break;
-    if (result === "compact") await compactContext();  // 特性：自动压缩
-    
-    // 处理 subtasks、compaction、overflow 等特性
-}
-```
-
-**Aider**（Python，完全开源 Apache-2.0）：
-```python
-# aider/coders/base_coder.py:876-890
+# aider/coders/base_coder.py:876（实际源码位置）
 # 注意：Aider 并非传统 Agent 工具调用模式
-# 而是基于对话的编码助手，核心循环为：
+# 而是基于对话的编码助手
 while True:
-    user_message = self.get_input()  # 获取用户输入
-    self.run_one(user_message)       # 处理单条消息
-    # run_one 内部调用 send_message 与 LLM 交互
-    # 并通过 EditBlock 解析器处理代码修改
+    user_message = self.get_input()
+    self.run_one(user_message)  # 处理单条消息
 ```
-*注：Aider 的完整源码见 https://github.com/Aider-AI/aider/blob/main/aider/coders/base_coder.py*
+*详见 [GitHub 源码](https://github.com/Aider-AI/aider/blob/main/aider/coders/base_coder.py)*
 
-**Goose**（Rust，完全开源 Apache-2.0）：
-```rust
-// crates/goose-core/src/agent.rs
-// 核心逻辑：基于 MCP-Native 架构的事件循环
-loop {
-    // 1. 从 MCP Client 获取可用工具列表
-    let tools = mcp_client.list_all_tools().await?;
-    
-    // 2. 调用 LLM 获取响应
-    let response = llm_client.complete(messages.clone(), tools).await?;
-    
-    // 3. 处理工具调用（通过 MCP 服务器执行）
-    if let Some(tool_calls) = response.tool_calls {
-        for call in tool_calls {
-            let result = mcp_client.call_tool(...).await?;
-            messages.push(Message::tool_result(result));
-        }
-    } else {
-        break;
-    }
-}
-```
-*注：Goose 源码位置 https://github.com/block/goose/tree/main/crates/goose-core/src*
+---
+
+**⚠️ 架构差异说明**
 
 **OpenHands**（Python，完全开源 MIT）：
-```python
-# openhands/controller/agent_controller.py
-# 注意：OpenHands 使用事件驱动架构，而非传统 while 循环
-# 核心逻辑在 _step() 方法中，通过事件流（EventStream）驱动
+- **架构类型**：事件驱动（Event-Driven），非传统循环
+- **核心方法**：`openhands/controller/agent_controller.py` 中的 `_step()`
+- **特点**：通过 EventStream 和回调机制驱动，无显式 while 循环
+- *详见 [GitHub 源码](https://github.com/All-Hands-AI/OpenHands/blob/main/openhands/controller/agent_controller.py)*
 
-async def _step(self) -> None:
-    # 1. 检查 Agent 状态
-    if self.get_agent_state() != AgentState.RUNNING:
-        return
-    
-    # 2. Agent 决定 Action
-    action = self.agent.step(self.state)
-    
-    # 3. 执行 Action（在 Docker 沙箱中）
-    if action.runnable:
-        self._pending_action = action
-        self.event_stream.add_event(action, EventSource.AGENT)
-    
-    # 4. 等待 Observation 并回调
-    # （通过 on_event 方法响应事件流）
-```
-*注：OpenHands 完整源码见 https://github.com/All-Hands-AI/OpenHands/blob/main/openhands/controller/agent_controller.py*
+**Claude Agent SDK**（Python，SDK + 闭源 CLI）：
+- **架构类型**：控制协议封装层
+- **说明**：SDK 本身不是完整 Agent，而是与闭源 Claude Code CLI 的通信层
+- **核心逻辑**：`_internal/query.py` 处理双向控制协议
 
-**结论**：12 个框架（全部完全开源）的核心逻辑遵循同一模式：
+---
+
+**📝 待核实框架（TODO）**
+
+以下框架的核心循环代码结构需进一步调研核实：
+
+| 框架 | 语言 | 推测代码位置 | 核实状态 |
+|------|------|-------------|---------|
+| **Codex CLI** | Rust | `codex-rs/core/src/codex.rs` | ❌ 待核实 |
+| **OpenCode** | TypeScript | `src/session/prompt.ts` | ❌ 待核实 |
+| **Kimi CLI** | Python/TS | `src/kimi_cli/soul/kimisoul.py` | ❌ 待核实 |
+| **Gemini CLI** | TypeScript | `packages/core/src/core/client.ts` | ❌ 待核实 |
+| **Qwen Code** | TypeScript | `packages/core/src/core/client.ts` | ❌ 待核实 |
+| **OpenManus** | Python | `app/agent/react.py` | ❌ 待核实 |
+| **Goose** | Rust | `crates/goose-core/src/agent.rs` | ❌ 待核实 |
+
+---
+
+**结论**：
+
+基于已核实的框架代码，尽管实现细节各异，但都遵循以下核心模式：
 
 ```
 输入 → 构建上下文 → 调用 LLM → 解析输出 → 
@@ -176,7 +108,7 @@ async def _step(self) -> None:
 如果没有工具调用 → 完成 → 返回结果
 ```
 
-这就是 **Agent Loop**，自 2022 年 ReAct 论文发表以来，**本质逻辑保持高度稳定**。
+这就是 **Agent Loop**，自 2022 年 ReAct 论文发表以来，**本质逻辑保持高度稳定**。待核实框架的具体实现细节需通过源码阅读进一步确认。
 
 ### 1.2 那么，差异到底在哪里？
 

@@ -24,151 +24,91 @@
 
 ### 1.1 Twelve Frameworks, One Loop
 
-**Important Note**: The code snippets in this section are **pseudocode** intended to illustrate the core logic patterns of each framework, not verbatim copies of actual source code. Real implementations are more complex, containing extensive error handling, state management, and feature implementations.
+**Code Audit Note**: This section presents code audit results for select frameworks. Code snippets marked as [Verified] have been directly validated via GitHub; those marked as [Pending] require further research to confirm.
 
-Here are the core logic patterns for the 12 frameworks (all projects are fully open source):
+---
 
-**OpenAI Agents SDK** (Python, production-grade SDK):
+**✅ Verified Frameworks**
+
+**OpenAI Agents SDK** (Python, production-grade SDK) - [Verified]:
 ```python
-# src/agents/run.py:396-1329
+# src/agents/run.py:637 (actual source location)
 while True:
-    response = await model.get_response(messages, tools)
-    
-    if response.has_tool_calls():
-        for tool_call in response.tool_calls:
-            result = await execute_tool(tool_call)
-            messages.append(tool_result_message(result))
-    else:
-        return RunResult(final_output=response.content)
+    # Complex 600+ line loop with state recovery, guardrails, handoffs
+    # Simplified logic: Call LLM -> process tool calls -> check termination
+    turn_result = await run_single_turn(agent, tools, ...)
+    if isinstance(turn_result.next_step, NextStepFinalOutput):
+        break
+    # Handle handoffs, tool execution, etc.
 ```
+*Actual code is 600+ lines. See [GitHub source](https://github.com/openai/openai-agents-python/blob/main/src/agents/run.py)*
 
-**Claude Agent SDK** (Python, SDK + closed-source CLI):
+**SWE-agent** (Python, research framework) - [Verified]:
 ```python
-# _internal/query.py:172-232
-while not done:
-    response = await cli.communicate(messages)
-    
-    if response.type == "tool_use":
-        # Processed through Hook system
-        result = await handle_hooks("PreToolUse", response.tool)
-        observation = await execute_tool(result)
-        messages.append(observation)
-    elif response.type == "stop":
-        done = True
-```
-
-**Codex CLI** (Rust, enterprise-grade security):
-```rust
-// codex-rs/core/src/codex.rs:500-800
-loop {
-    let response = self.llm.generate(&context).await?;
-    
-    match response.finish_reason {
-        FinishReason::ToolCalls(calls) => {
-            // Security checks + approval
-            self.approval_manager.evaluate(&calls).await?;
-            let observations = self.execute_tools(calls).await?;
-            context.extend(observations);
-        }
-        FinishReason::Stop => break,
-    }
-}
-```
-
-**SWE-agent** (Python, research framework):
-```python
-# sweagent/agent/agents.py:1265
+# sweagent/agent/agents.py:350 (actual source location)
 while not step_output.done:
     step_output = self.step()
-    # Inside step():
-    #   thought, action = parse_react_output(llm_response)
-    #   observation = execute_action(action)
+    if step_output.done:
+        # Handle submission, retry logic
+        self._rloop.on_submit(...)
 ```
+*See [GitHub source](https://github.com/SWE-agent/SWE-agent/blob/main/sweagent/agent/agents.py)*
 
-**OpenManus** (Python, rapid experimentation):
+**Aider** (Python, fully open source Apache-2.0) - [Verified] (Non-traditional Agent):
 ```python
-# app/agent/react.py:11-38
-while self.current_step < self.max_steps:
-    step_result = await self.step()  # think() -> act()
-    if self.is_stuck():  # Detect repetitive responses
-        self.handle_stuck_state()
-```
-
-**OpenCode** (TypeScript, 100% open source):
-```typescript
-// src/session/prompt.ts:274-724
-while (true) {
-    const result = await processor.process({ messages, tools });
-    
-    if (result === "stop") break;
-    if (result === "compact") await compactContext();  // Feature: Auto-compaction
-    
-    // Handle subtasks, compaction, overflow, etc.
-}
-```
-
-**Aider** (Python, fully open source Apache-2.0):
-```python
-# aider/coders/base_coder.py:876-890
+# aider/coders/base_coder.py:876 (actual source location)
 # Note: Aider is not a traditional Agent tool-calling framework
-# It's a conversational coding assistant with this core loop:
+# It's a conversational coding assistant
 while True:
-    user_message = self.get_input()  # Get user input
-    self.run_one(user_message)       # Process single message
-    # run_one internally calls send_message to interact with LLM
-    # and processes code modifications via EditBlock parser
+    user_message = self.get_input()
+    self.run_one(user_message)  # Process single message
 ```
-*Note: Full source at https://github.com/Aider-AI/aider/blob/main/aider/coders/base_coder.py*
+*See [GitHub source](https://github.com/Aider-AI/aider/blob/main/aider/coders/base_coder.py)*
 
-**Goose** (Rust, fully open source Apache-2.0):
-```rust
-// crates/goose-core/src/agent.rs
-// Core logic: MCP-Native architecture event loop
-loop {
-    // 1. Get available tools from MCP Client
-    let tools = mcp_client.list_all_tools().await?;
-    
-    // 2. Call LLM with tools
-    let response = llm_client.complete(messages.clone(), tools).await?;
-    
-    // 3. Handle tool calls (executed via MCP servers)
-    if let Some(tool_calls) = response.tool_calls {
-        for call in tool_calls {
-            let result = mcp_client.call_tool(...).await?;
-            messages.push(Message::tool_result(result));
-        }
-    } else {
-        break;
-    }
-}
-```
-*Note: Goose source at https://github.com/block/goose/tree/main/crates/goose-core/src*
+---
+
+**⚠️ Architecture Notes**
 
 **OpenHands** (Python, fully open source MIT):
-```python
-# openhands/controller/agent_controller.py
-# Note: OpenHands uses event-driven architecture, not traditional while loop
-# Core logic is in _step() method, driven by EventStream
+- **Architecture**: Event-driven (Event-Driven), not traditional loop
+- **Core Method**: `_step()` in `openhands/controller/agent_controller.py`
+- **Characteristics**: Driven by EventStream and callback mechanism, no explicit while loop
+- *See [GitHub source](https://github.com/All-Hands-AI/OpenHands/blob/main/openhands/controller/agent_controller.py)*
 
-async def _step(self) -> None:
-    # 1. Check agent state
-    if self.get_agent_state() != AgentState.RUNNING:
-        return
-    
-    # 2. Agent decides Action
-    action = self.agent.step(self.state)
-    
-    # 3. Execute Action (in Docker sandbox)
-    if action.runnable:
-        self._pending_action = action
-        self.event_stream.add_event(action, EventSource.AGENT)
-    
-    # 4. Wait for Observation and callback
-    # (responded via on_event method)
+**Claude Agent SDK** (Python, SDK + closed-source CLI):
+- **Architecture**: Control protocol wrapper layer
+- **Note**: SDK itself is not a complete Agent, but a communication layer with closed-source Claude Code CLI
+- **Core Logic**: `_internal/query.py` handles bidirectional control protocol
+
+---
+
+**📝 Pending Verification (TODO)**
+
+The following frameworks' core loop code structures need further research:
+
+| Framework | Language | Suspected Location | Verification Status |
+|-----------|----------|-------------------|---------------------|
+| **Codex CLI** | Rust | `codex-rs/core/src/codex.rs` | ❌ Pending |
+| **OpenCode** | TypeScript | `src/session/prompt.ts` | ❌ Pending |
+| **Kimi CLI** | Python/TS | `src/kimi_cli/soul/kimisoul.py` | ❌ Pending |
+| **Gemini CLI** | TypeScript | `packages/core/src/core/client.ts` | ❌ Pending |
+| **Qwen Code** | TypeScript | `packages/core/src/core/client.ts` | ❌ Pending |
+| **OpenManus** | Python | `app/agent/react.py` | ❌ Pending |
+| **Goose** | Rust | `crates/goose-core/src/agent.rs` | ❌ Pending |
+
+---
+
+**Conclusion**:
+
+Based on verified framework code, despite varying implementation details, all follow this core pattern:
+
 ```
-*Note: Full source at https://github.com/All-Hands-AI/OpenHands/blob/main/openhands/controller/agent_controller.py*
+Input → Build Context → Call LLM → Parse Output → 
+If tool calls exist → Execute tools → Add observations → Repeat
+If no tool calls → Complete → Return result
+```
 
-**Conclusion**: 12 frameworks (all fully open source) follow the same pattern:
+This is the **Agent Loop**. Since the ReAct paper in 2022, **the essential logic remains highly stable**. Specific implementation details for pending frameworks require further source code review.
 
 ```
 Input → Build Context → Call LLM → Parse Output → 
