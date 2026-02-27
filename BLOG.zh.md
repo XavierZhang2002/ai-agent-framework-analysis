@@ -20,11 +20,11 @@
 
 ## 一、破除迷思：Agent 的核心循环高度稳定
 
-> **重要限定**：本文聚焦**单 Agent 工具调用范式**（Single-Agent Tool-Calling Pattern）。这是当前 9 个开源框架的主流架构。Multi-Agent 编排（如 Planning、Agent 间通信）、Planner-Executor 分离等范式不在本文讨论范围。
+> **重要限定**：本文聚焦**单 Agent 工具调用范式**（Single-Agent Tool-Calling Pattern）。这是当前 12 个开源框架的主流架构。Multi-Agent 编排（如 Planning、Agent 间通信）、Planner-Executor 分离等范式不在本文讨论范围。
 
-### 1.1 9 个框架，同一个循环
+### 1.1 12 个框架，同一个循环
 
-让我先展示一个令人惊讶的事实。以下是 9 个框架的核心循环伪代码：
+让我先展示一个令人惊讶的事实。以下是 12 个框架的核心循环伪代码（所有项目均完全开源，可在 GitHub 直接查看源码）：
 
 **OpenAI Agents SDK**（Python，生产级 SDK）：
 ```python
@@ -105,7 +105,80 @@ while (true) {
 }
 ```
 
-**看到了吗？** 所有框架都是同一个模式：
+**Aider**（Python，完全开源 Apache-2.0）：
+```python
+# aider/coders/base_coder.py
+while True:
+    # 1. 获取用户输入和 Repo Map 上下文
+    messages = self.prepare_messages()
+    
+    # 2. 调用 LLM
+    response = await self.model.send(messages)
+    
+    # 3. 解析编辑块（EditBlock）
+    edit_blocks = parse_edit_blocks(response)
+    
+    # 4. 执行文件修改
+    for block in edit_blocks:
+        self.apply_edit(block)  # 通过 Git 提交
+        messages.append(tool_result_message(block))
+    
+    # 5. 检查是否完成
+    if not edit_blocks:
+        break
+```
+
+**Goose**（Rust，完全开源 Apache-2.0）：
+```rust
+// crates/goose-core/src/agent.rs
+loop {
+    // 1. 获取 MCP 工具列表（动态）
+    let tools = mcp_client.list_all_tools().await?;
+    
+    // 2. 调用 LLM
+    let response = llm_client.complete(messages.clone(), tools).await?;
+    
+    messages.push(Message::assistant(response.content));
+    
+    // 3. 通过 MCP Client 执行工具
+    if let Some(tool_calls) = response.tool_calls {
+        for call in tool_calls {
+            let result = mcp_client
+                .call_tool(&call.server, &call.name, call.arguments)
+                .await?;
+            messages.push(Message::tool_result(result));
+        }
+    } else {
+        break;
+    }
+}
+```
+
+**OpenHands**（Python，完全开源 MIT）：
+```python
+# openhands/controller/agent_controller.py
+while not state.is_done():
+    # 1. 获取当前 Agent 状态
+    agent = self.get_current_agent()
+    
+    # 2. 准备观察（Observation）
+    observation = await self.runtime.get_observation()
+    
+    # 3. Agent 决定动作（Action）
+    action = agent.step(observation)
+    
+    # 4. 在 Docker 沙箱中执行动作
+    result = await self.runtime.execute_action(action)
+    
+    # 5. 更新状态
+    state.add_step(action, result)
+    
+    # 6. 检查是否需要 Agent 切换（微代理）
+    if action.type == "delegate":
+        self.switch_to_subagent(action.target_agent)
+```
+
+**看到了吗？** 12 个框架（全部完全开源）都是同一个模式：
 
 ```
 输入 → 构建上下文 → 调用 LLM → 解析输出 → 

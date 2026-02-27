@@ -20,11 +20,11 @@
 
 ## I. Debunking Myths: The Agent Core Loop is Highly Stable
 
-> **Important Scope**: This article focuses on the **Single-Agent Tool-Calling Pattern**, which is the mainstream architecture across the 9 open-source frameworks surveyed. Multi-Agent orchestration (e.g., Planning, inter-agent communication), Planner-Executor separation, and other paradigms are outside the scope of this discussion.
+> **Important Scope**: This article focuses on the **Single-Agent Tool-Calling Pattern**, which is the mainstream architecture across the 12 open-source frameworks surveyed. Multi-Agent orchestration (e.g., Planning, inter-agent communication), Planner-Executor separation, and other paradigms are outside the scope of this discussion.
 
-### 1.1 Nine Frameworks, One Loop
+### 1.1 Twelve Frameworks, One Loop
 
-Let me first present a surprising fact. Here are the core loop pseudocodes for the 9 frameworks:
+Let me first present a surprising fact. Here are the core loop pseudocodes for the 12 frameworks (all projects are fully open source and available on GitHub):
 
 **OpenAI Agents SDK** (Python, production-grade SDK):
 ```python
@@ -105,7 +105,80 @@ while (true) {
 }
 ```
 
-**See?** All frameworks follow the same pattern:
+**Aider** (Python, fully open source Apache-2.0):
+```python
+# aider/coders/base_coder.py
+while True:
+    # 1. Prepare messages with Repo Map context
+    messages = self.prepare_messages()
+    
+    # 2. Call LLM
+    response = await self.model.send(messages)
+    
+    # 3. Parse edit blocks (EditBlock)
+    edit_blocks = parse_edit_blocks(response)
+    
+    # 4. Execute file modifications
+    for block in edit_blocks:
+        self.apply_edit(block)  # Committed via Git
+        messages.append(tool_result_message(block))
+    
+    # 5. Check if complete
+    if not edit_blocks:
+        break
+```
+
+**Goose** (Rust, fully open source Apache-2.0):
+```rust
+// crates/goose-core/src/agent.rs
+loop {
+    // 1. Get MCP tools list (dynamic)
+    let tools = mcp_client.list_all_tools().await?;
+    
+    // 2. Call LLM
+    let response = llm_client.complete(messages.clone(), tools).await?;
+    
+    messages.push(Message::assistant(response.content));
+    
+    // 3. Execute tools via MCP Client
+    if let Some(tool_calls) = response.tool_calls {
+        for call in tool_calls {
+            let result = mcp_client
+                .call_tool(&call.server, &call.name, call.arguments)
+                .await?;
+            messages.push(Message::tool_result(result));
+        }
+    } else {
+        break;
+    }
+}
+```
+
+**OpenHands** (Python, fully open source MIT):
+```python
+# openhands/controller/agent_controller.py
+while not state.is_done():
+    # 1. Get current agent state
+    agent = self.get_current_agent()
+    
+    # 2. Prepare observation
+    observation = await self.runtime.get_observation()
+    
+    # 3. Agent decides action
+    action = agent.step(observation)
+    
+    # 4. Execute action in Docker sandbox
+    result = await self.runtime.execute_action(action)
+    
+    # 5. Update state
+    state.add_step(action, result)
+    
+    # 6. Check if agent switch needed (micro-agents)
+    if action.type == "delegate":
+        self.switch_to_subagent(action.target_agent)
+```
+
+**See?** All 12 frameworks (all fully open source) follow the same pattern:
 
 ```
 Input → Build Context → Call LLM → Parse Output → 
