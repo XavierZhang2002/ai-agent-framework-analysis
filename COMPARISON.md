@@ -408,7 +408,7 @@
 - 权衡: Rust 学习曲线，配置复杂
 
 **需求: IDE 集成，需要 ACP Server**
-→ **Kimi CLI** 或 **Qwen Code**
+→ **Kimi CLI**或**Qwen Code**
 - Kimi: 完整 ACP 实现 (`acp/server.py:107-166`)
 - Qwen: 深度 IDE MCP 集成 (`ide/ide-client.ts:77-206`)
 
@@ -626,7 +626,7 @@
 
 ## 总结
 
-本调研基于 **2026-02-26** 的深度代码分析，覆盖 9 个主流 Agent 框架，总计审查 **~300 KB** 源码文档。
+本调研基于 **2026-02-26**的深度代码分析，覆盖 9 个主流 Agent 框架，总计审查**~300 KB** 源码文档。
 
 **核心发现**:
 
@@ -636,7 +636,7 @@
 4. **Security 领袖**: Codex CLI 唯一提供 OS-level Sandbox（Seatbelt/Landlock/Windows）
 5. **研究框架**: SWE-agent 专注 benchmark，OpenManus Flow 系统不稳定
 
-**选择建议**: 根据 **需求（功能）** + **技术栈（语言）** + **安全级别** 三维度综合决策，详见第 6 节决策树。
+**选择建议**: 根据 **需求（功能）**+**技术栈（语言）**+**安全级别** 三维度综合决策，详见第 6 节决策树。
 
 ---
 
