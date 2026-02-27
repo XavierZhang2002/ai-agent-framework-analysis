@@ -24,7 +24,9 @@
 
 ### 1.1 Twelve Frameworks, One Loop
 
-Let me first present a surprising fact. Here are the core loop pseudocodes for the 12 frameworks (all projects are fully open source and available on GitHub):
+**Important Note**: The code snippets in this section are **pseudocode** intended to illustrate the core logic patterns of each framework, not verbatim copies of actual source code. Real implementations are more complex, containing extensive error handling, state management, and feature implementations.
+
+Here are the core logic patterns for the 12 frameworks (all projects are fully open source):
 
 **OpenAI Agents SDK** (Python, production-grade SDK):
 ```python
@@ -107,45 +109,32 @@ while (true) {
 
 **Aider** (Python, fully open source Apache-2.0):
 ```python
-# aider/coders/base_coder.py
+# aider/coders/base_coder.py:876-890
+# Note: Aider is not a traditional Agent tool-calling framework
+# It's a conversational coding assistant with this core loop:
 while True:
-    # 1. Prepare messages with Repo Map context
-    messages = self.prepare_messages()
-    
-    # 2. Call LLM
-    response = await self.model.send(messages)
-    
-    # 3. Parse edit blocks (EditBlock)
-    edit_blocks = parse_edit_blocks(response)
-    
-    # 4. Execute file modifications
-    for block in edit_blocks:
-        self.apply_edit(block)  # Committed via Git
-        messages.append(tool_result_message(block))
-    
-    # 5. Check if complete
-    if not edit_blocks:
-        break
+    user_message = self.get_input()  # Get user input
+    self.run_one(user_message)       # Process single message
+    # run_one internally calls send_message to interact with LLM
+    # and processes code modifications via EditBlock parser
 ```
+*Note: Full source at https://github.com/Aider-AI/aider/blob/main/aider/coders/base_coder.py*
 
 **Goose** (Rust, fully open source Apache-2.0):
 ```rust
 // crates/goose-core/src/agent.rs
+// Core logic: MCP-Native architecture event loop
 loop {
-    // 1. Get MCP tools list (dynamic)
+    // 1. Get available tools from MCP Client
     let tools = mcp_client.list_all_tools().await?;
     
-    // 2. Call LLM
+    // 2. Call LLM with tools
     let response = llm_client.complete(messages.clone(), tools).await?;
     
-    messages.push(Message::assistant(response.content));
-    
-    // 3. Execute tools via MCP Client
+    // 3. Handle tool calls (executed via MCP servers)
     if let Some(tool_calls) = response.tool_calls {
         for call in tool_calls {
-            let result = mcp_client
-                .call_tool(&call.server, &call.name, call.arguments)
-                .await?;
+            let result = mcp_client.call_tool(...).await?;
             messages.push(Message::tool_result(result));
         }
     } else {
@@ -153,32 +142,33 @@ loop {
     }
 }
 ```
+*Note: Goose source at https://github.com/block/goose/tree/main/crates/goose-core/src*
 
 **OpenHands** (Python, fully open source MIT):
 ```python
 # openhands/controller/agent_controller.py
-while not state.is_done():
-    # 1. Get current agent state
-    agent = self.get_current_agent()
-    
-    # 2. Prepare observation
-    observation = await self.runtime.get_observation()
-    
-    # 3. Agent decides action
-    action = agent.step(observation)
-    
-    # 4. Execute action in Docker sandbox
-    result = await self.runtime.execute_action(action)
-    
-    # 5. Update state
-    state.add_step(action, result)
-    
-    # 6. Check if agent switch needed (micro-agents)
-    if action.type == "delegate":
-        self.switch_to_subagent(action.target_agent)
-```
+# Note: OpenHands uses event-driven architecture, not traditional while loop
+# Core logic is in _step() method, driven by EventStream
 
-**See?** All 12 frameworks (all fully open source) follow the same pattern:
+async def _step(self) -> None:
+    # 1. Check agent state
+    if self.get_agent_state() != AgentState.RUNNING:
+        return
+    
+    # 2. Agent decides Action
+    action = self.agent.step(self.state)
+    
+    # 3. Execute Action (in Docker sandbox)
+    if action.runnable:
+        self._pending_action = action
+        self.event_stream.add_event(action, EventSource.AGENT)
+    
+    # 4. Wait for Observation and callback
+    # (responded via on_event method)
+```
+*Note: Full source at https://github.com/All-Hands-AI/OpenHands/blob/main/openhands/controller/agent_controller.py*
+
+**Conclusion**: 12 frameworks (all fully open source) follow the same pattern:
 
 ```
 Input → Build Context → Call LLM → Parse Output → 
