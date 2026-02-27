@@ -26,8 +26,13 @@
 | **Qwen Code** | 未公开 | `QwenLM/qwen-code` / Apache-2.0 | ✅ ✅ 开源 | TypeScript | ❌ Node CLI | 未统计 | 终端优先 + Skills/SubAgents，Qwen 协同演进 | 代码理解与改造、终端自动化、Qwen 集成 | Qwen OAuth/API 服务 |
 | **SWE-agent** | 未公开 | `SWE-agent/SWE-agent` / MIT | ✅ ✅ ✅ 研究导向 | Python | ❌ 框架本体 | Agent ~1.3k lines | 自动修 issue/基准评测的研究型 Agent | SWE-bench、自动修复、研究 | 所接入 LLM 服务 |
 | **OpenManus** | 未公开 | `FoundationAgents/OpenManus` / MIT | ✅ ✅ Python 开源 | Python | ❌ 可运行框架 | 未统计 | 快速复现 Manus 风格 Agent，社区共建 | 通用任务 Agent、MCP 实验、多 Agent 研究 | 所连接 LLM/API 服务 |
+| **Aider** | 40.3k | `Aider-AI/aider` / Apache-2.0 | ✅ ✅ ✅ 完全开源 | Python | ❌ CLI 工具 | ~8k lines | Git-native 编码助手，首创 Repo Map | 大型代码库、多文件编辑、Git 工作流 | 所选模型服务 |
+| **Goose** | 29.9k | `block/goose` / Apache-2.0 | ✅ ✅ ✅ 完全开源 | Rust | ❌ CLI 工具 | Core ~3k lines | MCP-Native 架构，Block 企业级 | MCP 生态、企业部署、工具多样化 | 所选模型服务 |
+| **OpenHands** | 67.5k | `All-Hands-AI/OpenHands` / MIT | ✅ ✅ ✅ 完全开源 | Python | ❌ 平台化 | ~15k lines | 完整 Agent 平台，Docker 沙箱 | 学术研究、团队协作、SWE-bench | 所选模型服务 |
 
-**注**: Stars 数据来自 GitHub（OpenAI Agents SDK 19.2k，Claude Agent SDK 5k），其他项目未在深度调研中获取准确数据。
+**注**: 
+- **"Big Four" 第一梯队**（按 Stars）：OpenHands (67.5k) > Aider (40.3k) > Goose (29.9k) > OpenAI Agents SDK (19.2k)
+- 市场格局显示开源社区项目（Aider、Goose、OpenHands）的 Stars 超越多数实验室项目
 
 ---
 
@@ -46,6 +51,9 @@
 | **Qwen Code** | `packages/core/src/core/client.ts` (678 lines) | GeminiClient with IDE context | • Context variable templating<br>• SubAgent isolation<br>• File-lock token manager |
 | **SWE-agent** | `sweagent/agent/agents.py:1265` | DefaultAgent.run() | • YAML-driven config<br>• Trajectory recording<br>• Tool bundle system |
 | **OpenManus** | `app/agent/base.py:116-154` | BaseAgent.run() template method | • ReAct inheritance chain<br>• ToolCollection composition<br>• Singleton LLM |
+| **Aider** | `aider/coders/base_coder.py:800+` | Coder.step() | • Git-native workflow<br>• Repo Map (tree-sitter)<br>• Multi-file editing |
+| **Goose** | `crates/goose-core/src/agent.rs:800+` | Agent loop with MCP routing | • MCP-Native architecture<br>• Process isolation<br>• Rust performance |
+| **OpenHands** | `openhands/controller/agent_controller.py:900+` | AgentController.step() | • Micro-agent orchestration<br>• Docker sandbox<br>• Web UI + API |
 
 ### 2.2 工具/协议扩展能力对比
 
