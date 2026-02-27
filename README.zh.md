@@ -30,20 +30,42 @@
 
 ### 分析的框架
 
-| 框架 | 语言 | 核心定位 | 关键差异化特性 |
-|------|------|---------|--------------|
-| [OpenAI Agents SDK](deep-dive/OpenAI-Agents-SDK-DEEP-DIVE.md) | Python | 生产级 SDK | HITL、Tracing、Provider-agnostic |
-| [Claude Agent SDK](deep-dive/Claude-Agent-SDK-Python-DEEP-DIVE.md) | Python | Claude 深度集成 | 10+ Hooks、SDK MCP |
-| [Codex CLI](deep-dive/Codex-CLI-DEEP-DIVE.md) | Rust | 企业级安全 | OS-level Sandbox |
-| [OpenCode](deep-dive/OpenCode-DEEP-DIVE.md) | TypeScript | 开源 CLI | Permission Ruleset |
-| [Kimi CLI](deep-dive/Kimi-CLI-DEEP-DIVE.md) | Python/TS | IDE 集成 | ACP Server |
-| [Gemini CLI](deep-dive/Gemini-CLI-DEEP-DIVE.md) | TypeScript | Google 生态 | 30+ 内置工具 |
-| [Qwen Code](deep-dive/Qwen-Code-DEEP-DIVE.md) | TypeScript | Qwen 生态 | Skills + SubAgents |
-| [SWE-agent](deep-dive/SWE-agent-DEEP-DIVE.md) | Python | 研究框架 | Trajectory Recording |
-| [OpenManus](deep-dive/OpenManus-DEEP-DIVE.md) | Python | 快速实验 | MCP 双角色 |
-| [Aider](deep-dive/Aider-DEEP-DIVE.md) | Python | Git-Native 编码助手 | Repo Map、Tree-sitter |
-| [Goose](deep-dive/Goose-DEEP-DIVE.md) | Rust | MCP-Native 框架 | MCP-Native 架构 |
-| [OpenHands](deep-dive/OpenHands-DEEP-DIVE.md) | Python | 完整平台 | Docker 沙箱、微代理 |
+| 框架 | 语言 | 核心定位 | 关键差异化特性 | Stars |
+|------|------|---------|--------------|-------|
+| [OpenAI Agents SDK](deep-dive/OpenAI-Agents-SDK-DEEP-DIVE.md) | Python | 生产级 SDK | HITL、Tracing、Provider-agnostic | 19.2K |
+| [Claude Agent SDK](deep-dive/Claude-Agent-SDK-Python-DEEP-DIVE.md) | Python | Claude 深度集成 | 10+ Hooks、SDK MCP | 5K |
+| [Codex CLI](deep-dive/Codex-CLI-DEEP-DIVE.md) | Rust | 企业级安全 | 三层循环、OS Sandbox | 62.2K |
+| [OpenCode](deep-dive/OpenCode-DEEP-DIVE.md) | TypeScript | 开源 CLI | 智能压缩、权限系统 | 112K |
+| [Kimi CLI](deep-dive/Kimi-CLI-DEEP-DIVE.md) | Python/TS | IDE 集成 | D-Mail 时间旅行、ACP | 5.9K |
+| [Gemini CLI](deep-dive/Gemini-CLI-DEEP-DIVE.md) | TypeScript | Google 生态 | GEMINI.md 记忆、免费额度 | 95.9K |
+| [Qwen Code](deep-dive/Qwen-Code-DEEP-DIVE.md) | TypeScript | Qwen 生态 | SubAgents、Skills、模板 | 18.1K |
+| [SWE-agent](deep-dive/SWE-agent-DEEP-DIVE.md) | Python | 研究框架 | Trajectory Recording、SWE-bench | 18.4K |
+| [OpenManus](deep-dive/OpenManus-DEEP-DIVE.md) | Python | 快速实验 | MCP 双角色、ReAct | - |
+| [Aider](deep-dive/Aider-DEEP-DIVE.md) | Python | Git-Native 编码助手 | Repo Map、Tree-sitter | 41K |
+| [Goose](deep-dive/Goose-DEEP-DIVE.md) | Rust | MCP-Native 框架 | MCP-Native、Extensions | 31.4K |
+| [OpenHands](deep-dive/OpenHands-DEEP-DIVE.md) | Python | 完整平台 | Docker 沙箱、微代理 | 68.3K |
+
+### 详细特性矩阵
+
+| 特性 | OpenAI SDK | Claude SDK | Codex | OpenCode | Kimi | Gemini | Qwen | SWE | Manus | Aider | Goose | Hands |
+|-----------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **状态管理** |||||||||||||
+| Session Persistence | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ⚠️ | ⚠️ | ❌ | ✅ | ✅ | ✅ |
+| HITL State | ✅ | ⚠️ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Context Compaction | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| **安全控制** |||||||||||||
+| OS Sandbox | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ⚠️ | ✅ |
+| Docker Sandbox | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Policy Engine | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ⚠️ | ⚠️ |
+| **协议支持** |||||||||||||
+| MCP Client | ⚠️ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ | ✅ | ✅ |
+| MCP Server | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ |
+| **高级特性** |||||||||||||
+| Parallel Tools | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ⚠️ | ⚠️ | ✅ |
+| Tracing | ✅ | ❌ | ⚠️ | ⚠️ | ❌ | ⚠️ | ❌ | ❌ | ❌ | ❌ | ⚠️ | ⚠️ |
+| SubAgents | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ | ✅ | ❌ | ⚠️ | ❌ | ⚠️ | ✅ |
+
+*图例：✅ 完整支持 | ⚠️ 部分支持 | ❌ 不支持*
 
 ## 📊 研究方法
 

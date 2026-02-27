@@ -82,41 +82,321 @@ while True:
 
 ---
 
-**📝 Pending Verification (TODO)**
+**✅ Verified Frameworks (continued)**
 
-The following frameworks' core loop code structures need further research:
+**Codex CLI** (Rust, enterprise-grade security) - [Verified] (Three-layer architecture):
+```rust
+// codex-rs/core/src/codex.rs:3685-3855 (Submission Loop)
+// codex-rs/core/src/codex.rs:4837-5199 (Turn Execution)
+// codex-rs/core/src/codex.rs:6220-6554 (Sampling Loop)
 
-| Framework | Language | Suspected Location | Verification Status |
-|-----------|----------|-------------------|---------------------|
-| **Codex CLI** | Rust | `codex-rs/core/src/codex.rs` | ❌ Pending |
-| **OpenCode** | TypeScript | `src/session/prompt.ts` | ❌ Pending |
-| **Kimi CLI** | Python/TS | `src/kimi_cli/soul/kimisoul.py` | ❌ Pending |
-| **Gemini CLI** | TypeScript | `packages/core/src/core/client.ts` | ❌ Pending |
-| **Qwen Code** | TypeScript | `packages/core/src/core/client.ts` | ❌ Pending |
-| **OpenManus** | Python | `app/agent/react.py` | ❌ Pending |
-| **Goose** | Rust | `crates/goose-core/src/agent.rs` | ❌ Pending |
+// Layer 1: Submission Loop - Actor model message loop
+async fn submission_loop(sess: Arc<Session>, ...) {
+    while let Ok(sub) = rx_sub.recv().await {
+        match sub.op {
+            Op::UserInput { ... } => handlers::user_input_or_turn(...).await,
+            Op::ExecApproval { ... } => handlers::exec_approval(...).await,
+            Op::Interrupt => handlers::interrupt(...).await,
+            Op::Shutdown => break,
+        }
+    }
+}
+
+// Layer 3: Sampling Loop - LLM streaming + parallel tool execution
+async fn try_run_sampling_request(...) {
+    let mut stream = client_session.stream(prompt, ...).await?;
+    let mut in_flight: FuturesOrdered<...> = FuturesOrdered::new();
+    
+    loop {
+        match stream.next().await {
+            ResponseEvent::OutputItemDone(item) => {
+                if let Some(tool_future) = output_result.tool_future {
+                    in_flight.push_back(tool_future);  // Parallel execution
+                }
+            }
+            ResponseEvent::Completed { ... } => break,
+            ResponseEvent::OutputTextDelta(delta) => {
+                emit_streamed_assistant_text_delta(...).await;
+            }
+        }
+    }
+}
+```
+*See [GitHub source](https://github.com/openai/codex) | [Deep Dive](deep-dive/Codex-CLI-DEEP-DIVE.md)*
 
 ---
 
-**Conclusion**:
-
-Based on verified framework code, despite varying implementation details, all follow this core pattern:
-
+**OpenCode** (TypeScript, 100% open source) - [Verified] (with compaction & permissions):
+```typescript
+// packages/opencode/src/session/prompt.ts:347-738 (core loop)
+export async function loop(sessionID: string, options?: LoopOptions) {
+  let step = 0
+  while (true) {
+    // Filter compacted messages
+    let msgs = await MessageV2.filterCompacted(MessageV2.stream(sessionID))
+    
+    // Check exit condition
+    if (lastAssistant?.finish && lastUser.id < lastAssistant.id) {
+      break
+    }
+    
+    step++
+    
+    // Handle subtask (parallel agent)
+    const task = tasks.pop()
+    if (task?.type === "subtask") {
+      // Execute Task tool
+      continue
+    }
+    
+    // Handle context compaction
+    if (task?.type === "compaction") {
+      const result = await SessionCompaction.process({...})
+      if (result === "stop") break
+      continue
+    }
+    
+    // Check context overflow
+    if (await SessionCompaction.isOverflow({ tokens: lastFinished.tokens })) {
+      await SessionCompaction.create({ sessionID, auto: true })
+      continue
+    }
+    
+    // Normal processing
+    const result = await processor.process({ user: lastUser, tools, model })
+    if (result === "stop") break
+    if (result === "compact") await SessionCompaction.create({...})
+  }
+}
 ```
-Input → Build Context → Call LLM → Parse Output → 
-If tool calls exist → Execute tools → Add observations → Repeat
-If no tool calls → Complete → Return result
-```
+*See [GitHub source](https://github.com/sst/opencode) | [Deep Dive](deep-dive/OpenCode-DEEP-DIVE.md)*
 
-This is the **Agent Loop**. Since the ReAct paper in 2022, **the essential logic remains highly stable**. Specific implementation details for pending frameworks require further source code review.
+---
 
-```
-Input → Build Context → Call LLM → Parse Output → 
-If tool calls exist → Execute tools → Add observations → Repeat
-If no tool calls → Complete → Return result
-```
+**Kimi CLI** (Python/TS, IDE integration) - [Verified] (D-Mail time travel):
+```python
+// src/kimi_cli/soul/kimisoul.py:206-275 (Agent Loop)
+async def _agent_loop(self) -> TurnOutcome:
+    step_no = 0
+    while True:
+        step_no += 1
+        if step_no > self._loop_control.max_steps_per_turn:
+            raise MaxStepsReached(...)
+        
+        # Context compaction check
+        if self._context.token_count + reserved >= self._runtime.llm.max_context_size:
+            await self.compact_context()
+        
+        # Create checkpoint (for time travel)
+        await self._checkpoint()
+        
+        try:
+            step_outcome = await self._step()
+        except BackToTheFuture as e:  # Catch time travel exception!
+            await self._context.revert_to(e.checkpoint_id)  # Revert to past
+            await self._context.append_message(e.messages)
+            continue
 
-This is the **Agent Loop**. Since the ReAct paper was published in 2022, **the essential logic has remained highly stable**.
+// src/kimi_cli/soul/kimisoul.py:277-348 (single step)
+async def _step(self) -> StepOutcome | None:
+    result = await kosong.step(...)  # Call LLM
+    results = await result.tool_results()  # Wait for tool results
+    
+    # Handle D-Mail (time travel message)
+    if dmail := self._denwa_renji.fetch_pending_dmail():
+        raise BackToTheFuture(dmail.checkpoint_id, [...])
+    
+    if result.tool_calls:
+        return None  # Continue loop
+    return StepOutcome(stop_reason="no_tool_calls", ...)
+```
+*See [GitHub source](https://github.com/MoonshotAI/kimi-cli) | [Deep Dive](deep-dive/Kimi-CLI-DEEP-DIVE.md)*
+
+---
+
+**Gemini CLI** (TypeScript, Google ecosystem) - [Verified] (auto-continue):
+```typescript
+// packages/core/src/core/client.ts:360-450 (main loop)
+async *sendMessageStream(request, signal, prompt_id, turns): AsyncGenerator<...> {
+  // Check session limits
+  this.sessionTurnCount++
+  if (this.sessionTurnCount > this.config.getMaxSessionTurns()) {
+    yield { type: GeminiEventType.MaxSessionTurns }
+    return
+  }
+  
+  // Attempt chat compression
+  const compressed = await this.tryCompressChat(prompt_id, false)
+  
+  // Loop detection
+  if (this.loopDetector.addAndCheck(event)) {
+    yield { type: GeminiEventType.LoopDetected }
+    return
+  }
+  
+  // Execute turn
+  const turn = new Turn(this.getChat(), prompt_id)
+  const resultStream = turn.run(modelConfigKey, requestToSent, signal)
+  
+  for await (const event of resultStream) {
+    yield event
+  }
+  
+  // Check next speaker - auto continue
+  if (!turn.pendingToolCalls.length) {
+    const nextSpeakerCheck = await checkNextSpeaker(...)
+    if (nextSpeakerCheck?.next_speaker === 'model') {
+      const nextRequest = [{ text: 'Please continue.' }]
+      yield* this.sendMessageStream(nextRequest, signal, prompt_id, boundedTurns - 1)
+    }
+  }
+}
+```
+*See [GitHub source](https://github.com/google-gemini/gemini-cli) | [Deep Dive](deep-dive/Gemini-CLI-DEEP-DIVE.md)*
+
+---
+
+**Qwen Code** (TypeScript, Qwen ecosystem) - [Verified] (SubAgents):
+```typescript
+// packages/core/src/core/client.ts:261-384 (main loop)
+async *sendMessageStream(request, signal, prompt_id, options): AsyncGenerator<...> {
+  // Add system reminders (SubAgents, Plan mode)
+  const systemReminders = []
+  if (hasTaskTool && subagents.length > 0) {
+    systemReminders.push(getSubagentSystemReminder(subagents))
+  }
+  if (this.config.getApprovalMode() === ApprovalMode.PLAN) {
+    systemReminders.push(getPlanModeSystemReminder(...))
+  }
+  
+  // Execute turn
+  const turn = new Turn(this.getChat(), prompt_id)
+  const resultStream = turn.run(this.config.getModel(), requestToSent, signal)
+  
+  for await (const event of resultStream) {
+    if (this.loopDetector.addAndCheck(event)) {
+      yield { type: GeminiEventType.LoopDetected }
+      return turn
+    }
+    yield event
+  }
+  
+  // Recursive call for auto-continue
+  if (nextSpeakerCheck?.next_speaker === 'model') {
+    yield* this.sendMessageStream([{ text: 'Please continue.' }], ...)
+  }
+}
+
+// packages/core/src/subagents/subagent.ts (subagent loop)
+async runNonInteractive(context: ContextState): Promise<void> {
+  while (true) {
+    if (turnCounter >= max_turns) break
+    if (time_exceeded) break
+    
+    const responseStream = await chat.sendMessageStream(model, messages, promptId)
+    
+    for await (const streamEvent of responseStream) {
+      if (resp.functionCalls) functionCalls.push(...resp.functionCalls)
+    }
+    
+    if (functionCalls.length > 0) {
+      currentMessages = await this.processFunctionCalls(functionCalls)
+    } else {
+      this.finalText = roundText.trim()  // Final result
+      break
+    }
+  }
+}
+```
+*See [GitHub source](https://github.com/QwenLM/qwen-code) | [Deep Dive](deep-dive/Qwen-Code-DEEP-DIVE.md)*
+
+---
+
+**OpenManus** (Python, quick experiment) - [Verified] (ReAct + MCP):
+```python
+# app/agent/base.py:116-154 (core loop)
+async def run(self, request: Optional[str] = None) -> str:
+    async with self.state_context(AgentState.RUNNING):
+        while (self.current_step < self.max_steps and 
+               self.state != AgentState.FINISHED):
+            self.current_step += 1
+            step_result = await self.step()
+            
+            # Check if stuck (duplicate responses)
+            if self.is_stuck():
+                self.handle_stuck_state()
+
+# app/agent/react.py (ReAct pattern)
+class ReActAgent(BaseAgent, ABC):
+    async def step(self) -> str:
+        """Execute a single step: think and act."""
+        should_act = await self.think()  # Think
+        if not should_act:
+            return "Thinking complete - no action needed"
+        return await self.act()  # Execute
+
+# app/agent/toolcall.py (tool calling)
+async def think(self) -> bool:
+    response = await self.llm.ask_tool(
+        messages=self.messages,
+        tools=self.available_tools.to_params(),
+    )
+    self.tool_calls = response.tool_calls if response else []
+    return bool(self.tool_calls)
+
+async def act(self) -> str:
+    results = []
+    for command in self.tool_calls:
+        result = await self.execute_tool(command)
+        results.append(result)
+    return "\n\n".join(results)
+```
+*See [GitHub source](https://github.com/FoundationAgents/OpenManus) | [Deep Dive](deep-dive/OpenManus-DEEP-DIVE.md)*
+
+---
+
+**Goose** (Rust, MCP-Native) - [Verified]:
+```rust
+// crates/goose/src/agents/agent.rs:575-700+ (core loop)
+async fn reply_internal(...) -> Result<BoxStream<'_, Result<AgentEvent>>> {
+    Ok(Box::pin(async_stream::try_stream! {
+        let mut turns_taken = 0u32;
+        let max_turns = session_config.max_turns.unwrap_or(DEFAULT_MAX_TURNS);
+        
+        loop {
+            if is_token_cancelled(&cancel_token) { break; }
+            
+            // Check completion
+            if let Some(final_output_tool) = self.final_output_tool.lock().await.as_ref() {
+                if final_output_tool.final_output.is_some() {
+                    yield AgentEvent::Message(...)
+                    break
+                }
+            }
+            
+            turns_taken += 1
+            if turns_taken > max_turns {
+                yield AgentEvent::Message(...)  // Max turns reached
+                break
+            }
+            
+            // Tool pair summarization (context compaction)
+            let tool_pair_summarization = crate::context_mgmt::maybe_summarize_tool_pair(...)
+            
+            // MOIM injection
+            let conversation_with_moim = super::moim::inject_moim(...).await
+            
+            // Stream response from LLM provider
+            let mut stream = Self::stream_response_from_provider(...).await?
+            
+            while let Some(next) = stream.next().await {
+                // Process messages, tool calls, etc.
+            }
+        }
+    }))
+}
+```
+*See [GitHub source](https://github.com/block/goose) | [Deep Dive](deep-dive/Goose-DEEP-DIVE.md)*
 
 ### 1.2 So, Where Do the Differences Lie?
 

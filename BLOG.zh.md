@@ -82,19 +82,321 @@ while True:
 
 ---
 
-**📝 待核实框架（TODO）**
+**✅ 已核实框架（续）**
 
-以下框架的核心循环代码结构需进一步调研核实：
+**Codex CLI**（Rust，企业级安全）- 已核实（三层循环架构）：
+```rust
+// codex-rs/core/src/codex.rs:3685-3855（Submission Loop）
+// codex-rs/core/src/codex.rs:4837-5199（Turn Execution）
+// codex-rs/core/src/codex.rs:6220-6554（Sampling Loop）
 
-| 框架 | 语言 | 推测代码位置 | 核实状态 |
-|------|------|-------------|---------|
-| **Codex CLI** | Rust | `codex-rs/core/src/codex.rs` | ❌ 待核实 |
-| **OpenCode** | TypeScript | `src/session/prompt.ts` | ❌ 待核实 |
-| **Kimi CLI** | Python/TS | `src/kimi_cli/soul/kimisoul.py` | ❌ 待核实 |
-| **Gemini CLI** | TypeScript | `packages/core/src/core/client.ts` | ❌ 待核实 |
-| **Qwen Code** | TypeScript | `packages/core/src/core/client.ts` | ❌ 待核实 |
-| **OpenManus** | Python | `app/agent/react.py` | ❌ 待核实 |
-| **Goose** | Rust | `crates/goose-core/src/agent.rs` | ❌ 待核实 |
+// 第一层：Submission Loop - Actor 模型消息循环
+async fn submission_loop(sess: Arc<Session>, ...) {
+    while let Ok(sub) = rx_sub.recv().await {
+        match sub.op {
+            Op::UserInput { ... } => handlers::user_input_or_turn(...).await,
+            Op::ExecApproval { ... } => handlers::exec_approval(...).await,
+            Op::Interrupt => handlers::interrupt(...).await,
+            Op::Shutdown => break,
+        }
+    }
+}
+
+// 第三层：Sampling Loop - LLM 流式处理 + 并行工具执行
+async fn try_run_sampling_request(...) {
+    let mut stream = client_session.stream(prompt, ...).await?;
+    let mut in_flight: FuturesOrdered<...> = FuturesOrdered::new();
+    
+    loop {
+        match stream.next().await {
+            ResponseEvent::OutputItemDone(item) => {
+                if let Some(tool_future) = output_result.tool_future {
+                    in_flight.push_back(tool_future);  // 并行执行
+                }
+            }
+            ResponseEvent::Completed { ... } => break,
+            ResponseEvent::OutputTextDelta(delta) => {
+                emit_streamed_assistant_text_delta(...).await;
+            }
+        }
+    }
+}
+```
+*详见 [GitHub 源码](https://github.com/openai/codex) | [Deep Dive](deep-dive/Codex-CLI-DEEP-DIVE.md)*
+
+---
+
+**OpenCode**（TypeScript，100% 开源）- 已核实（含压缩和权限）：
+```typescript
+// packages/opencode/src/session/prompt.ts:347-738（核心循环）
+export async function loop(sessionID: string, options?: LoopOptions) {
+  let step = 0
+  while (true) {
+    // 过滤已压缩消息
+    let msgs = await MessageV2.filterCompacted(MessageV2.stream(sessionID))
+    
+    // 检查是否需要退出
+    if (lastAssistant?.finish && lastUser.id < lastAssistant.id) {
+      break
+    }
+    
+    step++
+    
+    // 处理子任务（并行 Agent）
+    const task = tasks.pop()
+    if (task?.type === "subtask") {
+      // 执行 Task 工具
+      continue
+    }
+    
+    // 处理上下文压缩
+    if (task?.type === "compaction") {
+      const result = await SessionCompaction.process({...})
+      if (result === "stop") break
+      continue
+    }
+    
+    // 检查上下文溢出
+    if (await SessionCompaction.isOverflow({ tokens: lastFinished.tokens })) {
+      await SessionCompaction.create({ sessionID, auto: true })
+      continue
+    }
+    
+    // 正常处理
+    const result = await processor.process({ user: lastUser, tools, model })
+    if (result === "stop") break
+    if (result === "compact") await SessionCompaction.create({...})
+  }
+}
+```
+*详见 [GitHub 源码](https://github.com/sst/opencode) | [Deep Dive](deep-dive/OpenCode-DEEP-DIVE.md)*
+
+---
+
+**Kimi CLI**（Python/TS，IDE 集成）- 已核实（D-Mail 时间旅行）：
+```python
+# src/kimi_cli/soul/kimisoul.py:206-275（Agent Loop）
+async def _agent_loop(self) -> TurnOutcome:
+    step_no = 0
+    while True:
+        step_no += 1
+        if step_no > self._loop_control.max_steps_per_turn:
+            raise MaxStepsReached(...)
+        
+        # 上下文压缩检查
+        if self._context.token_count + reserved >= self._runtime.llm.max_context_size:
+            await self.compact_context()
+        
+        # 创建检查点（用于时间旅行）
+        await self._checkpoint()
+        
+        try:
+            step_outcome = await self._step()
+        except BackToTheFuture as e:  # 捕获时间旅行异常！
+            await self._context.revert_to(e.checkpoint_id)  # 回退到过去
+            await self._context.append_message(e.messages)
+            continue
+
+# src/kimi_cli/soul/kimisoul.py:277-348（单步执行）
+async def _step(self) -> StepOutcome | None:
+    result = await kosong.step(...)  # 调用 LLM
+    results = await result.tool_results()  # 等待工具结果
+    
+    # 处理 D-Mail（时间旅行消息）
+    if dmail := self._denwa_renji.fetch_pending_dmail():
+        raise BackToTheFuture(dmail.checkpoint_id, [...])
+    
+    if result.tool_calls:
+        return None  # 继续循环
+    return StepOutcome(stop_reason="no_tool_calls", ...)
+```
+*详见 [GitHub 源码](https://github.com/MoonshotAI/kimi-cli) | [Deep Dive](deep-dive/Kimi-CLI-DEEP-DIVE.md)*
+
+---
+
+**Gemini CLI**（TypeScript，Google 生态）- 已核实（自动继续）：
+```typescript
+// packages/core/src/core/client.ts:360-450（主循环）
+async *sendMessageStream(request, signal, prompt_id, turns): AsyncGenerator<...> {
+  // 检查会话限制
+  this.sessionTurnCount++
+  if (this.sessionTurnCount > this.config.getMaxSessionTurns()) {
+    yield { type: GeminiEventType.MaxSessionTurns }
+    return
+  }
+  
+  // 尝试压缩聊天历史
+  const compressed = await this.tryCompressChat(prompt_id, false)
+  
+  // 循环检测
+  if (this.loopDetector.addAndCheck(event)) {
+    yield { type: GeminiEventType.LoopDetected }
+    return
+  }
+  
+  // 执行回合
+  const turn = new Turn(this.getChat(), prompt_id)
+  const resultStream = turn.run(modelConfigKey, requestToSent, signal)
+  
+  for await (const event of resultStream) {
+    yield event
+  }
+  
+  // 检查下一位发言者 - 自动继续
+  if (!turn.pendingToolCalls.length) {
+    const nextSpeakerCheck = await checkNextSpeaker(...)
+    if (nextSpeakerCheck?.next_speaker === 'model') {
+      const nextRequest = [{ text: 'Please continue.' }]
+      yield* this.sendMessageStream(nextRequest, signal, prompt_id, boundedTurns - 1)
+    }
+  }
+}
+```
+*详见 [GitHub 源码](https://github.com/google-gemini/gemini-cli) | [Deep Dive](deep-dive/Gemini-CLI-DEEP-DIVE.md)*
+
+---
+
+**Qwen Code**（TypeScript，Qwen 生态）- 已核实（SubAgents）：
+```typescript
+// packages/core/src/core/client.ts:261-384（主循环）
+async *sendMessageStream(request, signal, prompt_id, options): AsyncGenerator<...> {
+  // 添加系统提醒（SubAgents、Plan 模式）
+  const systemReminders = []
+  if (hasTaskTool && subagents.length > 0) {
+    systemReminders.push(getSubagentSystemReminder(subagents))
+  }
+  if (this.config.getApprovalMode() === ApprovalMode.PLAN) {
+    systemReminders.push(getPlanModeSystemReminder(...))
+  }
+  
+  // 执行回合
+  const turn = new Turn(this.getChat(), prompt_id)
+  const resultStream = turn.run(this.config.getModel(), requestToSent, signal)
+  
+  for await (const event of resultStream) {
+    if (this.loopDetector.addAndCheck(event)) {
+      yield { type: GeminiEventType.LoopDetected }
+      return turn
+    }
+    yield event
+  }
+  
+  // 递归调用自身实现自动继续
+  if (nextSpeakerCheck?.next_speaker === 'model') {
+    yield* this.sendMessageStream([{ text: 'Please continue.' }], ...)
+  }
+}
+
+// packages/core/src/subagents/subagent.ts（子代理循环）
+async runNonInteractive(context: ContextState): Promise<void> {
+  while (true) {
+    if (turnCounter >= max_turns) break
+    if (time_exceeded) break
+    
+    const responseStream = await chat.sendMessageStream(model, messages, promptId)
+    
+    for await (const streamEvent of responseStream) {
+      if (resp.functionCalls) functionCalls.push(...resp.functionCalls)
+    }
+    
+    if (functionCalls.length > 0) {
+      currentMessages = await this.processFunctionCalls(functionCalls)
+    } else {
+      this.finalText = roundText.trim()  // 最终结果
+      break
+    }
+  }
+}
+```
+*详见 [GitHub 源码](https://github.com/QwenLM/qwen-code) | [Deep Dive](deep-dive/Qwen-Code-DEEP-DIVE.md)*
+
+---
+
+**OpenManus**（Python，快速实验）- 已核实（ReAct + MCP）：
+```python
+# app/agent/base.py:116-154（核心循环）
+async def run(self, request: Optional[str] = None) -> str:
+    async with self.state_context(AgentState.RUNNING):
+        while (self.current_step < self.max_steps and 
+               self.state != AgentState.FINISHED):
+            self.current_step += 1
+            step_result = await self.step()
+            
+            # 检查是否卡住（重复响应）
+            if self.is_stuck():
+                self.handle_stuck_state()
+
+# app/agent/react.py（ReAct 模式）
+class ReActAgent(BaseAgent, ABC):
+    async def step(self) -> str:
+        """Execute a single step: think and act."""
+        should_act = await self.think()  # 思考
+        if not should_act:
+            return "Thinking complete - no action needed"
+        return await self.act()  # 执行
+
+# app/agent/toolcall.py（工具调用）
+async def think(self) -> bool:
+    response = await self.llm.ask_tool(
+        messages=self.messages,
+        tools=self.available_tools.to_params(),
+    )
+    self.tool_calls = response.tool_calls if response else []
+    return bool(self.tool_calls)
+
+async def act(self) -> str:
+    results = []
+    for command in self.tool_calls:
+        result = await self.execute_tool(command)
+        results.append(result)
+    return "\n\n".join(results)
+```
+*详见 [GitHub 源码](https://github.com/FoundationAgents/OpenManus) | [Deep Dive](deep-dive/OpenManus-DEEP-DIVE.md)*
+
+---
+
+**Goose**（Rust，MCP-Native）- 已核实：
+```rust
+// crates/goose/src/agents/agent.rs:575-700+（核心循环）
+async fn reply_internal(...) -> Result<BoxStream<'_, Result<AgentEvent>>> {
+    Ok(Box::pin(async_stream::try_stream! {
+        let mut turns_taken = 0u32;
+        let max_turns = session_config.max_turns.unwrap_or(DEFAULT_MAX_TURNS);
+        
+        loop {
+            if is_token_cancelled(&cancel_token) { break; }
+            
+            // 检查是否完成
+            if let Some(final_output_tool) = self.final_output_tool.lock().await.as_ref() {
+                if final_output_tool.final_output.is_some() {
+                    yield AgentEvent::Message(...)
+                    break
+                }
+            }
+            
+            turns_taken += 1
+            if turns_taken > max_turns {
+                yield AgentEvent::Message(...)  // 达到最大回合数
+                break
+            }
+            
+            // 工具对摘要（上下文压缩）
+            let tool_pair_summarization = crate::context_mgmt::maybe_summarize_tool_pair(...)
+            
+            // MOIM 注入
+            let conversation_with_moim = super::moim::inject_moim(...).await
+            
+            // 从 LLM 提供商流式响应
+            let mut stream = Self::stream_response_from_provider(...).await?
+            
+            while let Some(next) = stream.next().await {
+                // 处理消息、工具调用等
+            }
+        }
+    }))
+}
+```
+*详见 [GitHub 源码](https://github.com/block/goose) | [Deep Dive](deep-dive/Goose-DEEP-DIVE.md)*
 
 ---
 
