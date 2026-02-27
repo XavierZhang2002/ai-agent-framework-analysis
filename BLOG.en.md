@@ -282,27 +282,35 @@ async fn reply_internal(...) -> Result<BoxStream<'_, Result<AgentEvent>>> {
 
 #### Unified View: The Essence of Agent Loop
 
-Regardless of architectural pattern, they all implement the same **abstract state machine**:
+Regardless of architectural pattern, they all implement the same **abstract control flow**:
 
 ```mermaid
 flowchart TD
-    A[Input] --> B[Build Context]
-    B --> C[Call LLM]
-    C --> D[Parse Output]
-    D --> E{Tool calls?}
-    E -->|Yes| F[Execute Tools]
-    E -->|No| G[Complete]
-    F --> B
+    Start([Start]) --> Input[Receive Input]
+    Input --> Context[Build Context]
+    Context --> LLM[Call LLM]
+    LLM --> Process[Process Response]
+    Process --> Action[Execute Action]
+    Action --> Check{Termination Met?}
+    Check -->|No| Context
+    Check -->|Yes| Output[Return Result]
+    Output --> End([End])
 ```
 
-**Flow Description**:
-1. **Input** → User input or system initialization
-2. **Build Context** → Assemble message history, system prompts, etc.
-3. **Call LLM** → Send request to the language model
-4. **Parse Output** → Parse the content returned by LLM
-5. **Tool calls?** → Decision point
-   - **Yes** → Execute tools → Return to "Build Context" to continue the loop
-   - **No** → Complete/Terminate
+**Core Abstraction**:
+1. **Receive Input** → User request, system event, or feedback from previous iteration
+2. **Build Context** → Assemble history, tool definitions, system state
+3. **Call LLM** → Interact with language model (single-turn or streaming)
+4. **Process Response** → Parse, validate, transform LLM output
+5. **Execute Action** → May include: tool invocation, state modification, reply generation, handoff trigger, etc.
+6. **Termination Check** → Loop continues until any termination condition is met:
+   - LLM returns final answer (no further actions)
+   - Maximum iteration limit reached
+   - User explicitly interrupts
+   - Error or exception encountered
+   - Task completion flag set
+
+**Key Insight**: In actual implementations, steps 4-6 may involve complex internal logic (parallel tools, state checks, security validations), but macroscopically they are all variations of this loop structure.
 
 **Key Insights**:
 1. **Highly stable algorithm layer**: ReAct, Function Calling, and Tool Use all share this loop
