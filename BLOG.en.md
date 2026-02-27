@@ -284,28 +284,25 @@ async fn reply_internal(...) -> Result<BoxStream<'_, Result<AgentEvent>>> {
 
 Regardless of architectural pattern, they all implement the same **abstract state machine**:
 
+```mermaid
+flowchart TD
+    A[Input] --> B[Build Context]
+    B --> C[Call LLM]
+    C --> D[Parse Output]
+    D --> E{Tool calls?}
+    E -->|Yes| F[Execute Tools]
+    E -->|No| G[Complete]
+    F --> B
 ```
-┌─────────────┐      ┌─────────────┐      ┌─────────────┐
-│    Input    │─────▶│ Build Context│─────▶│  Call LLM   │
-└─────────────┘      └─────────────┘      └──────┬──────┘
-                                                  │
-                                                  ▼
-                                           ┌─────────────┐
-                                           │ Parse Output │
-                                           └──────┬──────┘
-                                                  │
-                            ┌─────────────────────┴─────────────────────┐
-                            │                   Tool calls?               │
-                            └─────────────────────┬─────────────────────┘
-                                   Yes │                          │ No
-                                       ▼                          ▼
-                              ┌─────────────┐            ┌─────────────┐
-                              │Execute Tools│            │  Complete   │
-                              └──────┬──────┘            └─────────────┘
-                                     │
-                                     └──────────────────────────────────────▶
-                                        (Return to "Build Context" to continue)
-```
+
+**Flow Description**:
+1. **Input** → User input or system initialization
+2. **Build Context** → Assemble message history, system prompts, etc.
+3. **Call LLM** → Send request to the language model
+4. **Parse Output** → Parse the content returned by LLM
+5. **Tool calls?** → Decision point
+   - **Yes** → Execute tools → Return to "Build Context" to continue the loop
+   - **No** → Complete/Terminate
 
 **Key Insights**:
 1. **Highly stable algorithm layer**: ReAct, Function Calling, and Tool Use all share this loop
