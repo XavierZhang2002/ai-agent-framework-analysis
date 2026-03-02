@@ -1174,8 +1174,8 @@ The landmark event of this shift was the release of **OpenAI Agents SDK** (2025)
 
 12. **From ReAct to Ralph Loop: AI Agent Continuous Iteration Paradigm** (Dan Kun, Alibaba Cloud Developer, 2025-02)  
     https://mp.weixin.qq.com/s/K4ZUGBzT0s9RwFlaYcuHiA  
-    - Proposes Ralph Loop as an enhancement to ReAct, solving LLM "premature exit" through Stop Hook and external verification.
-    - Key innovation: Replacing context window memory with file system persistence (progress.txt, prd.json, Git) to solve "context rot."
+    - Introduces the Ralph Loop paradigm originating from the **Claude Code community**, as an enhancement to ReAct, solving LLM "premature exit" through Stop Hook and external verification.
+    - Core mechanism: Replacing context window memory with file system persistence (progress.txt, prd.json, Git) to solve "context rot."
     - Connection to this article: Complements the "when to terminate" control strategy dimension of Agent Loop, forming a technical contrast with this article's "context compaction" capability.
 
 ### This Article's Incremental Positioning
