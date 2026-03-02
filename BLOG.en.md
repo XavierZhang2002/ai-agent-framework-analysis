@@ -721,6 +721,35 @@ Different frameworks have significant differences in MCP support depth (see Sect
 
 **Academic Opportunity**: Encapsulate evaluation tool sandbox environments like SWE-Bench and HumanEval as MCP Servers, allowing industrial-grade frameworks (OpenAI SDK, Codex) to also evaluate in standard environments, eliminating "my framework is better than yours" incomparable conclusions.
 
+**MCP Limitations and Alternatives**
+
+> This section is based on industry practice observations, particularly the in-depth analysis from the [Lynxe author’s series of articles](https://mp.weixin.qq.com/s/dAnNHayrE49FEl8TcLII2Q) (2025).
+
+Although MCP provides a standardized protocol layer, in practice it is not the only choice and may even have lighter-weight alternatives:
+
+**1. Limitations of MCP**
+- **Protocol conversion overhead**: MCP requires JSON-RPC protocol conversion between Client and Server, which may be "over-engineered" for simple tool calls.
+- **Ecosystem dependency**: Although standardization reduces single integration costs, it still requires maintaining the MCP Server runtime (Node.js/Python processes).
+- **Learning curve**: Developing an MCP Server requires understanding protocol specifications; the barrier remains high for scenarios where one simply wants to quickly expose a shell script.
+
+**2. Alternatives: Direct Function/Command Line Calls**
+In fact, the core requirement for tool integration is very simple: **function name + parameters + description**. Based on this premise, multiple lightweight alternatives have emerged in the industry:
+
+- **Direct command line calls**: Invoke local scripts or remote APIs directly via `bash` or `curl`, without additional MCP Server encapsulation.
+- **Function interfaces (Func-Agent)**: As practiced by the [Lynxe](https://github.com/spring-ai-alibaba/Lynxe) framework, exposing Agent capabilities directly as function interfaces, allowing existing systems to use Agents through standard function calls.
+- **Skill files (Skills)**: Proposed by Claude, describing tool usage workflows via SKILL.md documents, combined with Function Calling to directly execute shell commands.
+
+**3. Comparison of Approaches**
+
+| Dimension | MCP | Direct Function/CLI | Skills |
+|-----------|-----|---------------------|--------|
+| **Complexity** | Requires implementing MCP Server | No additional protocol layer | Requires writing SKILL.md |
+| **Applicable Scenarios** | Standardized tools for cross-framework reuse | Quick integration with existing systems | Text-based description of complex workflows |
+| **Flexibility** | Limited by protocol specifications | Complete freedom | Dependent on model understanding documents |
+| **Ecosystem Compatibility** | All frameworks supporting MCP | Separate integration required for each framework | Limited to clients supporting Skills |
+
+**Key Insight**: MCP and direct function calls are not opposing, but solutions to **different problems**. MCP suits tools requiring **broad reuse** (e.g., GitHub, Slack integrations), while direct function calls are better for **quickly integrating internal systems**. The future likely holds a hybrid model where both coexist.
+
 ---
 
 #### 3.2 ACP (Agent Client Protocol)
@@ -1065,9 +1094,10 @@ The landmark event of this shift was the release of **OpenAI Agents SDK** (2025)
    - Core loops are all the same, use mature frameworks directly (OpenAI SDK, Codex)
    - Focus effort on business logic, not infrastructure
 
-2. **Integrate proprietary tools through MCP**:
-   - Don't fork framework code
-   - Expose internal APIs via MCP Server
+2. **Choose the appropriate tool integration approach based on your scenario**:
+   - **MCP Mode**: If you need standardized tools for cross-framework reuse, expose internal APIs via MCP Server
+   - **Direct Function/Command Line**: If you only need quick integration with internal systems, use function interfaces or shell scripts directly
+   - Don't fork framework code; maintain framework upgradability
 
 3. **Invest in observability**:
    - Connect Tracing from Day 1 (OpenAI SDK's Logfire/AgentOps)
@@ -1124,6 +1154,23 @@ The landmark event of this shift was the release of **OpenAI Agents SDK** (2025)
     https://blog.logrocket.com/tested-5-ai-cli-tools/  
     - Unified task-based comparison of multiple CLIs for usability and quality.  
     - Similar to this article: Emphasizes engineering usability and real workflow performance.
+
+### D. Framework Implementation Principles and Integration Patterns Deep Analysis (High Relevance)
+
+9. **AI Agent Series: What is a ReAct Agent?** (Shen Xun, Alibaba Cloud Developer, 2025-02)  
+    https://mp.weixin.qq.com/s/KyWIEX_8oj5lcXjX5Co7Kw  
+    - Lynxe author provides an in-depth explanation of the ReAct Agent core principle: Observe-Think-Act loop.  
+    - Similar to this article: Supports the observation that "core loops are highly stable," detailing the 5 key elements of ReAct.
+
+10. **AI Agent Series: Deep Dive into Agent Workflow Core: Essential Differences Between Agent vs Traditional Programming vs Workflow** (Shen Xun, Alibaba Cloud Developer, 2025-02)  
+    https://mp.weixin.qq.com/s/KE4UWEpoMYiIseykT7_Skw  
+    - Compares the essential differences between traditional programming, Workflow, and Agent: Who is making the decisions?  
+    - Similar to this article: Also focuses on engineering implementation differences, but emphasizes development paradigms and integration methods.
+
+11. **AI Agent Series: In-depth Analysis of Essential Differences and Best Practices Between Function Calling, MCP, and Skills** (Shen Xun, Alibaba Cloud Developer, 2025-02)  
+    https://mp.weixin.qq.com/s/dAnNHayrE49FEl8TcLII2Q  
+    - Proposes the profound view that MCP and Skills are "competitive relationships" rather than "complementary relationships."  
+    - Complementarity to this article: Section 3.1 of this article cites the analysis of MCP limitations and the discussion of direct function/command line calls as alternatives from this paper.
 
 ### This Article's Incremental Positioning
 
