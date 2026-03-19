@@ -1,10 +1,12 @@
 # Gemini CLI - 深度技术调研
 
-**调研日期**: 2026-02-26  
-**仓库**: https://github.com/google-gemini/gemini-cli  
-**许可证**: Apache-2.0  
-**主要语言**: TypeScript  
-**定位**: Terminal-first 代理循环 + 内建工具，让 Gemini 能力直接在终端可用  
+!!! info "项目概览"
+
+    **调研日期**: 2026-02-26  
+    **仓库**: https://github.com/google-gemini/gemini-cli  
+    **许可证**: Apache-2.0  
+    **主要语言**: TypeScript  
+    **定位**: Terminal-first 代理循环 + 内建工具，让 Gemini 能力直接在终端可用  
 
 ---
 
@@ -341,25 +343,25 @@ export class MyTool extends BaseDeclarativeTool<MyParams, ToolResult> {
 
 ## 5. 评估
 
-### 优势
+!!! success "核心优势"
 
-1. ✅ **Google 生态**: Search grounding, Code Assist
-2. ✅ **企业就绪**: OAuth, tiered policy engine
-3. ✅ **丰富工具**: 30+ 内置工具 + MCP (Stdio/SSE/HTTP)
-4. ✅ **免费额度**: 1,000 requests/day (Google OAuth)
-5. ✅ **智能机制**: Loop detection, chat compression, auto-continue
-6. ✅ **分层记忆**: GEMINI.md (Global/Project/JIT 三级)
+    1. ✅ **Google 生态**: Search grounding, Code Assist
+    2. ✅ **企业就绪**: OAuth, tiered policy engine
+    3. ✅ **丰富工具**: 30+ 内置工具 + MCP (Stdio/SSE/HTTP)
+    4. ✅ **免费额度**: 1,000 requests/day (Google OAuth)
+    5. ✅ **智能机制**: Loop detection, chat compression, auto-continue
+    6. ✅ **分层记忆**: GEMINI.md (Global/Project/JIT 三级)
 
-### 限制
+!!! warning "局限性"
 
-1. ⚠️ **Gemini 绑定**: 优化for Gemini
-2. ⚠️ **复杂配置**: 选项众多
+    1. ⚠️ **Gemini 绑定**: 优化for Gemini
+    2. ⚠️ **复杂配置**: 选项众多
 
-### 适用场景
+!!! tip "推荐场景"
 
-- ✅ Google 生态协同
-- ✅ 代码与自动化任务
-- ✅ 企业级安全需求
+    - ✅ Google 生态协同
+    - ✅ 代码与自动化任务
+    - ✅ 企业级安全需求
 
 ---
 

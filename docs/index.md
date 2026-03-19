@@ -1,10 +1,10 @@
 # AI Agent Framework Analysis
 
-> Deep Code Audit of 12 Open-Source Agent Frameworks
+!!! abstract "Deep Code Audit of 12 Open-Source Agent Frameworks"
 
-After auditing ~400KB of source code from 12 mainstream agent frameworks, one counter-intuitive fact emerges:
+    After auditing ~400KB of source code from 12 mainstream agent frameworks, one counter-intuitive fact emerges:
 
-> **The core Agent Loop logic is highly similar across all frameworks. The real differences lie in "Capability Differentiation"** — 35+ engineering features like state management, security controls, MCP support, and context compaction.
+    **The core Agent Loop logic is highly similar across all frameworks. The real differences lie in "Capability Differentiation"** — 35+ engineering features like state management, security controls, MCP support, and context compaction.
 
 ## Quick Navigation
 
@@ -36,12 +36,12 @@ After auditing ~400KB of source code from 12 mainstream agent frameworks, one co
 
 </div>
 
-## Key Insights
+!!! success "Key Insights"
 
-1. **Layer 1 (Core Loop)**: No differentiation — all 12 frameworks use the same ReAct-style pattern
-2. **Layer 2 (Engineering Capabilities)**: Where real competition happens — 35+ features
-3. **Layer 3 (Protocol Support)**: MCP becoming the standard (11/12 frameworks)
-4. **Layer 4 (Interaction Mode)**: Just the surface layer
+    1. **Layer 1 (Core Loop)**: No differentiation — all 12 frameworks use the same ReAct-style pattern
+    2. **Layer 2 (Engineering Capabilities)**: Where real competition happens — 35+ features
+    3. **Layer 3 (Protocol Support)**: MCP becoming the standard (11/12 frameworks)
+    4. **Layer 4 (Interaction Mode)**: Just the surface layer
 
 ## Frameworks Analyzed
 

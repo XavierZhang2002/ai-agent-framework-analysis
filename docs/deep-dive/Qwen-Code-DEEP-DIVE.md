@@ -1,10 +1,12 @@
 # Qwen Code - 深度技术调研
 
-**调研日期**: 2026-02-26  
-**仓库**: https://github.com/QwenLM/qwen-code  
-**许可证**: Apache-2.0  
-**主要语言**: TypeScript  
-**定位**: 终端优先 + Skills/SubAgents，围绕 Qwen Coder 协同演进  
+!!! info "项目概览"
+
+    **调研日期**: 2026-02-26  
+    **仓库**: https://github.com/QwenLM/qwen-code  
+    **许可证**: Apache-2.0  
+    **主要语言**: TypeScript  
+    **定位**: 终端优先 + Skills/SubAgents，围绕 Qwen Coder 协同演进  
 
 ---
 
@@ -419,22 +421,22 @@ System prompt with ${variable} templating...
 
 ## 6. 评估
 
-### 优势
+!!! success "核心优势"
 
-1. ✅ **Qwen 生态集成**: OAuth, API, models
-2. ✅ **Skills + SubAgents**: 强大的模块化
-3. ✅ **IDE 集成**: 深度 MCP 集成
+    1. ✅ **Qwen 生态集成**: OAuth, API, models
+    2. ✅ **Skills + SubAgents**: 强大的模块化
+    3. ✅ **IDE 集成**: 深度 MCP 集成
 
-### 限制
+!!! warning "局限性"
 
-1. ⚠️ **Qwen 倾向**: 优化for Qwen生态
-2. ⚠️ **中文文档**: 部分文档中文
+    1. ⚠️ **Qwen 倾向**: 优化for Qwen生态
+    2. ⚠️ **中文文档**: 部分文档中文
 
-### 适用场景
+!!! tip "推荐场景"
 
-- ✅ Qwen 生态集成
-- ✅ 代码理解与改造
-- ✅ 终端自动化
+    - ✅ Qwen 生态集成
+    - ✅ 代码理解与改造
+    - ✅ 终端自动化
 
 ---
 

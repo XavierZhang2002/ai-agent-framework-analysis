@@ -4,23 +4,28 @@
 
 ---
 
-> **TL;DR**: After auditing ~400KB of source code from 12 mainstream agent frameworks ([OpenAI Agents SDK](deep-dive/OpenAI-Agents-SDK-DEEP-DIVE.md), [Claude Agent SDK](deep-dive/Claude-Agent-SDK-Python-DEEP-DIVE.md), [Codex CLI](deep-dive/Codex-CLI-DEEP-DIVE.md), [OpenCode](deep-dive/OpenCode-DEEP-DIVE.md), [Kimi CLI](deep-dive/Kimi-CLI-DEEP-DIVE.md), [Gemini CLI](deep-dive/Gemini-CLI-DEEP-DIVE.md), [Qwen Code](deep-dive/Qwen-Code-DEEP-DIVE.md), [SWE-agent](deep-dive/SWE-agent-DEEP-DIVE.md), [OpenManus](deep-dive/OpenManus-DEEP-DIVE.md), [Aider](deep-dive/Aider-DEEP-DIVE.md), [Goose](deep-dive/Goose-DEEP-DIVE.md), [OpenHands](deep-dive/OpenHands-DEEP-DIVE.md)), we discovered a counter-intuitive fact: **The core Agent Loop logic is highly similar across frameworks**. The real differences lie not in "which algorithm is used," but in **engineering capability combinations**—30+ features including state management, security controls, and protocol support. This "capability differentiation" creates an invisible gap, making it difficult for academia to leverage the most advanced agent capabilities.
->
-> **Stars Ranking** (as of 2026-02-27): OpenCode (112K) > Gemini CLI (95.9K) > Claude Code (70.8K) > OpenHands (68.3K) > Codex CLI (62.2K) > Aider (41K) > Goose (31.4K) > OpenAI Agents SDK (19.2K)
+!!! abstract "TL;DR"
 
-> **Navigation**:
-> - Sections 1-3: Code audit observations (facts)
-> - Section 4: Specific manifestations of academic vs. industrial capability requirements (facts + inference)
-> - Section 5: Future convergence trends (author's judgment)
-> - Section 6: Framework selection and practice recommendations (actionable)
-> - [Detailed Framework Comparison Matrix](COMPARISON.md)
-> - [In-depth Source Code Analysis](deep-dive/)
+    After auditing ~400KB of source code from 12 mainstream agent frameworks ([OpenAI Agents SDK](deep-dive/OpenAI-Agents-SDK-DEEP-DIVE.md), [Claude Agent SDK](deep-dive/Claude-Agent-SDK-Python-DEEP-DIVE.md), [Codex CLI](deep-dive/Codex-CLI-DEEP-DIVE.md), [OpenCode](deep-dive/OpenCode-DEEP-DIVE.md), [Kimi CLI](deep-dive/Kimi-CLI-DEEP-DIVE.md), [Gemini CLI](deep-dive/Gemini-CLI-DEEP-DIVE.md), [Qwen Code](deep-dive/Qwen-Code-DEEP-DIVE.md), [SWE-agent](deep-dive/SWE-agent-DEEP-DIVE.md), [OpenManus](deep-dive/OpenManus-DEEP-DIVE.md), [Aider](deep-dive/Aider-DEEP-DIVE.md), [Goose](deep-dive/Goose-DEEP-DIVE.md), [OpenHands](deep-dive/OpenHands-DEEP-DIVE.md)), we discovered a counter-intuitive fact: **The core Agent Loop logic is highly similar across frameworks**. The real differences lie not in "which algorithm is used," but in **engineering capability combinations**—30+ features including state management, security controls, and protocol support. This "capability differentiation" creates an invisible gap, making it difficult for academia to leverage the most advanced agent capabilities.
+
+    **Stars Ranking** (as of 2026-02-27): OpenCode (112K) > Gemini CLI (95.9K) > Claude Code (70.8K) > OpenHands (68.3K) > Codex CLI (62.2K) > Aider (41K) > Goose (31.4K) > OpenAI Agents SDK (19.2K)
+
+!!! tip "Navigation"
+
+    - Sections 1-3: Code audit observations (facts)
+    - Section 4: Specific manifestations of academic vs. industrial capability requirements (facts + inference)
+    - Section 5: Future convergence trends (author's judgment)
+    - Section 6: Framework selection and practice recommendations (actionable)
+    - [Detailed Framework Comparison Matrix](COMPARISON.md)
+    - [In-depth Source Code Analysis](deep-dive/)
 
 ---
 
 ## I. Debunking Myths: The Agent Core Loop is Highly Stable
 
-> **Important Scope**: This article focuses on the **Single-Agent Tool-Calling Pattern**, which is the mainstream architecture across the 12 open-source frameworks surveyed. Multi-Agent orchestration (e.g., Planning, inter-agent communication), Planner-Executor separation, and other paradigms are outside the scope of this discussion.
+!!! warning "Important Scope"
+
+    This article focuses on the **Single-Agent Tool-Calling Pattern**, which is the mainstream architecture across the 12 open-source frameworks surveyed. Multi-Agent orchestration (e.g., Planning, inter-agent communication), Planner-Executor separation, and other paradigms are outside the scope of this discussion.
 
 ### 1.1 Twelve Frameworks, One Loop
 
@@ -28,255 +33,250 @@ Based on deep code audits of 12 frameworks, a counter-intuitive fact emerges: **
 
 This section categorizes the 12 frameworks into **4 architectural patterns**, demonstrating how they implement differentiation on top of the same underlying logic.
 
----
+=== "Pattern 1: Standard Synchronous Loop"
 
-#### Pattern 1: Standard Synchronous Loop
+    **Representative Frameworks**: OpenAI Agents SDK, SWE-agent, OpenManus, Aider
 
-**Representative Frameworks**: OpenAI Agents SDK, SWE-agent, OpenManus, Aider
+    This is the most classic and intuitive implementation approach. A `while` loop continues running until termination conditions are met.
 
-This is the most classic and intuitive implementation approach. A `while` loop continues running until termination conditions are met.
+    **OpenAI Agents SDK** (Python, 600+ lines production-grade implementation):
+    ```python
+    # src/agents/run.py:637 (actual source location)
+    while True:
+        # Complex 600+ line loop with state recovery, guardrails, handoffs
+        turn_result = await run_single_turn(agent, tools, ...)
+        if isinstance(turn_result.next_step, NextStepFinalOutput):
+            break
+        # Handle handoffs, tool execution, etc.
+    ```
+    *See [GitHub source](https://github.com/openai/openai-agents-python/blob/main/src/agents/run.py)*
 
-**OpenAI Agents SDK** (Python, 600+ lines production-grade implementation):
-```python
-# src/agents/run.py:637 (actual source location)
-while True:
-    # Complex 600+ line loop with state recovery, guardrails, handoffs
-    turn_result = await run_single_turn(agent, tools, ...)
-    if isinstance(turn_result.next_step, NextStepFinalOutput):
-        break
-    # Handle handoffs, tool execution, etc.
-```
-*See [GitHub source](https://github.com/openai/openai-agents-python/blob/main/src/agents/run.py)*
+    **SWE-agent** (Python, research-oriented):
+    ```python
+    # sweagent/agent/agents.py:350 (actual source location)
+    while not step_output.done:
+        step_output = self.step()
+        if step_output.done:
+            self._rloop.on_submit(...)
+    ```
+    *See [GitHub source](https://github.com/SWE-agent/SWE-agent/blob/main/sweagent/agent/agents.py)*
 
-**SWE-agent** (Python, research-oriented):
-```python
-# sweagent/agent/agents.py:350 (actual source location)
-while not step_output.done:
-    step_output = self.step()
-    if step_output.done:
-        self._rloop.on_submit(...)
-```
-*See [GitHub source](https://github.com/SWE-agent/SWE-agent/blob/main/sweagent/agent/agents.py)*
+    **OpenManus** (Python, lightweight experimental framework):
+    ```python
+    # app/agent/base.py:116-154 (actual source location)
+    async def run(self, request: Optional[str] = None) -> str:
+        async with self.state_context(AgentState.RUNNING):
+            while (self.current_step < self.max_steps and 
+                   self.state != AgentState.FINISHED):
+                self.current_step += 1
+                step_result = await self.step()
+                if self.is_stuck():
+                    self.handle_stuck_state()
+    ```
+    *See [GitHub source](https://github.com/FoundationAgents/OpenManus/blob/main/app/agent/base.py)*
 
-**OpenManus** (Python, lightweight experimental framework):
-```python
-# app/agent/base.py:116-154 (actual source location)
-async def run(self, request: Optional[str] = None) -> str:
-    async with self.state_context(AgentState.RUNNING):
-        while (self.current_step < self.max_steps and 
-               self.state != AgentState.FINISHED):
-            self.current_step += 1
-            step_result = await self.step()
-            if self.is_stuck():
-                self.handle_stuck_state()
-```
-*See [GitHub source](https://github.com/FoundationAgents/OpenManus/blob/main/app/agent/base.py)*
+    **Aider** (Python, conversational coding assistant):
+    ```python
+    # aider/coders/base_coder.py:876 (actual source location)
+    while True:
+        user_message = self.get_input()
+        self.run_one(user_message)
+    ```
+    *See [GitHub source](https://github.com/Aider-AI/aider/blob/main/aider/coders/base_coder.py)*
 
-**Aider** (Python, conversational coding assistant):
-```python
-# aider/coders/base_coder.py:876 (actual source location)
-while True:
-    user_message = self.get_input()
-    self.run_one(user_message)
-```
-*See [GitHub source](https://github.com/Aider-AI/aider/blob/main/aider/coders/base_coder.py)*
+    **Common Characteristics**: Explicit `while` loop, synchronous/asynchronous single-threaded execution, direct state management.
 
-**Common Characteristics**: Explicit `while` loop, synchronous/asynchronous single-threaded execution, direct state management.
+=== "Pattern 2: Asynchronous Event-Driven"
 
----
+    **Representative Framework**: OpenHands
 
-#### Pattern 2: Asynchronous Event-Driven
+    OpenHands adopts a completely different architectural philosophy: **no explicit loop, only event streams**.
 
-**Representative Framework**: OpenHands
+    ```python
+    # openhands/controller/agent_controller.py (core logic)
+    class AgentController:
+        async def _step(self) -> None:
+            """Single step execution, driven by EventStream"""
+            action = self.agent.step(self.state)
+            if action is None:
+                return
+            await self.event_stream.add_event(action, ...)
+            
+        async def on_event(self, event: Event) -> None:
+            """Event callback triggers next step"""
+            if event.source == EventSource.AGENT:
+                await self._step()
+    ```
 
-OpenHands adopts a completely different architectural philosophy: **no explicit loop, only event streams**.
+    **Architectural Features**:
 
-```python
-# openhands/controller/agent_controller.py (core logic)
-class AgentController:
-    async def _step(self) -> None:
-        """Single step execution, driven by EventStream"""
-        action = self.agent.step(self.state)
-        if action is None:
-            return
-        await self.event_stream.add_event(action, ...)
-        
-    async def on_event(self, event: Event) -> None:
-        """Event callback triggers next step"""
-        if event.source == EventSource.AGENT:
-            await self._step()
-```
+    - **EventStream**: All state changes propagate through event streams
+    - **Callback-driven**: No `while True` needed; events naturally trigger next steps
+    - **Loose coupling**: Agent, Runtime, and Controller interact through events rather than direct calls
 
-**Architectural Features**:
-- **EventStream**: All state changes propagate through event streams
-- **Callback-driven**: No `while True` needed; events naturally trigger next steps
-- **Loose coupling**: Agent, Runtime, and Controller interact through events rather than direct calls
+    *See [GitHub source](https://github.com/All-Hands-AI/OpenHands/blob/main/openhands/controller/agent_controller.py)*
 
-*See [GitHub source](https://github.com/All-Hands-AI/OpenHands/blob/main/openhands/controller/agent_controller.py)*
+=== "Pattern 3: Three-Layer Actor Model"
 
----
+    **Representative Framework**: Codex CLI
 
-#### Pattern 3: Three-Layer Actor Model
+    Codex CLI uses Rust's Actor model to implement a **three-layer nested loop**, managing complexity through layered separation:
 
-**Representative Framework**: Codex CLI
-
-Codex CLI uses Rust's Actor model to implement a **three-layer nested loop**, managing complexity through layered separation:
-
-**Layer 1: Submission Loop** - Message dispatch center
-```rust
-// codex-rs/core/src/codex.rs:3685-3855
-async fn submission_loop(sess: Arc<Session>, ...) {
-    while let Ok(sub) = rx_sub.recv().await {
-        match sub.op {
-            Op::UserInput { ... } => handlers::user_input_or_turn(...).await,
-            Op::ExecApproval { ... } => handlers::exec_approval(...).await,
-            Op::Interrupt => handlers::interrupt(...).await,
-            Op::Shutdown => break,
+    **Layer 1: Submission Loop** - Message dispatch center
+    ```rust
+    // codex-rs/core/src/codex.rs:3685-3855
+    async fn submission_loop(sess: Arc<Session>, ...) {
+        while let Ok(sub) = rx_sub.recv().await {
+            match sub.op {
+                Op::UserInput { ... } => handlers::user_input_or_turn(...).await,
+                Op::ExecApproval { ... } => handlers::exec_approval(...).await,
+                Op::Interrupt => handlers::interrupt(...).await,
+                Op::Shutdown => break,
+            }
         }
     }
-}
-```
+    ```
 
-**Layer 3: Sampling Loop** - LLM streaming processing
-```rust
-// codex-rs/core/src/codex.rs:6220-6554
-async fn try_run_sampling_request(...) {
-    let mut stream = client_session.stream(prompt, ...).await?;
-    let mut in_flight: FuturesOrdered<...> = FuturesOrdered::new();
-    
-    loop {
-        match stream.next().await {
-            ResponseEvent::OutputItemDone(item) => {
-                if let Some(tool_future) = output_result.tool_future {
-                    in_flight.push_back(tool_future);  // Parallel execution
+    **Layer 3: Sampling Loop** - LLM streaming processing
+    ```rust
+    // codex-rs/core/src/codex.rs:6220-6554
+    async fn try_run_sampling_request(...) {
+        let mut stream = client_session.stream(prompt, ...).await?;
+        let mut in_flight: FuturesOrdered<...> = FuturesOrdered::new();
+        
+        loop {
+            match stream.next().await {
+                ResponseEvent::OutputItemDone(item) => {
+                    if let Some(tool_future) = output_result.tool_future {
+                        in_flight.push_back(tool_future);  // Parallel execution
+                    }
+                }
+                ResponseEvent::Completed { ... } => break,
+            }
+        }
+    }
+    ```
+
+    **Design Philosophy**:
+
+    - **Separation of concerns**: User interaction, turn management, and LLM calls are layered
+    - **High concurrency**: Rust's `FuturesOrdered` supports parallel tool execution
+    - **Interruptible**: Each layer can independently handle interrupt signals
+
+    *See [GitHub source](https://github.com/openai/codex) | [Deep Dive](deep-dive/Codex-CLI-DEEP-DIVE.md)*
+
+=== "Pattern 4: Enhanced Loop with Capabilities"
+
+    **Representative Frameworks**: OpenCode, Kimi CLI, Gemini CLI, Qwen Code, Goose
+
+    These frameworks embed specific engineering capabilities into the standard loop, manifested as checkpoints and processing logic within the code.
+
+    **OpenCode** (context compaction and permission checks):
+    ```typescript
+    // packages/opencode/src/session/prompt.ts:347-738
+    export async function loop(sessionID: string, options?: LoopOptions) {
+      let step = 0
+      while (true) {
+        // Filter compacted messages
+        let msgs = await MessageV2.filterCompacted(MessageV2.stream(sessionID))
+        
+        // Check context overflow
+        if (await SessionCompaction.isOverflow({ tokens: lastFinished.tokens })) {
+          await SessionCompaction.create({ sessionID, auto: true })
+          continue
+        }
+        
+        // Normal processing
+        const result = await processor.process({ user: lastUser, tools, model })
+        if (result === "stop") break
+      }
+    }
+    ```
+
+    **Kimi CLI** (D-Mail time travel mechanism):
+    ```python
+    # src/kimi_cli/soul/kimisoul.py:206-275
+    async def _agent_loop(self) -> TurnOutcome:
+        step_no = 0
+        while True:
+            step_no += 1
+            if step_no > self._loop_control.max_steps_per_turn:
+                raise MaxStepsReached(...)
+            
+            # Create checkpoint
+            await self._checkpoint()
+            
+            try:
+                step_outcome = await self._step()
+            except BackToTheFuture as e:  # Time travel exception
+                await self._context.revert_to(e.checkpoint_id)
+                await self._context.append_message(e.messages)
+                continue
+    ```
+
+    **Gemini CLI** (auto-continue and loop detection):
+    ```typescript
+    // packages/core/src/core/client.ts:360-450
+    async *sendMessageStream(request, signal, prompt_id, turns): AsyncGenerator<...> {
+      // Loop detection
+      if (this.loopDetector.addAndCheck(event)) {
+        yield { type: GeminiEventType.LoopDetected }
+        return
+      }
+      
+      // Auto continue
+      if (!turn.pendingToolCalls.length) {
+        const nextSpeakerCheck = await checkNextSpeaker(...)
+        if (nextSpeakerCheck?.next_speaker === 'model') {
+          const nextRequest = [{ text: 'Please continue.' }]
+          yield* this.sendMessageStream(nextRequest, signal, prompt_id, boundedTurns - 1)
+        }
+      }
+    }
+    ```
+
+    **Qwen Code** (SubAgents nesting):
+    ```typescript
+    // packages/core/src/core/client.ts:261-384
+    async *sendMessageStream(request, signal, prompt_id, options): AsyncGenerator<...> {
+      // SubAgents system reminders
+      const systemReminders = []
+      if (hasTaskTool && subagents.length > 0) {
+        systemReminders.push(getSubagentSystemReminder(subagents))
+      }
+      
+      // Recursive call for auto-continue
+      if (nextSpeakerCheck?.next_speaker === 'model') {
+        yield* this.sendMessageStream([{ text: 'Please continue.' }], ...)
+      }
+    }
+    ```
+
+    **Goose** (MCP-Native streaming):
+    ```rust
+    // crates/goose/src/agents/agent.rs:575-700+
+    async fn reply_internal(...) -> Result<BoxStream<'_, Result<AgentEvent>>> {
+        Ok(Box::pin(async_stream::try_stream! {
+            loop {
+                // MOIM injection
+                let conversation_with_moim = super::moim::inject_moim(...).await
+                
+                // Stream response from LLM provider
+                let mut stream = Self::stream_response_from_provider(...).await?
+                
+                while let Some(next) = stream.next().await {
+                    // Process messages, tool calls, etc.
                 }
             }
-            ResponseEvent::Completed { ... } => break,
-        }
+        }))
     }
-}
-```
+    ```
 
-**Design Philosophy**:
-- **Separation of concerns**: User interaction, turn management, and LLM calls are layered
-- **High concurrency**: Rust's `FuturesOrdered` supports parallel tool execution
-- **Interruptible**: Each layer can independently handle interrupt signals
+    **Common Characteristics**:
 
-*See [GitHub source](https://github.com/openai/codex) | [Deep Dive](deep-dive/Codex-CLI-DEEP-DIVE.md)*
-
----
-
-#### Pattern 4: Enhanced Loop with Capabilities
-
-**Representative Frameworks**: OpenCode, Kimi CLI, Gemini CLI, Qwen Code, Goose
-
-These frameworks embed specific engineering capabilities into the standard loop, manifested as checkpoints and processing logic within the code.
-
-**OpenCode** (context compaction and permission checks):
-```typescript
-// packages/opencode/src/session/prompt.ts:347-738
-export async function loop(sessionID: string, options?: LoopOptions) {
-  let step = 0
-  while (true) {
-    // Filter compacted messages
-    let msgs = await MessageV2.filterCompacted(MessageV2.stream(sessionID))
-    
-    // Check context overflow
-    if (await SessionCompaction.isOverflow({ tokens: lastFinished.tokens })) {
-      await SessionCompaction.create({ sessionID, auto: true })
-      continue
-    }
-    
-    // Normal processing
-    const result = await processor.process({ user: lastUser, tools, model })
-    if (result === "stop") break
-  }
-}
-```
-
-**Kimi CLI** (D-Mail time travel mechanism):
-```python
-# src/kimi_cli/soul/kimisoul.py:206-275
-async def _agent_loop(self) -> TurnOutcome:
-    step_no = 0
-    while True:
-        step_no += 1
-        if step_no > self._loop_control.max_steps_per_turn:
-            raise MaxStepsReached(...)
-        
-        # Create checkpoint
-        await self._checkpoint()
-        
-        try:
-            step_outcome = await self._step()
-        except BackToTheFuture as e:  # Time travel exception
-            await self._context.revert_to(e.checkpoint_id)
-            await self._context.append_message(e.messages)
-            continue
-```
-
-**Gemini CLI** (auto-continue and loop detection):
-```typescript
-// packages/core/src/core/client.ts:360-450
-async *sendMessageStream(request, signal, prompt_id, turns): AsyncGenerator<...> {
-  // Loop detection
-  if (this.loopDetector.addAndCheck(event)) {
-    yield { type: GeminiEventType.LoopDetected }
-    return
-  }
-  
-  // Auto continue
-  if (!turn.pendingToolCalls.length) {
-    const nextSpeakerCheck = await checkNextSpeaker(...)
-    if (nextSpeakerCheck?.next_speaker === 'model') {
-      const nextRequest = [{ text: 'Please continue.' }]
-      yield* this.sendMessageStream(nextRequest, signal, prompt_id, boundedTurns - 1)
-    }
-  }
-}
-```
-
-**Qwen Code** (SubAgents nesting):
-```typescript
-// packages/core/src/core/client.ts:261-384
-async *sendMessageStream(request, signal, prompt_id, options): AsyncGenerator<...> {
-  // SubAgents system reminders
-  const systemReminders = []
-  if (hasTaskTool && subagents.length > 0) {
-    systemReminders.push(getSubagentSystemReminder(subagents))
-  }
-  
-  // Recursive call for auto-continue
-  if (nextSpeakerCheck?.next_speaker === 'model') {
-    yield* this.sendMessageStream([{ text: 'Please continue.' }], ...)
-  }
-}
-```
-
-**Goose** (MCP-Native streaming):
-```rust
-// crates/goose/src/agents/agent.rs:575-700+
-async fn reply_internal(...) -> Result<BoxStream<'_, Result<AgentEvent>>> {
-    Ok(Box::pin(async_stream::try_stream! {
-        loop {
-            // MOIM injection
-            let conversation_with_moim = super::moim::inject_moim(...).await
-            
-            // Stream response from LLM provider
-            let mut stream = Self::stream_response_from_provider(...).await?
-            
-            while let Some(next) = stream.next().await {
-                // Process messages, tool calls, etc.
-            }
-        }
-    }))
-}
-```
-
-**Common Characteristics**:
-- Standard `while` loop skeleton
-- Embedded engineering capability checks at key nodes (compaction, permissions, loop detection, etc.)
-- Streaming processing becomes standard
+    - Standard `while` loop skeleton
+    - Embedded engineering capability checks at key nodes (compaction, permissions, loop detection, etc.)
+    - Streaming processing becomes standard
 
 ---
 
@@ -310,12 +310,15 @@ flowchart TD
    - Error or exception encountered
    - Task completion flag set
 
-**Key Insight**: In actual implementations, steps 4-6 may involve complex internal logic (parallel tools, state checks, security validations), but macroscopically they are all variations of this loop structure.
+!!! note "Key Insight"
 
-**Key Insights**:
-1. **Highly stable algorithm layer**: ReAct, Function Calling, and Tool Use all share this loop
-2. **Differences in engineering implementation**: State management, security checks, streaming, compaction strategies
-3. **Architecture choices reflect scenarios**: Research prioritizes simplicity and interpretability; production prioritizes robustness and scalability
+    In actual implementations, steps 4-6 may involve complex internal logic (parallel tools, state checks, security validations), but macroscopically they are all variations of this loop structure.
+
+!!! success "Key Insights"
+
+    1. **Highly stable algorithm layer**: ReAct, Function Calling, and Tool Use all share this loop
+    2. **Differences in engineering implementation**: State management, security checks, streaming, compaction strategies
+    3. **Architecture choices reflect scenarios**: Research prioritizes simplicity and interpretability; production prioritizes robustness and scalability
 
 This is the **Agent Loop**—**the essential logic has remained highly stable** since the publication of the 2022 ReAct paper.
 
@@ -348,7 +351,9 @@ This is the **invisible infrastructure**. Regardless of which framework you use,
 - Execute tools
 - Repeat until completion
 
-**Key Conclusion**: When choosing a framework, **don't be misled by "which algorithm is used."** All frameworks support ReAct, Function Calling, and even Tree-of-Thoughts (just different prompts).
+!!! tip "Key Conclusion"
+
+    When choosing a framework, **don't be misled by "which algorithm is used."** All frameworks support ReAct, Function Calling, and even Tree-of-Thoughts (just different prompts).
 
 ### Layer 2: Engineering Capabilities - Differentiated Competition
 
@@ -367,9 +372,13 @@ This is the layer that **truly affects user experience**. Based on the code audi
 | **SWE-agent** | Trajectory files only (research-oriented) | `trajectory.jsonl` |
 | **OpenManus** | ❌ None (In-memory only) | - |
 
-**Why it matters**: Production environments must support conversation history persistence. If an Agent crashes, users expect to resume the conversation, not start over.
+!!! info "Why it matters"
 
-**Academic Dilemma**: SWE-agent and OpenManus lack general production-grade Session management (SWE-agent focuses on trajectory persistence), making research code difficult to deploy directly in production.
+    Production environments must support conversation history persistence. If an Agent crashes, users expect to resume the conversation, not start over.
+
+!!! example "Academic Dilemma"
+
+    SWE-agent and OpenManus lack general production-grade Session management (SWE-agent focuses on trajectory persistence), making research code difficult to deploy directly in production.
 
 ---
 
@@ -418,9 +427,13 @@ if (await SessionCompaction.isOverflow(sessionID)) {
 }
 ```
 
-**Why it matters**: Long-context LLMs (like Gemini 1M tokens) exist, but cost remains a concern. OpenCode's Smart Compaction helps reduce token consumption in long-session scenarios (specific benefits depend on task and configuration).
+!!! info "Why it matters"
 
-**Academic Dilemma**: Academia typically uses short conversations (< 10 turns), with lower compaction needs; but production long conversations (> 50 turns) often require this capability more.
+    Long-context LLMs (like Gemini 1M tokens) exist, but cost remains a concern. OpenCode's Smart Compaction helps reduce token consumption in long-session scenarios (specific benefits depend on task and configuration).
+
+!!! example "Academic Dilemma"
+
+    Academia typically uses short conversations (< 10 turns), with lower compaction needs; but production long conversations (> 50 turns) often require this capability more.
 
 ---
 
@@ -428,102 +441,101 @@ if (await SessionCompaction.isOverflow(sessionID)) {
 
 This is the **core differentiation point for enterprise frameworks**. Five security models coexist:
 
-**Model 1: No Security**
-- **OpenManus**: Relies on runtime environment security
-- **Applicable scenarios**: Controlled academic research environments
+=== "Model 1: No Security"
 
-**Model 2: Guardrails**
-- **OpenAI Agents SDK**:
-```python
-@input_guardrail
-async def check_pii(context, input_items):
-    """Check for personally identifiable information"""
-    
-@output_guardrail  
-async def check_sensitive_output(context, output):
-    """Check if output is sensitive"""
+    - **OpenManus**: Relies on runtime environment security
+    - **Applicable scenarios**: Controlled academic research environments
 
-@tool_guardrail
-def dangerous_tool_guardrail(context, tool_call):
-    """Check if tool call is dangerous"""
-```
+=== "Model 2: Guardrails"
 
-- **Characteristics**: Three-layer protection (input/output/tools), Python decorator implementation
-- **Limitations**: Pure software layer, cannot block underlying system calls
+    **OpenAI Agents SDK**:
+    ```python
+    @input_guardrail
+    async def check_pii(context, input_items):
+        """Check for personally identifiable information"""
+        
+    @output_guardrail  
+    async def check_sensitive_output(context, output):
+        """Check if output is sensitive"""
 
----
+    @tool_guardrail
+    def dangerous_tool_guardrail(context, tool_call):
+        """Check if tool call is dangerous"""
+    ```
 
-**Model 3: Hooks**
-- **Claude Agent SDK** (representative implementation):
-```python
-# 10+ hook events
-hooks = {
-    "PreToolUse": [check_safety],           # Before tool execution
-    "PostToolUse": [log_result],            # After tool execution
-    "UserPromptSubmit": [check_prompt],     # When user submits
-    "SubagentStart": [init_subagent],       # Subagent startup
-    "SubagentStop": [cleanup_subagent],     # Subagent stop
-    # ... more
-}
-```
+    - **Characteristics**: Three-layer protection (input/output/tools), Python decorator implementation
+    - **Limitations**: Pure software layer, cannot block underlying system calls
 
-- **Characteristics**: Ultimate flexibility, can intervene at any step
-- **Cost**: Requires deep developer involvement, high learning curve
+=== "Model 3: Hooks"
 
----
-
-**Model 4: Policy Engine**
-- **OpenCode** (Wildcard Pattern):
-```json
-{
-  "permission": {
-    "bash": {
-      "rm *": "deny",
-      "rm -rf /": "deny",
-      "*": "ask"
+    **Claude Agent SDK** (representative implementation):
+    ```python
+    # 10+ hook events
+    hooks = {
+        "PreToolUse": [check_safety],           # Before tool execution
+        "PostToolUse": [log_result],            # After tool execution
+        "UserPromptSubmit": [check_prompt],     # When user submits
+        "SubagentStart": [init_subagent],       # Subagent startup
+        "SubagentStop": [cleanup_subagent],     # Subagent stop
+        # ... more
     }
-  }
-}
-```
+    ```
 
-- **Gemini CLI** (TOML Policy):
-```toml
-[policy]
-approval_mode = "manual"
-trusted_folders = ["/home/user/safe"]
+    - **Characteristics**: Ultimate flexibility, can intervene at any step
+    - **Cost**: Requires deep developer involvement, high learning curve
 
-[[policy.rules]]
-tool = "shell"
-pattern = "sudo *"
-action = "deny"
-```
+=== "Model 4: Policy Engine"
 
-- **Characteristics**: Declarative configuration, Last Match Wins
-- **Advantages**: Non-developers can understand and modify
+    **OpenCode** (Wildcard Pattern):
+    ```json
+    {
+      "permission": {
+        "bash": {
+          "rm *": "deny",
+          "rm -rf /": "deny",
+          "*": "ask"
+        }
+      }
+    }
+    ```
 
----
+    **Gemini CLI** (TOML Policy):
+    ```toml
+    [policy]
+    approval_mode = "manual"
+    trusted_folders = ["/home/user/safe"]
 
-**Model 5: Sandbox Isolation**
-- **Codex CLI** (representative implementation):
-```rust
-// codex-rs/core/src/seatbelt.rs (macOS)
-// codex-rs/core/src/landlock.rs (Linux)  
-// codex-rs/core/src/windows_sandbox.rs (Windows)
+    [[policy.rules]]
+    tool = "shell"
+    pattern = "sudo *"
+    action = "deny"
+    ```
 
-pub struct SandboxPolicy {
-    pub policy_type: PolicyType,
-    pub writable_roots: Vec<PathBuf>,  # Whitelist of writable directories
-    pub network_access: bool,          # Network access control
-}
+    - **Characteristics**: Declarative configuration, Last Match Wins
+    - **Advantages**: Non-developers can understand and modify
 
-// Three-layer security
-1. Platform Sandbox (OS-level process isolation)
-2. Approval Policy (.rules file, command-level control)
-3. Network Control (protocol/host/port-level control)
-```
+=== "Model 5: Sandbox Isolation"
 
-- **Characteristics**: Provides the most complete OS-level isolation capability among surveyed frameworks
-- **Cost**: Rust implementation, complex configuration, performance overhead
+    **Codex CLI** (representative implementation):
+    ```rust
+    // codex-rs/core/src/seatbelt.rs (macOS)
+    // codex-rs/core/src/landlock.rs (Linux)  
+    // codex-rs/core/src/windows_sandbox.rs (Windows)
+
+    pub struct SandboxPolicy {
+        pub policy_type: PolicyType,
+        pub writable_roots: Vec<PathBuf>,  # Whitelist of writable directories
+        pub network_access: bool,          # Network access control
+    }
+
+    // Three-layer security
+    1. Platform Sandbox (OS-level process isolation)
+    2. Approval Policy (.rules file, command-level control)
+    3. Network Control (protocol/host/port-level control)
+    ```
+
+    - **Characteristics**: Provides the most complete OS-level isolation capability among surveyed frameworks
+    - **Cost**: Rust implementation, complex configuration, performance overhead
 
 ---
 
@@ -537,7 +549,9 @@ pub struct SandboxPolicy {
 | Level 3 | OpenCode, Gemini | Configurable policies | Low (config files) |
 | Level 4 | Codex CLI | Enterprise/Finance/Healthcare | High (Sandbox) |
 
-**Academic Dilemma**: Academia typically uses Level 0-1, but industry (especially finance, healthcare) needs Level 3-4. This makes academic code difficult to deploy directly.
+!!! example "Academic Dilemma"
+
+    Academia typically uses Level 0-1, but industry (especially finance, healthcare) needs Level 3-4. This makes academic code difficult to deploy directly.
 
 ---
 
@@ -564,7 +578,9 @@ async def fibonacci(args):
 server = create_sdk_mcp_server("math-tools", tools=[fibonacci])
 ```
 
-**Why it matters**: Traditional MCP often requires launching subprocesses (npx, python, etc.), which brings additional startup and communication overhead. Claude's SDK MCP runs directly in-process, significantly reducing this overhead.
+!!! info "Why it matters"
+
+    Traditional MCP often requires launching subprocesses (npx, python, etc.), which brings additional startup and communication overhead. Claude's SDK MCP runs directly in-process, significantly reducing this overhead.
 
 ---
 
@@ -587,7 +603,9 @@ for tool_call in response.tool_calls:  # Execute one by one
 
 **Performance difference**: If an Agent needs to "query weather, check calendar, search email" simultaneously, parallel execution is 2-3x faster.
 
-**Academic Dilemma**: Academic research typically uses sequential execution (easier to analyze execution order), but production environments often need parallel execution more.
+!!! example "Academic Dilemma"
+
+    Academic research typically uses sequential execution (easier to analyze execution order), but production environments often need parallel execution more.
 
 ---
 
@@ -614,14 +632,19 @@ set_trace_processors([
 ])
 ```
 
-**Why it matters**: You can't improve what you can't measure. Production environments typically need to know:
-- How much did each LLM call cost?
-- Which tool is the slowest?
-- Why is the Agent stuck in a loop?
+!!! info "Why it matters"
+
+    You can't improve what you can't measure. Production environments typically need to know:
+
+    - How much did each LLM call cost?
+    - Which tool is the slowest?
+    - Why is the Agent stuck in a loop?
 
 **Adoption Rate**: Only OpenAI SDK provides relatively complete built-in structured Tracing; other frameworks mostly have experimental telemetry, hooks, or basic logging.
 
-**Academic Dilemma**: Academia uses Trajectory files (SWE-agent), but those are for humans to read, not for machine analysis.
+!!! example "Academic Dilemma"
+
+    Academia uses Trajectory files (SWE-agent), but those are for humans to read, not for machine analysis.
 
 ---
 
@@ -654,10 +677,11 @@ This is a Python Web application using FastAPI framework.
 - `tests/conftest.py` - Test configuration
 ```
 
-**Why it matters**:
-- **Knowledge persistence**: Transfer project knowledge from human brain to files
-- **Cross-session memory**: Agent can read project context after restart
-- **Team collaboration**: Team members share the same Agent configuration
+!!! info "Why it matters"
+
+    - **Knowledge persistence**: Transfer project knowledge from human brain to files
+    - **Cross-session memory**: Agent can read project context after restart
+    - **Team collaboration**: Team members share the same Agent configuration
 
 **Adoption Status**:
 - **Claude Code**: `CLAUDE.md`
@@ -681,11 +705,10 @@ This layer isn't determined by individual frameworks, but by **industry standard
 MCP (Model Context Protocol) is an open protocol standard proposed by Anthropic in November 2024, designed to establish unified specifications for communication between AI Agents and external tools/data sources. Its design philosophy is similar to the **USB interface** in computer hardware—standardized connectors, plug and play.
 
 **Core Architecture**:
-```
-┌─────────────┐          ┌─────────────┐          ┌─────────────┐
-│   Host      │◄────────►│   Client    │◄────────►│   Server    │
-│  (Agent)    │  stdio   │  (Transport)│  MCP Protocol│  (Tools)    │
-└─────────────┘          └─────────────┘          └─────────────┘
+```mermaid
+flowchart LR
+    Host["Host\n(Agent)"] <-->|"stdio"| Client["Client\n(Transport)"]
+    Client <-->|"MCP Protocol"| Server["Server\n(Tools)"]
 ```
 
 **Design Principles**:
@@ -723,7 +746,9 @@ Different frameworks have significant differences in MCP support depth (see Sect
 
 **MCP Limitations and Alternatives**
 
-> This section is based on industry practice observations, particularly the in-depth analysis from the [Lynxe author’s series of articles](https://mp.weixin.qq.com/s/dAnNHayrE49FEl8TcLII2Q) (2025).
+!!! abstract "Citation"
+
+    This section is based on industry practice observations, particularly the in-depth analysis from the [Lynxe author’s series of articles](https://mp.weixin.qq.com/s/dAnNHayrE49FEl8TcLII2Q) (2025).
 
 Although MCP provides a standardized protocol layer, in practice it is not the only choice and may even have lighter-weight alternatives:
 
@@ -748,7 +773,9 @@ In fact, the core requirement for tool integration is very simple: **function na
 | **Flexibility** | Limited by protocol specifications | Complete freedom | Dependent on model understanding documents |
 | **Ecosystem Compatibility** | All frameworks supporting MCP | Separate integration required for each framework | Limited to clients supporting Skills |
 
-**Key Insight**: MCP and direct function calls are not opposing, but solutions to **different problems**. MCP suits tools requiring **broad reuse** (e.g., GitHub, Slack integrations), while direct function calls are better for **quickly integrating internal systems**. The future likely holds a hybrid model where both coexist.
+!!! success "Key Insight"
+
+    MCP and direct function calls are not opposing, but solutions to **different problems**. MCP suits tools requiring **broad reuse** (e.g., GitHub, Slack integrations), while direct function calls are better for **quickly integrating internal systems**. The future likely holds a hybrid model where both coexist.
 
 ---
 
@@ -770,16 +797,11 @@ ACP (Agent Client Protocol) is a protocol standard proposed by Moonshot AI (Kimi
 - **IDE side**: VS Code, JetBrains access through plugins (still evolving)
 
 **Relationship with MCP**:
-```
-┌──────────────────────────────────────────────────────────────┐
-│                      IDE (VS Code/Zed)                       │
-└─────────────┬────────────────────────────────┬───────────────┘
-              │ ACP (Agent Control Protocol)    │ MCP (Tool Protocol)
-              ▼                                ▼
-┌──────────────────────┐              ┌──────────────────────┐
-│    Kimi/OpenCode     │              │   External Tools     │
-│     (Agent Host)     │─────────────►│   (MCP Servers)      │
-└──────────────────────┘              └──────────────────────┘
+```mermaid
+flowchart TD
+    IDE["IDE (VS Code/Zed)"] -->|"ACP (Agent Control Protocol)"| Agent["Kimi/OpenCode\n(Agent Host)"]
+    IDE -->|"MCP (Tool Protocol)"| Tools["External Tools\n(MCP Servers)"]
+    Agent -->|"MCP"| Tools
 ```
 
 ACP and MCP are **complementary**: ACP manages "human-Agent interaction," MCP manages "Agent-tool interaction."
@@ -808,12 +830,12 @@ In software engineering, **protocols have stronger lock-in effects than APIs**:
 | **Academic Impact** | Benchmark MCP-ization proposals | Standardized evaluation environments | Paper reproducibility greatly improved |
 | **Business Landscape** | Anthropic leads | OpenAI follows | Decentralized tool market |
 
-**Key Insights**:
+!!! success "Key Insights"
 
-1. **Protocol standardization is unstoppable**: Agent ecosystem needs interoperability, closed protocols will eventually be replaced by open standards
-2. **First-mover advantage is significant**: Anthropic promotes MCP, other vendors (OpenAI, Google) have followed to support
-3. **Blessing for tool vendors**: Write one MCP Server, connect to all Agent frameworks, ROI far higher than adapting to each framework's private API
-4. **Reduced enterprise migration costs**: After internal tools are MCP-ized, Agent frameworks can be freely replaced, avoiding vendor lock-in
+    1. **Protocol standardization is unstoppable**: Agent ecosystem needs interoperability, closed protocols will eventually be replaced by open standards
+    2. **First-mover advantage is significant**: Anthropic promotes MCP, other vendors (OpenAI, Google) have followed to support
+    3. **Blessing for tool vendors**: Write one MCP Server, connect to all Agent frameworks, ROI far higher than adapting to each framework's private API
+    4. **Reduced enterprise migration costs**: After internal tools are MCP-ized, Agent frameworks can be freely replaced, avoiding vendor lock-in
 
 **Implications for Framework Selection**:
 - Prioritize frameworks with comprehensive MCP support (Level 3+), ensuring tool ecosystem compatibility
@@ -904,7 +926,9 @@ The following capabilities have **no mature built-in implementation observed in 
 
 ## IV. Academic vs. Industrial Capability Requirements: Observations from the Audit
 
-> This section analyzes the different requirement patterns for Agent framework capabilities between academic and industrial scenarios, based on code audit and comparison table observations. These differences may cause friction when migrating academic results to industry.
+!!! info "Scope"
+
+    This section analyzes the different requirement patterns for Agent framework capabilities between academic and industrial scenarios, based on code audit and comparison table observations. These differences may cause friction when migrating academic results to industry.
 
 ### 4.1 Academia's "Minimum Viable Implementation"
 
@@ -976,7 +1000,9 @@ Based on the above capability comparisons, the following potential problems can 
 
 ## V. Future Prediction: Will Capabilities Converge? (Author's Judgment)
 
-> This section is trend judgment, based on preceding facts, not equivalent to data-validated conclusions.
+!!! warning "Disclaimer"
+
+    This section is trend judgment, based on preceding facts, not equivalent to data-validated conclusions.
 
 ### 5.1 Layer 2 (Engineering Capabilities): Difficult to Converge in the Short Term
 
@@ -1009,19 +1035,22 @@ Based on the above capability comparisons, the following potential problems can 
 
 ### 5.3 Future Key Capability Predictions
 
-**Tier 1: Becoming high priority soon (next 1-2 years)**
-1. **Context Compaction**: Long-context LLMs are powerful, but cost-sensitive
-2. **Structured Tracing**: Observability becomes high priority for production
-3. **HITL State Management**: Human intervention is the safety baseline
+=== "Tier 1: High Priority Soon (1-2 years)"
 
-**Tier 2: Enterprise high priority (next 2-3 years)**
-4. **Smart Caching**: Tool Result Cache (not yet implemented)
-5. **Multi-Modal Tool**: Unified handling of text/image/audio
-6. **Semantic Memory**: Long-term memory (not simple history)
+    1. **Context Compaction**: Long-context LLMs are powerful, but cost-sensitive
+    2. **Structured Tracing**: Observability becomes high priority for production
+    3. **HITL State Management**: Human intervention is the safety baseline
 
-**Tier 3: Frontier exploration (long-term)**
-7. **Self-Reflection**: Automatic improvement (like Reflexion, but production-grade)
-8. **Multi-Agent Protocol**: Standardized inter-agent collaboration
+=== "Tier 2: Enterprise Priority (2-3 years)"
+
+    4. **Smart Caching**: Tool Result Cache (not yet implemented)
+    5. **Multi-Modal Tool**: Unified handling of text/image/audio
+    6. **Semantic Memory**: Long-term memory (not simple history)
+
+=== "Tier 3: Frontier Exploration (long-term)"
+
+    7. **Self-Reflection**: Automatic improvement (like Reflexion, but production-grade)
+    8. **Multi-Agent Protocol**: Standardized inter-agent collaboration
 
 ---
 
@@ -1031,7 +1060,9 @@ Based on the above capability comparisons, the following potential problems can 
 
 Based on the code audit of 9 frameworks, the core insight of this article is:
 
-> **Agent framework competition is essentially engineering system competition, not reasoning algorithm competition.**
+!!! quote "Core Insight"
+
+    **Agent framework competition is essentially engineering system competition, not reasoning algorithm competition.**
 
 Between 2022-2026, the Agent field underwent a shift from "algorithm innovation-driven" to "systems engineering-driven":
 
@@ -1047,143 +1078,182 @@ The landmark event of this shift was the release of **OpenAI Agents SDK** (2025)
 
 ### 6.1 First Avoid These Three Low-Information Questions
 
-❌ "Did you use Function Calling?" → Just parsing method, not architectural difference
-❌ "Do you support MCP?" → 8/9 support in this survey, depth is what matters
-❌ "How many Stars?" → Popularity ≠ suitable for your scenario
+!!! danger "Low-Information Questions to Avoid"
+
+    - "Did you use Function Calling?" -- Just parsing method, not architectural difference
+    - "Do you support MCP?" -- 8/9 support in this survey, depth is what matters
+    - "How many Stars?" -- Popularity ≠ suitable for your scenario
 
 ### 6.2 Then Use These Four Question Sets for Scenario-Based Selection
 
-✅ **"Does the Layer 2 capability combination fit my scenario?"**
-- Doing research? → Choose Stateless + Trajectory (SWE-agent)
-- Doing SaaS? → Choose Session + Tracing (OpenAI SDK; can supplement compaction for long sessions)
-- Doing enterprise? → Choose Sandbox + Policy (Codex)
+!!! success "High-Value Questions to Ask"
 
-✅ **"Do I need HITL?"**
-- If involving dangerous operations (deleting data, transfers), prioritize frameworks with HITL state management (like OpenAI SDK)
+    **"Does the Layer 2 capability combination fit my scenario?"**
 
-✅ **"What security requirement level?"**
-- Level 1-2: OpenAI SDK (Guardrails)
-- Level 3: OpenCode/Gemini (Policy Engine)
-- Level 4: Codex (Sandbox)
+    - Doing research? -- Choose Stateless + Trajectory (SWE-agent)
+    - Doing SaaS? -- Choose Session + Tracing (OpenAI SDK; can supplement compaction for long sessions)
+    - Doing enterprise? -- Choose Sandbox + Policy (Codex)
 
-✅ **"Provider Lock-in tolerance?"**
-- Zero tolerance → OpenAI SDK (Provider-agnostic)
-- Only using Claude → Claude SDK
+    **"Do I need HITL?"**
 
-### 6.3 Recommendations for Academia (Actionable)
+    - If involving dangerous operations (deleting data, transfers), prioritize frameworks with HITL state management (like OpenAI SDK)
 
-1. **Choose OpenAI Agents SDK as the baseline**:
-   - Provider-agnostic (can compare GPT-4/Claude/Gemini)
-   - Complete capabilities (Session, Tracing, Guardrails)
-   - Production-ready (easy to migrate to industry)
+    **"What security requirement level?"**
 
-2. **MCP-ize evaluation tools**:
-   - Publish tools like `str_replace_editor` as MCP servers
-   - Let all frameworks compare under same conditions
-   - Improve paper comparability and impact
+    - Level 1-2: OpenAI SDK (Guardrails)
+    - Level 3: OpenCode/Gemini (Policy Engine)
+    - Level 4: Codex (Sandbox)
 
-3. **Focus on unimplemented capabilities**:
-   - Tool Result Cache (Caching)
-   - Circuit Breaker (Fault Tolerance)
-   - Semantic Memory (Long-term Memory)
-   - These are valuable engineering/research contributions
+    **"Provider Lock-in tolerance?"**
 
-### 6.4 Recommendations for Industry (Actionable)
+    - Zero tolerance -- OpenAI SDK (Provider-agnostic)
+    - Only using Claude -- Claude SDK
 
-1. **Don't reinvent the wheel**:
-   - Core loops are all the same, use mature frameworks directly (OpenAI SDK, Codex)
-   - Focus effort on business logic, not infrastructure
+=== "For Academia"
 
-2. **Choose the appropriate tool integration approach based on your scenario**:
-   - **MCP Mode**: If you need standardized tools for cross-framework reuse, expose internal APIs via MCP Server
-   - **Direct Function/Command Line**: If you only need quick integration with internal systems, use function interfaces or shell scripts directly
-   - Don't fork framework code; maintain framework upgradability
+    ### 6.3 Recommendations for Academia (Actionable)
 
-3. **Invest in observability**:
-   - Connect Tracing from Day 1 (OpenAI SDK's Logfire/AgentOps)
-   - You don't know what pitfalls you'll hit until monitoring tells you
+    1. **Choose OpenAI Agents SDK as the baseline**:
+       - Provider-agnostic (can compare GPT-4/Claude/Gemini)
+       - Complete capabilities (Session, Tracing, Guardrails)
+       - Production-ready (easy to migrate to industry)
+
+    2. **MCP-ize evaluation tools**:
+       - Publish tools like `str_replace_editor` as MCP servers
+       - Let all frameworks compare under same conditions
+       - Improve paper comparability and impact
+
+    3. **Focus on unimplemented capabilities**:
+       - Tool Result Cache (Caching)
+       - Circuit Breaker (Fault Tolerance)
+       - Semantic Memory (Long-term Memory)
+       - These are valuable engineering/research contributions
+
+=== "For Industry"
+
+    ### 6.4 Recommendations for Industry (Actionable)
+
+    1. **Don't reinvent the wheel**:
+       - Core loops are all the same, use mature frameworks directly (OpenAI SDK, Codex)
+       - Focus effort on business logic, not infrastructure
+
+    2. **Choose the appropriate tool integration approach based on your scenario**:
+       - **MCP Mode**: If you need standardized tools for cross-framework reuse, expose internal APIs via MCP Server
+       - **Direct Function/Command Line**: If you only need quick integration with internal systems, use function interfaces or shell scripts directly
+       - Don't fork framework code; maintain framework upgradability
+
+    3. **Invest in observability**:
+       - Connect Tracing from Day 1 (OpenAI SDK's Logfire/AgentOps)
+       - You don't know what pitfalls you'll hit until monitoring tells you
 
 ---
 
 ## Related Work (Previously Published Related Articles)
 
-> This section positions this article relative to existing publicly published articles: which views have been discussed, and what is the increment of this article.
+!!! info "Positioning"
+
+    This section positions this article relative to existing publicly published articles: which views have been discussed, and what is the increment of this article.
 
 ### A. Framework Selection and Engineering Capability Comparison (High Relevance)
 
-1. **Choosing the Right AI Framework** (Enhancial, 2025-10)  
-    https://enhancial.substack.com/p/choosing-the-right-ai-framework-a  
-    - Covers framework selection for OpenAI Agents SDK, Claude Agent SDK, LangGraph, MCP.  
+??? abstract "1. Choosing the Right AI Framework (Enhancial, 2025-10)"
+
+    https://enhancial.substack.com/p/choosing-the-right-ai-framework-a
+
+    - Covers framework selection for OpenAI Agents SDK, Claude Agent SDK, LangGraph, MCP.
     - Similar to this article: Emphasizes engineering capabilities (session, guardrails, tracing) are more important than "model fame."
 
-2. **How to build AI agents with MCP: 12 framework comparison** (ClickHouse, 2025-10)  
-    https://clickhouse.com/blog/how-to-build-ai-agents-mcp-12-frameworks  
-    - Compares 12 frameworks horizontally with MCP as the main thread, providing runnable examples.  
+??? abstract "2. How to build AI agents with MCP: 12 framework comparison (ClickHouse, 2025-10)"
+
+    https://clickhouse.com/blog/how-to-build-ai-agents-mcp-12-frameworks
+
+    - Compares 12 frameworks horizontally with MCP as the main thread, providing runnable examples.
     - Similar to this article: Discusses MCP depth differences and security/tool governance.
 
-3. **OpenAI AgentKit vs Claude Agents SDK** (Bind AI, 2025-10)  
-    https://blog.getbind.co/openai-agentkit-vs-claude-agents-sdk-which-is-better/  
-    - Focuses on governance differences between platformization (AgentKit) and SDK-ization (Claude + MCP).  
+??? abstract "3. OpenAI AgentKit vs Claude Agents SDK (Bind AI, 2025-10)"
+
+    https://blog.getbind.co/openai-agentkit-vs-claude-agents-sdk-which-is-better/
+
+    - Focuses on governance differences between platformization (AgentKit) and SDK-ization (Claude + MCP).
     - Similar to this article: Differences lie in permissions, observability, control plane, not "who is smarter."
 
 ### B. CLI Agent Ecosystem Horizontal Review (Medium-High Relevance)
 
-4. **EVERY CLI CODING AGENT, COMPARED** (Michael Livshits, 2026-02)  
-    https://michaellivs.com/blog/cli-coding-agents-compared/  
-    - Panoramic comparison of Codex/Gemini/Qwen/Kimi/OpenCode/SWE-agent, etc.  
+??? abstract "4. EVERY CLI CODING AGENT, COMPARED (Michael Livshits, 2026-02)"
+
+    https://michaellivs.com/blog/cli-coding-agents-compared/
+
+    - Panoramic comparison of Codex/Gemini/Qwen/Kimi/OpenCode/SWE-agent, etc.
     - Similar to this article: Values sandbox, hooks, memory files, MCP, and other engineering capabilities.
 
-5. **The 2026 Guide to Coding CLI Tools: 15 AI Agents Compared** (Tembo, 2026-02)  
-    https://www.tembo.io/blog/coding-cli-tools-comparison  
-    - Systematic classification from "vendor lock-in, autonomy, cost, model flexibility" dimensions.  
+??? abstract "5. The 2026 Guide to Coding CLI Tools: 15 AI Agents Compared (Tembo, 2026-02)"
+
+    https://www.tembo.io/blog/coding-cli-tools-comparison
+
+    - Systematic classification from "vendor lock-in, autonomy, cost, model flexibility" dimensions.
     - Similar to this article: Emphasizes tool selection should consider constraints and scenarios, not single metrics.
 
-6. **The Ultimate Comparison of Claude Code Alternatives** (Kevnu, 2025-11)  
-    https://www.kevnu.com/en/posts/the-ultimate-comparison-of-claude-code-alternatives-a-complete-analysis-of-the-10-strongest-cli-ai-programming-tools  
-    - Covers capability matrices for OpenCode, Qwen, Kimi, Codex, Gemini, and other CLI tools.  
+??? abstract "6. The Ultimate Comparison of Claude Code Alternatives (Kevnu, 2025-11)"
+
+    https://www.kevnu.com/en/posts/the-ultimate-comparison-of-claude-code-alternatives-a-complete-analysis-of-the-10-strongest-cli-ai-programming-tools
+
+    - Covers capability matrices for OpenCode, Qwen, Kimi, Codex, Gemini, and other CLI tools.
     - Similar to this article: Provides multi-tool horizontal capability comparison.
 
 ### C. Official Methodology and Single Framework Deep Dives (Medium Relevance)
 
-7. **Building agents with the Claude Agent SDK** (Anthropic, 2025-09)  
-    https://claude.com/blog/building-agents-with-the-claude-agent-sdk  
-    - Proposes gather → act → verify → repeat agent loop and compaction/subagent/MCP practices.  
+??? abstract "7. Building agents with the Claude Agent SDK (Anthropic, 2025-09)"
+
+    https://claude.com/blog/building-agents-with-the-claude-agent-sdk
+
+    - Proposes gather -- act -- verify -- repeat agent loop and compaction/subagent/MCP practices.
     - Similar to this article: Supports the observation that "core loops are highly stable, differences lie in engineering implementation."
 
-8. **I tested 5 AI CLI tools** (LogRocket, 2025-12)  
-    https://blog.logrocket.com/tested-5-ai-cli-tools/  
-    - Unified task-based comparison of multiple CLIs for usability and quality.  
+??? abstract "8. I tested 5 AI CLI tools (LogRocket, 2025-12)"
+
+    https://blog.logrocket.com/tested-5-ai-cli-tools/
+
+    - Unified task-based comparison of multiple CLIs for usability and quality.
     - Similar to this article: Emphasizes engineering usability and real workflow performance.
 
 ### D. Framework Implementation Principles and Integration Patterns Deep Analysis (High Relevance)
 
-9. **AI Agent Series: What is a ReAct Agent?** (Shen Xun, Alibaba Cloud Developer, 2025-02)  
-    https://mp.weixin.qq.com/s/KyWIEX_8oj5lcXjX5Co7Kw  
-    - Lynxe author provides an in-depth explanation of the ReAct Agent core principle: Observe-Think-Act loop.  
+??? abstract "9. AI Agent Series: What is a ReAct Agent? (Shen Xun, Alibaba Cloud Developer, 2025-02)"
+
+    https://mp.weixin.qq.com/s/KyWIEX_8oj5lcXjX5Co7Kw
+
+    - Lynxe author provides an in-depth explanation of the ReAct Agent core principle: Observe-Think-Act loop.
     - Similar to this article: Supports the observation that "core loops are highly stable," detailing the 5 key elements of ReAct.
 
-10. **AI Agent Series: Deep Dive into Agent Workflow Core: Essential Differences Between Agent vs Traditional Programming vs Workflow** (Shen Xun, Alibaba Cloud Developer, 2025-02)  
-    https://mp.weixin.qq.com/s/KE4UWEpoMYiIseykT7_Skw  
-    - Compares the essential differences between traditional programming, Workflow, and Agent: Who is making the decisions?  
+??? abstract "10. AI Agent Series: Deep Dive into Agent Workflow Core (Shen Xun, Alibaba Cloud Developer, 2025-02)"
+
+    https://mp.weixin.qq.com/s/KE4UWEpoMYiIseykT7_Skw
+
+    - Compares the essential differences between traditional programming, Workflow, and Agent: Who is making the decisions?
     - Similar to this article: Also focuses on engineering implementation differences, but emphasizes development paradigms and integration methods.
 
-11. **AI Agent Series: In-depth Analysis of Essential Differences and Best Practices Between Function Calling, MCP, and Skills** (Shen Xun, Alibaba Cloud Developer, 2025-02)  
-    https://mp.weixin.qq.com/s/dAnNHayrE49FEl8TcLII2Q  
-    - Proposes the profound view that MCP and Skills are "competitive relationships" rather than "complementary relationships."  
+??? abstract "11. AI Agent Series: Function Calling, MCP, and Skills (Shen Xun, Alibaba Cloud Developer, 2025-02)"
+
+    https://mp.weixin.qq.com/s/dAnNHayrE49FEl8TcLII2Q
+
+    - Proposes the profound view that MCP and Skills are "competitive relationships" rather than "complementary relationships."
     - Complementarity to this article: Section 3.1 of this article cites the analysis of MCP limitations and the discussion of direct function/command line calls as alternatives from this paper.
 
-12. **From ReAct to Ralph Loop: AI Agent Continuous Iteration Paradigm** (Dan Kun, Alibaba Cloud Developer, 2025-02)  
-    https://mp.weixin.qq.com/s/K4ZUGBzT0s9RwFlaYcuHiA  
+??? abstract "12. From ReAct to Ralph Loop (Dan Kun, Alibaba Cloud Developer, 2025-02)"
+
+    https://mp.weixin.qq.com/s/K4ZUGBzT0s9RwFlaYcuHiA
+
     - Introduces the Ralph Loop paradigm originating from the **Claude Code community**, as an enhancement to ReAct, solving LLM "premature exit" through Stop Hook and external verification.
     - Core mechanism: Replacing context window memory with file system persistence (progress.txt, prd.json, Git) to solve "context rot."
     - Connection to this article: Complements the "when to terminate" control strategy dimension of Agent Loop, forming a technical contrast with this article's "context compaction" capability.
 
 ### This Article's Incremental Positioning
 
-- Compared to the above articles, this article's main increment is:
-  1) Organizing 9 projects with a unified Layer 1-4 framework;  
-  2) Systematizing differences into engineering dimensions like session/security/policy/MCP/tracing/compaction;  
-  3) Explicitly proposing the "capability migration cost" problem between academic implementation and industrial deployment.
+!!! success "Increment over existing work"
+
+    1. Organizing 9 projects with a unified Layer 1-4 framework
+    2. Systematizing differences into engineering dimensions like session/security/policy/MCP/tracing/compaction
+    3. Explicitly proposing the "capability migration cost" problem between academic implementation and industrial deployment
 
 ---
 

@@ -1,10 +1,11 @@
 # Kimi CLI - 深度技术调研
 
-**调研日期**: 2026-02-26  
-**仓库**: https://github.com/MoonshotAI/kimi-cli  
-**许可证**: Apache-2.0  
-**主要语言**: Python + TypeScript  
-**定位**: 终端 Agent + shell 一体化，强调 IDE/ACP 接入  
+!!! info "项目概览"
+    **调研日期**: 2026-02-26  
+    **仓库**: https://github.com/MoonshotAI/kimi-cli  
+    **许可证**: Apache-2.0  
+    **主要语言**: Python + TypeScript  
+    **定位**: 终端 Agent + shell 一体化，强调 IDE/ACP 接入  
 
 ---
 
@@ -517,23 +518,20 @@ agent:
 
 ## 5. 评估
 
-### 优势
+!!! success "核心优势"
+    1. ✅ **完整的 ACP 支持**: IDE 集成一流
+    2. ✅ **Skills 系统**: 可扩展的专业知识包
+    3. ✅ **Web UI**: 桌面友好的 React UI
+    4. ✅ **OAuth 集成**: 企业级认证
 
-1. ✅ **完整的 ACP 支持**: IDE 集成一流
-2. ✅ **Skills 系统**: 可扩展的专业知识包
-3. ✅ **Web UI**: 桌面友好的 React UI
-4. ✅ **OAuth 集成**: 企业级认证
+!!! warning "局限性"
+    1. ⚠️ **Kimi 倾向**: 优化for Kimi模型
+    2. ⚠️ **文档**: 中文文档为主
 
-### 限制
-
-1. ⚠️ **Kimi 倾向**: 优化for Kimi模型
-2. ⚠️ **文档**: 中文文档为主
-
-### 适用场景
-
-- ✅ IDE Agent Server 接入
-- ✅ 终端开发
-- ✅ 命令行增强
+!!! tip "推荐场景"
+    - ✅ IDE Agent Server 接入
+    - ✅ 终端开发
+    - ✅ 命令行增强
 
 ---
 

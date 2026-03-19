@@ -1,10 +1,11 @@
 # Codex CLI - 深度技术调研
 
-**调研日期**: 2026-02-26  
-**仓库**: https://github.com/openai/codex  
-**许可证**: Apache-2.0  
-**主要语言**: Rust + TypeScript  
-**定位**: 本地优先的终端 coding agent，带审批/沙箱/MCP  
+!!! info "项目概览"
+    **调研日期**: 2026-02-26  
+    **仓库**: https://github.com/openai/codex  
+    **许可证**: Apache-2.0  
+    **主要语言**: Rust + TypeScript  
+    **定位**: 本地优先的终端 coding agent，带审批/沙箱/MCP  
 
 ---
 
@@ -752,31 +753,27 @@ server.setRequestHandler(ListResourcesRequestSchema, async (request) => {
 
 ## 6. 评估与建议
 
-### 6.1 优势
+!!! success "核心优势"
+    1. ✅ **多层安全**: Sandbox + Approval + Network Control
+    2. ✅ **高性能**: Rust 核心
+    3. ✅ **双 MCP 角色**: 既可使用也可被使用
+    4. ✅ **企业级**: 可控执行、可审计
+    5. ✅ **官方支持**: OpenAI 维护
 
-1. ✅ **多层安全**: Sandbox + Approval + Network Control
-2. ✅ **高性能**: Rust 核心
-3. ✅ **双 MCP 角色**: 既可使用也可被使用
-4. ✅ **企业级**: 可控执行、可审计
-5. ✅ **官方支持**: OpenAI 维护
+!!! warning "局限性"
+    1. ⚠️ **OpenAI 倾向**: 虽支持其他 LLMs，但优化for OpenAI
+    2. ❌ **复杂度高**: Rust + TypeScript 双语言栈
+    3. ⚠️ **文档分散**: 部分功能需查看源码
 
-### 6.2 限制
+!!! tip "推荐场景"
+    - ✅ 需要企业级安全控制
+    - ✅ 本地工程改码
+    - ✅ 受控执行环境
+    - ✅ MCP 生态集成
 
-1. ⚠️ **OpenAI 倾向**: 虽支持其他 LLMs，但优化for OpenAI
-2. ❌ **复杂度高**: Rust + TypeScript 双语言栈
-3. ⚠️ **文档分散**: 部分功能需查看源码
-
-### 6.3 适用场景
-
-**强烈推荐**:
-- ✅ 需要企业级安全控制
-- ✅ 本地工程改码
-- ✅ 受控执行环境
-- ✅ MCP 生态集成
-
-**不推荐**:
-- ❌ 快速原型（配置复杂）
-- ❌ 非技术用户（需理解 Rust/安全概念）
+!!! danger "不推荐场景"
+    - ❌ 快速原型（配置复杂）
+    - ❌ 非技术用户（需理解 Rust/安全概念）
 
 ---
 

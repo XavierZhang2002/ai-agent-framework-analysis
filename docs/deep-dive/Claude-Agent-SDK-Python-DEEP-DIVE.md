@@ -1,10 +1,11 @@
 # Claude Agent SDK (Python) - 深度技术调研
 
-**调研日期**: 2026-02-26  
-**仓库**: https://github.com/anthropics/claude-agent-sdk-python  
-**许可证**: MIT (repository) + Anthropic Commercial Terms  
-**版本**: v0.1.44  
-**Stars**: 5k | **Forks**: 667 | **Contributors**: 47  
+!!! info "项目概览"
+    **调研日期**: 2026-02-26  
+    **仓库**: https://github.com/anthropics/claude-agent-sdk-python  
+    **许可证**: MIT (repository) + Anthropic Commercial Terms  
+    **版本**: v0.1.44  
+    **Stars**: 5k | **Forks**: 667 | **Contributors**: 47  
 
 ---
 
@@ -1137,33 +1138,29 @@ async def query_with_metrics(prompt):
 
 ## 7. 评估与建议
 
-### 7.1 优势
+!!! success "核心优势"
+    1. ✅ **强大的 Hook 系统**: 10+ 事件类型，细粒度控制
+    2. ✅ **SDK MCP Servers**: 无需子进程的进程内工具
+    3. ✅ **官方支持**: Anthropic 官方维护
+    4. ✅ **自动 CLI 捆绑**: 零配置安装
 
-1. ✅ **强大的 Hook 系统**: 10+ 事件类型，细粒度控制
-2. ✅ **SDK MCP Servers**: 无需子进程的进程内工具
-3. ✅ **官方支持**: Anthropic 官方维护
-4. ✅ **自动 CLI 捆绑**: 零配置安装
+!!! warning "局限性"
+    1. ❌ **Claude-only**: 无法使用其他 LLM
+    2. ❌ **闭源 CLI**: Claude Code CLI 不开源
+    3. ❌ **无 Session 管理**: 需手动管理历史
+    4. ❌ **无 Tracing**: 需自行实现可观测性
+    5. ⚠️ **商业条款**: 受 Anthropic ToS 约束
 
-### 7.2 限制
+!!! tip "推荐场景"
+    - ✅ 深度集成 Claude 生态
+    - ✅ 需要强大的 Hook 系统
+    - ✅ 需要 in-process MCP 工具
+    - ✅ Python 应用嵌入 Claude 能力
 
-1. ❌ **Claude-only**: 无法使用其他 LLM
-2. ❌ **闭源 CLI**: Claude Code CLI 不开源
-3. ❌ **无 Session 管理**: 需手动管理历史
-4. ❌ **无 Tracing**: 需自行实现可观测性
-5. ⚠️ **商业条款**: 受 Anthropic ToS 约束
-
-### 7.3 适用场景
-
-**强烈推荐**:
-- ✅ 深度集成 Claude 生态
-- ✅ 需要强大的 Hook 系统
-- ✅ 需要 in-process MCP 工具
-- ✅ Python 应用嵌入 Claude 能力
-
-**不推荐**:
-- ❌ 需要跨 LLM provider
-- ❌ 需要完全开源方案
-- ❌ 需要内置 session/tracing
+!!! danger "不推荐场景"
+    - ❌ 需要跨 LLM provider
+    - ❌ 需要完全开源方案
+    - ❌ 需要内置 session/tracing
 
 ### 7.4 最佳实践
 

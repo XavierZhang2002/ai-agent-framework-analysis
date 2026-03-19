@@ -1,10 +1,11 @@
 # OpenAI Agents SDK - 深度技术调研
 
-**调研日期**: 2026-02-26  
-**仓库**: https://github.com/openai/openai-agents-python  
-**许可证**: MIT  
-**版本**: v0.10.2  
-**Stars**: 19.2k | **Forks**: 3.2k | **Contributors**: 219  
+!!! info "项目概览"
+    **调研日期**: 2026-02-26  
+    **仓库**: https://github.com/openai/openai-agents-python  
+    **许可证**: MIT  
+    **版本**: v0.10.2  
+    **Stars**: 19.2k | **Forks**: 3.2k | **Contributors**: 219  
 
 ---
 
@@ -2570,64 +2571,66 @@ async def call_external_api(
 
 ## 7. 评估与建议
 
-### 7.1 优势总结
+!!! success "核心优势"
+    **架构优势**:
 
-**架构优势**:
-1. ✅ **清晰的关注点分离**: Runner → AgentRunner → run_internal/* 三层架构，职责明确
-2. ✅ **Protocol-based 扩展**: Session/Model/Tracing 使用 Protocol 而非 ABC，降低耦合
-3. ✅ **一等公民抽象**: Handoff、Session、Tracing 都是框架核心，非事后添加
-4. ✅ **完整的状态管理**: RunState 支持 HITL、中断恢复、序列化
-5. ✅ **生产就绪**: 内置 tracing、session、guardrails、错误处理
+    1. ✅ **清晰的关注点分离**: Runner → AgentRunner → run_internal/* 三层架构，职责明确
+    2. ✅ **Protocol-based 扩展**: Session/Model/Tracing 使用 Protocol 而非 ABC，降低耦合
+    3. ✅ **一等公民抽象**: Handoff、Session、Tracing 都是框架核心，非事后添加
+    4. ✅ **完整的状态管理**: RunState 支持 HITL、中断恢复、序列化
+    5. ✅ **生产就绪**: 内置 tracing、session、guardrails、错误处理
 
-**开发者体验**:
-1. ✅ **简单的入门**: `Runner.run(agent, input)` 即可开始
-2. ✅ **渐进式复杂度**: 从简单到复杂（基础 → handoff → session → tracing → HITL）
-3. ✅ **类型安全**: 广泛使用 type hints，IDE 支持良好
-4. ✅ **丰富示例**: 12,775 行示例代码，覆盖各种场景
+    **开发者体验**:
 
-**生态优势**:
-1. ✅ **Provider-agnostic**: 100+ LLMs（不绑定 OpenAI）
-2. ✅ **活跃社区**: 19.2k stars, 219 contributors
-3. ✅ **官方维护**: OpenAI 团队积极维护（1,135 commits）
+    1. ✅ **简单的入门**: `Runner.run(agent, input)` 即可开始
+    2. ✅ **渐进式复杂度**: 从简单到复杂（基础 → handoff → session → tracing → HITL）
+    3. ✅ **类型安全**: 广泛使用 type hints，IDE 支持良好
+    4. ✅ **丰富示例**: 12,775 行示例代码，覆盖各种场景
 
-### 7.2 限制与不足
+    **生态优势**:
 
-**功能限制**:
-1. ❌ **无 RAG 支持**: 需要自行实现 vector stores、embeddings、retrieval
-2. ❌ **无 MCP 原生支持**: 虽然可通过 tools 接入，但不如 Claude SDK 的 in-process MCP
-3. ⚠️ **有限的工具生态**: 依赖开发者自定义工具（vs. LangChain 的 1000+ tools）
-4. ⚠️ **Session 功能基础**: 仅支持 append-only 历史（无摘要、compaction 等高级功能）
+    1. ✅ **Provider-agnostic**: 100+ LLMs（不绑定 OpenAI）
+    2. ✅ **活跃社区**: 19.2k stars, 219 contributors
+    3. ✅ **官方维护**: OpenAI 团队积极维护（1,135 commits）
 
-**设计权衡**:
-1. ⚠️ **轻量 vs. 功能**: 专注 agent 编排，牺牲了 RAG、chains 等 LangChain 特性
-2. ⚠️ **Handoff 单向性**: 一次只处理一个 handoff（无并行 handoff）
-3. ⚠️ **Tracing 开销**: 内置 tracing 会增加少量性能开销（可禁用）
+!!! warning "局限性"
+    **功能限制**:
 
-**生产考量**:
-1. ⚠️ **缺少内置速率限制**: 需自行实现
-2. ⚠️ **缺少内置重试**: 需手动包装（如 tenacity）
-3. ⚠️ **Session 扩展性**: SQLite 不适合高并发（推荐生产环境用 Redis/PostgreSQL）
+    1. ❌ **无 RAG 支持**: 需要自行实现 vector stores、embeddings、retrieval
+    2. ❌ **无 MCP 原生支持**: 虽然可通过 tools 接入，但不如 Claude SDK 的 in-process MCP
+    3. ⚠️ **有限的工具生态**: 依赖开发者自定义工具（vs. LangChain 的 1000+ tools）
+    4. ⚠️ **Session 功能基础**: 仅支持 append-only 历史（无摘要、compaction 等高级功能）
 
-### 7.3 适用场景建议
+    **设计权衡**:
 
-**强烈推荐**:
-- ✅ 构建 multi-agent 编排系统（客服、工作流自动化等）
-- ✅ 需要跨 LLM provider（不绑定特定供应商）
-- ✅ 需要轻量级、可控的 agent 框架
-- ✅ 需要内置 HITL（Human-in-the-Loop）
-- ✅ Python 应用中嵌入 agent 能力
-- ✅ 需要完整的 tracing/observability
+    1. ⚠️ **轻量 vs. 功能**: 专注 agent 编排，牺牲了 RAG、chains 等 LangChain 特性
+    2. ⚠️ **Handoff 单向性**: 一次只处理一个 handoff（无并行 handoff）
+    3. ⚠️ **Tracing 开销**: 内置 tracing 会增加少量性能开销（可禁用）
 
-**不推荐**:
-- ❌ 需要 RAG/Vector stores（选 LangChain 或自行集成）
-- ❌ 需要丰富的预构建工具（选 LangChain）
-- ❌ 只需要简单的 LLM 调用（直接用 OpenAI SDK）
-- ❌ 需要 TypeScript/JavaScript（用 Agents SDK JS/TS 版本）
+    **生产考量**:
 
-**可以考虑（需评估）**:
-- ⚠️ 大规模生产部署（需自行实现 rate limiting、circuit breaker 等）
-- ⚠️ 复杂的 memory 需求（Session 功能较基础）
-- ⚠️ 需要 UI（需自行构建，SDK 本身无 UI）
+    1. ⚠️ **缺少内置速率限制**: 需自行实现
+    2. ⚠️ **缺少内置重试**: 需手动包装（如 tenacity）
+    3. ⚠️ **Session 扩展性**: SQLite 不适合高并发（推荐生产环境用 Redis/PostgreSQL）
+
+!!! tip "推荐场景"
+    - ✅ 构建 multi-agent 编排系统（客服、工作流自动化等）
+    - ✅ 需要跨 LLM provider（不绑定特定供应商）
+    - ✅ 需要轻量级、可控的 agent 框架
+    - ✅ 需要内置 HITL（Human-in-the-Loop）
+    - ✅ Python 应用中嵌入 agent 能力
+    - ✅ 需要完整的 tracing/observability
+
+!!! danger "不推荐场景"
+    - ❌ 需要 RAG/Vector stores（选 LangChain 或自行集成）
+    - ❌ 需要丰富的预构建工具（选 LangChain）
+    - ❌ 只需要简单的 LLM 调用（直接用 OpenAI SDK）
+    - ❌ 需要 TypeScript/JavaScript（用 Agents SDK JS/TS 版本）
+
+!!! warning "需评估场景"
+    - ⚠️ 大规模生产部署（需自行实现 rate limiting、circuit breaker 等）
+    - ⚠️ 复杂的 memory 需求（Session 功能较基础）
+    - ⚠️ 需要 UI（需自行构建，SDK 本身无 UI）
 
 ### 7.4 最佳实践
 

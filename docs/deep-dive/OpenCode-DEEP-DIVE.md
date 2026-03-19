@@ -1,10 +1,11 @@
 # OpenCode - 深度技术调研
 
-**调研日期**: 2026-02-26 (Updated: 2026-02-27)  
-**仓库**: https://github.com/anomalyco/opencode  
-**许可证**: MIT  
-**主要语言**: TypeScript  
-**运行时**: Bun  
+!!! info "项目概览"
+    **调研日期**: 2026-02-26 (Updated: 2026-02-27)  
+    **仓库**: https://github.com/anomalyco/opencode  
+    **许可证**: MIT  
+    **主要语言**: TypeScript  
+    **运行时**: Bun  
 
 ---
 
@@ -857,27 +858,23 @@ OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
 
 ## 7. 评估与建议
 
-### 7.1 优势
+!!! success "核心优势"
+    1. ✅ **100% 开源**: 完全可审计的代码
+    2. ✅ **Provider-agnostic**: 支持所有主流 LLM
+    3. ✅ **强大的 TUI**: Solid.js + Tauri 桌面应用
+    4. ✅ **高级权限系统**: 细粒度控制
+    5. ✅ **插件生态**: 丰富的扩展机制
 
-1. ✅ **100% 开源**: 完全可审计的代码
-2. ✅ **Provider-agnostic**: 支持所有主流 LLM
-3. ✅ **强大的 TUI**: Solid.js + Tauri 桌面应用
-4. ✅ **高级权限系统**: 细粒度控制
-5. ✅ **插件生态**: 丰富的扩展机制
+!!! warning "局限性"
+    1. ⚠️ **Bun 依赖**: 需要 Bun 运行时
+    2. ❌ **无内置 Tracing**: OpenTelemetry 是实验性的
+    3. ⚠️ **社区维护**: 非大厂官方维护
 
-### 7.2 限制
-
-1. ⚠️ **Bun 依赖**: 需要 Bun 运行时
-2. ❌ **无内置 Tracing**: OpenTelemetry 是实验性的
-3. ⚠️ **社区维护**: 非大厂官方维护
-
-### 7.3 适用场景
-
-**强烈推荐**:
-- ✅ 终端重度用户
-- ✅ 需要完全开源方案
-- ✅ 需要跨 LLM provider
-- ✅ 需要强大权限控制
+!!! tip "推荐场景"
+    - ✅ 终端重度用户
+    - ✅ 需要完全开源方案
+    - ✅ 需要跨 LLM provider
+    - ✅ 需要强大权限控制
 
 ---
 

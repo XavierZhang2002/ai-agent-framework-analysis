@@ -2,14 +2,16 @@
 
 **基于深度代码分析的全面对比报告**
 
-> **调研方法**：  
-> 本报告基于对 12 个主流 Agent 框架的深度代码分析，包括源码审计、架构分析、扩展点研究。  
-> 每个项目的详细技术调研文档见 `deep-dive/*-DEEP-DIVE.md`。
-> 
-> **判定口径**：  
-> 1) "仓库开源" = 代码仓库公开 + 有开源许可证；  
-> 2) "核心逻辑可看可改" = Agent 编排/工具调用主逻辑是否在仓库可审计并可改；  
-> 3) "黑盒" 主要指运行时依赖的闭源服务（模型推理、托管工具、商业条款约束组件）。
+!!! info "调研方法"
+
+    本报告基于对 12 个主流 Agent 框架的深度代码分析，包括源码审计、架构分析、扩展点研究。
+    每个项目的详细技术调研文档见 `deep-dive/*-DEEP-DIVE.md`。
+
+    **判定口径**：
+
+    1. "仓库开源" = 代码仓库公开 + 有开源许可证
+    2. "核心逻辑可看可改" = Agent 编排/工具调用主逻辑是否在仓库可审计并可改
+    3. "黑盒" 主要指运行时依赖的闭源服务（模型推理、托管工具、商业条款约束组件）
 
 ---
 
@@ -163,9 +165,10 @@
 - **代码规模**: SDK ~3,000 lines + 闭源 CLI
 - **适用**: Python 应用深度集成 Claude 能力
 
-**对比总结**:
-- OpenAI Agents SDK: 完全开源，provider-agnostic，更轻量
-- Claude Agent SDK: 强大的 Hooks，in-process MCP，但依赖闭源 CLI
+!!! tip "对比总结"
+
+    - OpenAI Agents SDK: 完全开源，provider-agnostic，更轻量
+    - Claude Agent SDK: 强大的 Hooks，in-process MCP，但依赖闭源 CLI
 
 #### **B) 终端 CLI 型（终端重度用户）**
 
@@ -205,11 +208,12 @@
 - **IDE**: Deep MCP integration (VS Code, Zed, JetBrains)
 - **特色**: Qwen OAuth with PKCE，variable templating
 
-**对比总结**:
-- **最强安全**: Codex CLI（Sandbox + Approval + Network）
-- **最开放**: OpenCode（100% 开源 + provider-agnostic）
-- **最强 IDE**: Kimi CLI（ACP + Wire）+ Qwen Code（MCP IDE）
-- **最佳 Google**: Gemini CLI（Search grounding + Code Assist）
+!!! tip "对比总结"
+
+    - **最强安全**: Codex CLI（Sandbox + Approval + Network）
+    - **最开放**: OpenCode（100% 开源 + provider-agnostic）
+    - **最强 IDE**: Kimi CLI（ACP + Wire）+ Qwen Code（MCP IDE）
+    - **最佳 Google**: Gemini CLI（Search grounding + Code Assist）
 
 #### **C) 研究/实验框架**
 
@@ -228,9 +232,10 @@
 - **工具**: 8 个内置工具 + MCP tools
 - **适用**: 快速实验、MCP 探索、社区共建
 
-**对比总结**:
-- **SWE-agent**: 专注 benchmark，YAML 配置化，trajectory 分析
-- **OpenManus**: 通用实验框架，MCP 双角色，Flow 系统不稳定
+!!! tip "对比总结"
+
+    - **SWE-agent**: 专注 benchmark，YAML 配置化，trajectory 分析
+    - **OpenManus**: 通用实验框架，MCP 双角色，Flow 系统不稳定
 
 ---
 
@@ -532,7 +537,9 @@
 | **License** | MIT | MIT+ToS | MIT | Apache-2.0 | Apache-2.0 | Apache-2.0 | Apache-2.0 | MIT | MIT | Apache-2.0 | Apache-2.0 | MIT |
 | **生产就绪** | ✅ ✅ ✅ | ✅ ✅ | ⚠️ | ✅ ✅ | ✅ | ✅ ✅ | ✅ | ❌ | ⚠️ | ✅ ✅ | ✅ ✅ | ✅ ✅ ✅ |
 
-**图例**: ✅ ✅ ✅ = 优秀 | ✅ ✅ = 良好 | ✅ = 基础支持 | ⚠️ = 部分/实验性 | ❌ = 不支持
+!!! info "图例"
+
+    ✅ ✅ ✅ = 优秀 | ✅ ✅ = 良好 | ✅ = 基础支持 | ⚠️ = 部分/实验性 | ❌ = 不支持
 
 ---
 
@@ -577,10 +584,12 @@
 
 ### 10.3 不推荐的组合
 
-❌ **OpenAI Agents SDK + 需要 RAG**: 无内置 RAG，选 LangChain  
-❌ **Claude Agent SDK + 跨 LLM**: Claude-only，选 OpenAI SDK  
-❌ **SWE-agent + 生产应用**: 研究框架，非生产目的  
-❌ **OpenManus + 稳定 multi-agent**: Flow 系统标注为不稳定  
+!!! danger "不推荐的组合"
+
+    - **OpenAI Agents SDK + 需要 RAG**: 无内置 RAG，选 LangChain
+    - **Claude Agent SDK + 跨 LLM**: Claude-only，选 OpenAI SDK
+    - **SWE-agent + 生产应用**: 研究框架，非生产目的
+    - **OpenManus + 稳定 multi-agent**: Flow 系统标注为不稳定
 
 ---
 
@@ -672,15 +681,17 @@
 
 本调研基于 **2026-02-26**的深度代码分析，覆盖 12 个主流 Agent 框架，总计审查**~400 KB** 源码文档。
 
-**核心发现**:
+!!! success "核心发现"
 
-1. **Python SDK 双雄**: OpenAI Agents SDK（provider-agnostic，完整特性）vs. Claude Agent SDK（强 Hooks，Claude-only）
-2. **终端 CLI 多样化**: OpenCode（100% 开源）、Codex（最强安全）、Kimi（ACP IDE）、Gemini（Google）、Qwen（Skills）各有千秋
-3. **MCP 双角色**: 仅 Codex CLI 和 OpenManus 同时实现 MCP Client + Server
-4. **Security 领袖**: Codex CLI 唯一提供 OS-level Sandbox（Seatbelt/Landlock/Windows）
-5. **研究框架**: SWE-agent 专注 benchmark，OpenManus Flow 系统不稳定
+    1. **Python SDK 双雄**: OpenAI Agents SDK（provider-agnostic，完整特性）vs. Claude Agent SDK（强 Hooks，Claude-only）
+    2. **终端 CLI 多样化**: OpenCode（100% 开源）、Codex（最强安全）、Kimi（ACP IDE）、Gemini（Google）、Qwen（Skills）各有千秋
+    3. **MCP 双角色**: 仅 Codex CLI 和 OpenManus 同时实现 MCP Client + Server
+    4. **Security 领袖**: Codex CLI 唯一提供 OS-level Sandbox（Seatbelt/Landlock/Windows）
+    5. **研究框架**: SWE-agent 专注 benchmark，OpenManus Flow 系统不稳定
 
-**选择建议**: 根据 **需求（功能）**+**技术栈（语言）**+**安全级别** 三维度综合决策，详见第 6 节决策树。
+!!! tip "选择建议"
+
+    根据 **需求（功能）** + **技术栈（语言）** + **安全级别** 三维度综合决策，详见第 6 节决策树。
 
 ---
 

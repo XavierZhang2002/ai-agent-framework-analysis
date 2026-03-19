@@ -1,11 +1,13 @@
 # OpenHands - 深度技术调研
 
-**调研日期**: 2026-02-27  
-**仓库**: https://github.com/All-Hands-AI/OpenHands  
-**许可证**: MIT  
-**版本**: v0.25.0  
-**Stars**: 67.5k | **Forks**: 7.2k | **Contributors**: 498  
-**融资**: $18.8M (AI Grant, Factorial Capital)
+!!! info "项目概览"
+
+    **调研日期**: 2026-02-27  
+    **仓库**: https://github.com/All-Hands-AI/OpenHands  
+    **许可证**: MIT  
+    **版本**: v0.25.0  
+    **Stars**: 67.5k | **Forks**: 7.2k | **Contributors**: 498  
+    **融资**: $18.8M (AI Grant, Factorial Capital)
 
 ---
 
@@ -370,17 +372,19 @@ class DelegatorAgent:
 
 ### 6.1 适用场景
 
-**强烈推荐使用 OpenHands 的场景**:
-1. ✅ **完整平台需求**: 需要 Web UI + API + CLI
-2. ✅ **安全优先**: 必须 Docker 沙箱隔离
-3. ✅ **学术研究**: 需要 SWE-bench 评估
-4. ✅ **团队协作**: 需要共享 Agent 环境
-5. ✅ **微代理**: 需要可组合的 Agent 系统
+!!! tip "推荐场景"
 
-**不建议使用 OpenHands 的场景**:
-1. ❌ **快速 CLI**: 只想简单命令行使用
-2. ❌ **资源受限**: 无法运行 Docker
-3. ❌ **MCP 生态**: 重度依赖 MCP 服务器
+    1. ✅ **完整平台需求**: 需要 Web UI + API + CLI
+    2. ✅ **安全优先**: 必须 Docker 沙箱隔离
+    3. ✅ **学术研究**: 需要 SWE-bench 评估
+    4. ✅ **团队协作**: 需要共享 Agent 环境
+    5. ✅ **微代理**: 需要可组合的 Agent 系统
+
+!!! danger "不推荐场景"
+
+    1. ❌ **快速 CLI**: 只想简单命令行使用
+    2. ❌ **资源受限**: 无法运行 Docker
+    3. ❌ **MCP 生态**: 重度依赖 MCP 服务器
 
 ### 6.2 学术价值
 
