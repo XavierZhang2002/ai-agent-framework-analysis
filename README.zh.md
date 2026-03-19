@@ -35,18 +35,18 @@
 
 | 框架 | 语言 | 核心定位 | 关键差异化特性 | Stars |
 |------|------|---------|--------------|-------|
-| [OpenAI Agents SDK](deep-dive/OpenAI-Agents-SDK-DEEP-DIVE.md) | Python | 生产级 SDK | HITL、Tracing、Provider-agnostic | 19.2K |
-| [Claude Agent SDK](deep-dive/Claude-Agent-SDK-Python-DEEP-DIVE.md) | Python | Claude 深度集成 | 10+ Hooks、SDK MCP | 5K |
-| [Codex CLI](deep-dive/Codex-CLI-DEEP-DIVE.md) | Rust | 企业级安全 | 三层循环、OS Sandbox | 62.2K |
-| [OpenCode](deep-dive/OpenCode-DEEP-DIVE.md) | TypeScript | 开源 CLI | 智能压缩、权限系统 | 112K |
-| [Kimi CLI](deep-dive/Kimi-CLI-DEEP-DIVE.md) | Python/TS | IDE 集成 | D-Mail 时间旅行、ACP | 5.9K |
-| [Gemini CLI](deep-dive/Gemini-CLI-DEEP-DIVE.md) | TypeScript | Google 生态 | GEMINI.md 记忆、免费额度 | 95.9K |
-| [Qwen Code](deep-dive/Qwen-Code-DEEP-DIVE.md) | TypeScript | Qwen 生态 | SubAgents、Skills、模板 | 18.1K |
-| [SWE-agent](deep-dive/SWE-agent-DEEP-DIVE.md) | Python | 研究框架 | Trajectory Recording、SWE-bench | 18.4K |
-| [OpenManus](deep-dive/OpenManus-DEEP-DIVE.md) | Python | 快速实验 | MCP 双角色、ReAct | - |
-| [Aider](deep-dive/Aider-DEEP-DIVE.md) | Python | Git-Native 编码助手 | Repo Map、Tree-sitter | 41K |
-| [Goose](deep-dive/Goose-DEEP-DIVE.md) | Rust | MCP-Native 框架 | MCP-Native、Extensions | 31.4K |
-| [OpenHands](deep-dive/OpenHands-DEEP-DIVE.md) | Python | 完整平台 | Docker 沙箱、微代理 | 68.3K |
+| [OpenAI Agents SDK](docs/deep-dive/OpenAI-Agents-SDK-DEEP-DIVE.md) | Python | 生产级 SDK | HITL、Tracing、Provider-agnostic | 19.2K |
+| [Claude Agent SDK](docs/deep-dive/Claude-Agent-SDK-Python-DEEP-DIVE.md) | Python | Claude 深度集成 | 10+ Hooks、SDK MCP | 5K |
+| [Codex CLI](docs/deep-dive/Codex-CLI-DEEP-DIVE.md) | Rust | 企业级安全 | 三层循环、OS Sandbox | 62.2K |
+| [OpenCode](docs/deep-dive/OpenCode-DEEP-DIVE.md) | TypeScript | 开源 CLI | 智能压缩、权限系统 | 112K |
+| [Kimi CLI](docs/deep-dive/Kimi-CLI-DEEP-DIVE.md) | Python/TS | IDE 集成 | D-Mail 时间旅行、ACP | 5.9K |
+| [Gemini CLI](docs/deep-dive/Gemini-CLI-DEEP-DIVE.md) | TypeScript | Google 生态 | GEMINI.md 记忆、免费额度 | 95.9K |
+| [Qwen Code](docs/deep-dive/Qwen-Code-DEEP-DIVE.md) | TypeScript | Qwen 生态 | SubAgents、Skills、模板 | 18.1K |
+| [SWE-agent](docs/deep-dive/SWE-agent-DEEP-DIVE.md) | Python | 研究框架 | Trajectory Recording、SWE-bench | 18.4K |
+| [OpenManus](docs/deep-dive/OpenManus-DEEP-DIVE.md) | Python | 快速实验 | MCP 双角色、ReAct | - |
+| [Aider](docs/deep-dive/Aider-DEEP-DIVE.md) | Python | Git-Native 编码助手 | Repo Map、Tree-sitter | 41K |
+| [Goose](docs/deep-dive/Goose-DEEP-DIVE.md) | Rust | MCP-Native 框架 | MCP-Native、Extensions | 31.4K |
+| [OpenHands](docs/deep-dive/OpenHands-DEEP-DIVE.md) | Python | 完整平台 | Docker 沙箱、微代理 | 68.3K |
 
 ### 详细特性矩阵
 

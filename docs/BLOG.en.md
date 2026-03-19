@@ -4,7 +4,7 @@
 
 ---
 
-> **TL;DR**: After auditing ~300KB of source code from 12 mainstream agent frameworks ([OpenAI Agents SDK](deep-dive/OpenAI-Agents-SDK-DEEP-DIVE.md), [Claude Agent SDK](deep-dive/Claude-Agent-SDK-Python-DEEP-DIVE.md), [Codex CLI](deep-dive/Codex-CLI-DEEP-DIVE.md), [OpenCode](deep-dive/OpenCode-DEEP-DIVE.md), [Kimi CLI](deep-dive/Kimi-CLI-DEEP-DIVE.md), [Gemini CLI](deep-dive/Gemini-CLI-DEEP-DIVE.md), [Qwen Code](deep-dive/Qwen-Code-DEEP-DIVE.md), [SWE-agent](deep-dive/SWE-agent-DEEP-DIVE.md), [OpenManus](deep-dive/OpenManus-DEEP-DIVE.md), [Aider](deep-dive/Aider-DEEP-DIVE.md), [Goose](deep-dive/Goose-DEEP-DIVE.md), [OpenHands](deep-dive/OpenHands-DEEP-DIVE.md)), we discovered a counter-intuitive fact: **The core Agent Loop logic is highly similar across frameworks**. The real differences lie not in "which algorithm is used," but in **engineering capability combinations**—30+ features including state management, security controls, and protocol support. This "capability differentiation" creates an invisible gap, making it difficult for academia to leverage the most advanced agent capabilities.
+> **TL;DR**: After auditing ~400KB of source code from 12 mainstream agent frameworks ([OpenAI Agents SDK](deep-dive/OpenAI-Agents-SDK-DEEP-DIVE.md), [Claude Agent SDK](deep-dive/Claude-Agent-SDK-Python-DEEP-DIVE.md), [Codex CLI](deep-dive/Codex-CLI-DEEP-DIVE.md), [OpenCode](deep-dive/OpenCode-DEEP-DIVE.md), [Kimi CLI](deep-dive/Kimi-CLI-DEEP-DIVE.md), [Gemini CLI](deep-dive/Gemini-CLI-DEEP-DIVE.md), [Qwen Code](deep-dive/Qwen-Code-DEEP-DIVE.md), [SWE-agent](deep-dive/SWE-agent-DEEP-DIVE.md), [OpenManus](deep-dive/OpenManus-DEEP-DIVE.md), [Aider](deep-dive/Aider-DEEP-DIVE.md), [Goose](deep-dive/Goose-DEEP-DIVE.md), [OpenHands](deep-dive/OpenHands-DEEP-DIVE.md)), we discovered a counter-intuitive fact: **The core Agent Loop logic is highly similar across frameworks**. The real differences lie not in "which algorithm is used," but in **engineering capability combinations**—30+ features including state management, security controls, and protocol support. This "capability differentiation" creates an invisible gap, making it difficult for academia to leverage the most advanced agent capabilities.
 >
 > **Stars Ranking** (as of 2026-02-27): OpenCode (112K) > Gemini CLI (95.9K) > Claude Code (70.8K) > OpenHands (68.3K) > Codex CLI (62.2K) > Aider (41K) > Goose (31.4K) > OpenAI Agents SDK (19.2K)
 
@@ -1208,7 +1208,7 @@ The landmark event of this shift was the release of **OpenAI Agents SDK** (2025)
 
 ## References
 
-- **Deep Research Documents**: `agent_deep_dive/*-DEEP-DIVE.md` (~300 KB code audit)
+- **Deep Research Documents**: `deep-dive/*-DEEP-DIVE.md` (~400 KB code audit, 12 frameworks)
 - **GitHub Repositories**: See individual framework links
 - **MCP Specification**: https://modelcontextprotocol.io/
 
@@ -1217,7 +1217,7 @@ The landmark event of this shift was the release of **OpenAI Agents SDK** (2025)
 ## Author and Acknowledgments
 
 
-**AI Assistance**: This research and blog writing process used [Opencode](https://opencode.ai) for code auditing, architecture analysis, and content writing. Opencode is an AI-powered software engineering assistant that helped complete the analysis and documentation generation of approximately 300KB of source code.
+**AI Assistance**: This research and blog writing process used [Opencode](https://opencode.ai) for code auditing, architecture analysis, and content writing. Opencode is an AI-powered software engineering assistant that helped complete the analysis and documentation generation of approximately 400KB of source code.
 
 **Research Methodology**: All technical details are based on actual source code audits. Specific file paths and line numbers can be verified in the framework-specific deep research reports in the [deep-dive/](deep-dive/) directory.
 
@@ -1225,4 +1225,4 @@ The landmark event of this shift was the release of **OpenAI Agents SDK** (2025)
 
 **Version**: 2026-02-27
 
-**License**: [MIT](LICENSE)
+**License**: [MIT](../LICENSE)

@@ -3,8 +3,8 @@
 **基于深度代码分析的全面对比报告**
 
 > **调研方法**：  
-> 本报告基于对 9 个主流 Agent 框架的深度代码分析，包括源码审计、架构分析、扩展点研究。  
-> 每个项目的详细技术调研文档见 `agent_deep_dive/*-DEEP-DIVE.md`。
+> 本报告基于对 12 个主流 Agent 框架的深度代码分析，包括源码审计、架构分析、扩展点研究。  
+> 每个项目的详细技术调研文档见 `deep-dive/*-DEEP-DIVE.md`。
 > 
 > **判定口径**：  
 > 1) "仓库开源" = 代码仓库公开 + 有开源许可证；  
@@ -506,28 +506,31 @@
 | **Qwen Code** | ⚠️ 文档部分中文 | Qwen 服务依赖 | 支持其他 LLMs |
 | **SWE-agent** | ❌ 非生产目的 | 研究框架，API 不稳定 | 仅用于研究 |
 | **OpenManus** | ❌ Flow 系统不稳定 | 社区维护 | 使用 main.py（稳定） |
+| **Aider** | ⚠️ 无 MCP 支持、无 Sub-Agent、无沙箱 | 扩展性有限 | Git 回滚机制、支持本地模型 |
+| **Goose** | ⚠️ TUI 简单、依赖 MCP 生态 | MCP 配置复杂度 | Block 企业级支持、Rust 核心 |
+| **OpenHands** | ⚠️ Docker 强依赖、资源占用高 | 无法无 Docker 运行 | $18.8M 融资、全职团队维护 |
 
 ---
 
 ## 8) 功能矩阵（完整对比）
 
-| Feature | OpenAI SDK | Claude SDK | OpenCode | Codex | Kimi | Gemini | Qwen | SWE-agent | OpenManus |
-|---------|-----------|-----------|---------|-------|------|--------|------|-----------|-----------|
-| **Multi-agent** | ✅ ✅ ✅ | ✅ ✅ | ✅ ✅ | ✅ | ✅ ✅ | ✅ ✅ | ✅ ✅ ✅ | ⚠️ | ⚠️ |
-| **Handoffs** | ✅ ✅ ✅ | ✅ ✅ | ✅ ✅ | ✅ | ✅ ✅ | ✅ | ✅ ✅ | ❌ | ⚠️ |
-| **Sessions** | ✅ ✅ ✅ | ❌ | ✅ ✅ | ✅ ✅ | ✅ ✅ | ✅ ✅ | ✅ | ✅ | ❌ |
-| **Tracing** | ✅ ✅ ✅ | ❌ | ⚠️ OTEL | ⚠️ Hooks | ⚠️ Logs | ⚠️ Telem | ⚠️ Logs | ❌ | ❌ |
-| **HITL** | ✅ ✅ ✅ | ✅ ✅ ✅ | ✅ ✅ | ✅ ✅ | ✅ ✅ | ✅ ✅ | ✅ ✅ | ⚠️ | ⚠️ |
-| **Streaming** | ✅ ✅ ✅ | ✅ ✅ | ✅ ✅ ✅ | ✅ ✅ | ✅ ✅ | ✅ ✅ | ✅ ✅ | ⚠️ | ⚠️ |
-| **Guardrails** | ✅ ✅ ✅ | ✅ ✅ ✅ | ✅ ✅ ✅ | ✅ ✅ | ✅ ✅ | ✅ ✅ ✅ | ✅ ✅ | ⚠️ | ⚠️ |
-| **MCP Client** | ⚠️ | ❌ | ✅ ✅ | ✅ ✅ ✅ | ✅ ✅ | ✅ ✅ ✅ | ✅ ✅ ✅ | ❌ | ✅ ✅ ✅ |
-| **MCP Server** | ❌ | ✅ ✅ ✅ | ❌ | ✅ ✅ ✅ | ❌ | ❌ | ❌ | ❌ | ✅ ✅ |
-| **Sandbox** | ❌ | ❌ | ❌ | ✅ ✅ ✅ | ❌ | ❌ | ⚠️ Docker | ✅ Docker | ❌ |
-| **IDE 集成** | ❌ | ❌ | ⚠️ ACP | ✅ App Server | ✅ ✅ ✅ ACP | ✅ VS Code | ✅ ✅ ✅ MCP | ❌ | ❌ |
-| **Skills/Flows** | ❌ | ❌ | ✅ Skills | ❌ | ✅ ✅ Skills+Flow | ❌ | ✅ ✅ ✅ Skills | ❌ | ⚠️ Flow不稳定 |
-| **Provider-agnostic** | ✅ ✅ ✅ | ❌ | ✅ ✅ ✅ | ⚠️ | ⚠️ | ⚠️ | ⚠️ | ✅ ✅ | ✅ ✅ |
-| **License** | MIT | MIT+ToS | MIT | Apache-2.0 | Apache-2.0 | Apache-2.0 | Apache-2.0 | MIT | MIT |
-| **生产就绪** | ✅ ✅ ✅ | ✅ ✅ | ⚠️ | ✅ ✅ | ✅ | ✅ ✅ | ✅ | ❌ | ⚠️ |
+| Feature | OpenAI SDK | Claude SDK | OpenCode | Codex | Kimi | Gemini | Qwen | SWE-agent | OpenManus | Aider | Goose | OpenHands |
+|---------|-----------|-----------|---------|-------|------|--------|------|-----------|-----------|-------|-------|-----------|
+| **Multi-agent** | ✅ ✅ ✅ | ✅ ✅ | ✅ ✅ | ✅ | ✅ ✅ | ✅ ✅ | ✅ ✅ ✅ | ⚠️ | ⚠️ | ❌ | ⚠️ | ✅ ✅ |
+| **Handoffs** | ✅ ✅ ✅ | ✅ ✅ | ✅ ✅ | ✅ | ✅ ✅ | ✅ | ✅ ✅ | ❌ | ⚠️ | ❌ | ⚠️ | ✅ ✅ |
+| **Sessions** | ✅ ✅ ✅ | ❌ | ✅ ✅ | ✅ ✅ | ✅ ✅ | ✅ ✅ | ✅ | ✅ | ❌ | ⚠️ | ✅ ✅ | ✅ ✅ |
+| **Tracing** | ✅ ✅ ✅ | ❌ | ⚠️ OTEL | ⚠️ Hooks | ⚠️ Logs | ⚠️ Telem | ⚠️ Logs | ❌ | ❌ | ⚠️ Logs | ⚠️ Telem | ⚠️ Logs |
+| **HITL** | ✅ ✅ ✅ | ✅ ✅ ✅ | ✅ ✅ | ✅ ✅ | ✅ ✅ | ✅ ✅ | ✅ ✅ | ⚠️ | ⚠️ | ✅ ✅ | ✅ ✅ | ✅ ✅ |
+| **Streaming** | ✅ ✅ ✅ | ✅ ✅ | ✅ ✅ ✅ | ✅ ✅ | ✅ ✅ | ✅ ✅ | ✅ ✅ | ⚠️ | ⚠️ | ✅ ✅ | ✅ ✅ ✅ | ✅ ✅ |
+| **Guardrails** | ✅ ✅ ✅ | ✅ ✅ ✅ | ✅ ✅ ✅ | ✅ ✅ | ✅ ✅ | ✅ ✅ ✅ | ✅ ✅ | ⚠️ | ⚠️ | ⚠️ | ✅ ✅ | ✅ ✅ ✅ |
+| **MCP Client** | ⚠️ | ❌ | ✅ ✅ | ✅ ✅ ✅ | ✅ ✅ | ✅ ✅ ✅ | ✅ ✅ ✅ | ❌ | ✅ ✅ ✅ | ❌ | ✅ ✅ ✅ | ✅ ✅ |
+| **MCP Server** | ❌ | ✅ ✅ ✅ | ❌ | ✅ ✅ ✅ | ❌ | ❌ | ❌ | ❌ | ✅ ✅ | ❌ | ❌ | ❌ |
+| **Sandbox** | ❌ | ❌ | ❌ | ✅ ✅ ✅ | ❌ | ❌ | ⚠️ Docker | ✅ Docker | ❌ | ❌ | ⚠️ Docker | ✅ ✅ ✅ |
+| **IDE 集成** | ❌ | ❌ | ⚠️ ACP | ✅ App Server | ✅ ✅ ✅ ACP | ✅ VS Code | ✅ ✅ ✅ MCP | ❌ | ❌ | ❌ | ⚠️ | ⚠️ |
+| **Skills/Flows** | ❌ | ❌ | ✅ Skills | ❌ | ✅ ✅ Skills+Flow | ❌ | ✅ ✅ ✅ Skills | ❌ | ⚠️ Flow不稳定 | ❌ | ⚠️ Recipe | ✅ Micro-agents |
+| **Provider-agnostic** | ✅ ✅ ✅ | ❌ | ✅ ✅ ✅ | ⚠️ | ⚠️ | ⚠️ | ⚠️ | ✅ ✅ | ✅ ✅ | ✅ ✅ | ✅ ✅ | ✅ ✅ |
+| **License** | MIT | MIT+ToS | MIT | Apache-2.0 | Apache-2.0 | Apache-2.0 | Apache-2.0 | MIT | MIT | Apache-2.0 | Apache-2.0 | MIT |
+| **生产就绪** | ✅ ✅ ✅ | ✅ ✅ | ⚠️ | ✅ ✅ | ✅ | ✅ ✅ | ✅ | ❌ | ⚠️ | ✅ ✅ | ✅ ✅ | ✅ ✅ ✅ |
 
 **图例**: ✅ ✅ ✅ = 优秀 | ✅ ✅ = 良好 | ✅ = 基础支持 | ⚠️ = 部分/实验性 | ❌ = 不支持
 
@@ -546,6 +549,9 @@
 | **Qwen Code** | 未统计 | TypeScript | `subagent.ts` 1,004<br>`subagent-manager.ts` 975<br>`skill-manager.ts` 661 | ⭐⭐⭐ 中等 |
 | **SWE-agent** | Agent ~1,294 lines | Python | `agents.py` 1,294<br>`models.py` 903<br>`tools.py` 430 | ⭐⭐ 简单 |
 | **OpenManus** | 未统计 | Python | `manus.py` 165<br>`planning.py` 442<br>`llm.py` 766 | ⭐⭐ 简单 |
+| **Aider** | ~8,000 lines | Python | `base_coder.py` ~1,200<br>`repomap.py` ~800 | ⭐⭐ 简单 |
+| **Goose** | Core ~3,000 lines | Rust | `agent.rs` ~700<br>`extension_manager.rs` ~500 | ⭐⭐⭐ 中等 |
+| **OpenHands** | ~15,000 lines | Python | `agent.py` ~1,200<br>`agent_controller.py` ~900 | ⭐⭐⭐⭐ 高 |
 
 ---
 
@@ -582,7 +588,7 @@
 
 ### 11.1 深度调研文档（本次调研产出）
 
-所有项目的深度技术调研文档位于 `agent_deep_dive/` 目录：
+所有项目的深度技术调研文档位于 `deep-dive/` 目录：
 
 - **OpenAI-Agents-SDK-DEEP-DIVE.md** (106 KB) - 最详细示范文档
 - **Claude-Agent-SDK-Python-DEEP-DIVE.md** (40 KB)
@@ -593,6 +599,9 @@
 - **Gemini-CLI-DEEP-DIVE.md** (6.5 KB)
 - **Qwen-Code-DEEP-DIVE.md** (7.3 KB)
 - **SWE-agent-DEEP-DIVE.md** (7.7 KB)
+- **Aider-DEEP-DIVE.md** (8.9 KB)
+- **Goose-DEEP-DIVE.md** (16 KB)
+- **OpenHands-DEEP-DIVE.md** (14 KB)
 
 每个文档包含：
 - ✅ 代码架构深度分析（具体到文件路径和行号）
@@ -612,6 +621,9 @@
 - **Gemini CLI**: <https://github.com/google-gemini/gemini-cli>  
 - **Qwen Code**: <https://github.com/QwenLM/qwen-code>  
 - **SWE-agent**: <https://github.com/SWE-agent/SWE-agent>  
+- **Aider**: <https://github.com/Aider-AI/aider>  
+- **Goose**: <https://github.com/block/goose>  
+- **OpenHands**: <https://github.com/All-Hands-AI/OpenHands>  
 - **Swarm** (deprecated): <https://github.com/openai/swarm>
 
 ### 11.3 关键代码位置速查
@@ -658,7 +670,7 @@
 
 ## 总结
 
-本调研基于 **2026-02-26**的深度代码分析，覆盖 9 个主流 Agent 框架，总计审查**~300 KB** 源码文档。
+本调研基于 **2026-02-26**的深度代码分析，覆盖 12 个主流 Agent 框架，总计审查**~400 KB** 源码文档。
 
 **核心发现**:
 
@@ -675,4 +687,4 @@
 **调研团队**: 深度技术调研组  
 **调研日期**: 2026-02-26  
 **文档版本**: 2.0（基于深度代码分析）  
-**总计调研**: 9 个项目，~300 KB 深度文档，包含具体代码位置和架构分析
+**总计调研**: 12 个项目，~400 KB 深度文档，包含具体代码位置和架构分析

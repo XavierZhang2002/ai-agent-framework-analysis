@@ -35,18 +35,18 @@ This "capability differentiation" creates an invisible gap between academia and 
 
 | Framework | Language | Core Positioning | Key Differentiator | Stars |
 |-----------|----------|-----------------|-------------------|-------|
-| [OpenAI Agents SDK](deep-dive/OpenAI-Agents-SDK-DEEP-DIVE.md) | Python | Production SDK | HITL, Tracing, Provider-agnostic | 19.2K |
-| [Claude Agent SDK](deep-dive/Claude-Agent-SDK-Python-DEEP-DIVE.md) | Python | Claude Integration | 10+ Hooks, SDK MCP | 5K |
-| [Codex CLI](deep-dive/Codex-CLI-DEEP-DIVE.md) | Rust | Enterprise Security | 3-Layer Loop, OS Sandbox | 62.2K |
-| [OpenCode](deep-dive/OpenCode-DEEP-DIVE.md) | TypeScript | Open Source CLI | Smart Compaction, Permissions | 112K |
-| [Kimi CLI](deep-dive/Kimi-CLI-DEEP-DIVE.md) | Python/TS | IDE Integration | D-Mail Time Travel, ACP | 5.9K |
-| [Gemini CLI](deep-dive/Gemini-CLI-DEEP-DIVE.md) | TypeScript | Google Ecosystem | GEMINI.md Memory, Free Tier | 95.9K |
-| [Qwen Code](deep-dive/Qwen-Code-DEEP-DIVE.md) | TypeScript | Qwen Ecosystem | SubAgents, Skills, Templating | 18.1K |
-| [SWE-agent](deep-dive/SWE-agent-DEEP-DIVE.md) | Python | Research | Trajectory Recording, SWE-bench | 18.4K |
-| [OpenManus](deep-dive/OpenManus-DEEP-DIVE.md) | Python | Quick Experiment | MCP Dual Role, ReAct | - |
-| [Aider](deep-dive/Aider-DEEP-DIVE.md) | Python | Git-Native Coding | Repo Map, Tree-sitter | 41K |
-| [Goose](deep-dive/Goose-DEEP-DIVE.md) | Rust | MCP-Native Framework | MCP-Native, Extensions | 31.4K |
-| [OpenHands](deep-dive/OpenHands-DEEP-DIVE.md) | Python | Full Platform | Docker Sandbox, Micro-Agents | 68.3K |
+| [OpenAI Agents SDK](docs/deep-dive/OpenAI-Agents-SDK-DEEP-DIVE.md) | Python | Production SDK | HITL, Tracing, Provider-agnostic | 19.2K |
+| [Claude Agent SDK](docs/deep-dive/Claude-Agent-SDK-Python-DEEP-DIVE.md) | Python | Claude Integration | 10+ Hooks, SDK MCP | 5K |
+| [Codex CLI](docs/deep-dive/Codex-CLI-DEEP-DIVE.md) | Rust | Enterprise Security | 3-Layer Loop, OS Sandbox | 62.2K |
+| [OpenCode](docs/deep-dive/OpenCode-DEEP-DIVE.md) | TypeScript | Open Source CLI | Smart Compaction, Permissions | 112K |
+| [Kimi CLI](docs/deep-dive/Kimi-CLI-DEEP-DIVE.md) | Python/TS | IDE Integration | D-Mail Time Travel, ACP | 5.9K |
+| [Gemini CLI](docs/deep-dive/Gemini-CLI-DEEP-DIVE.md) | TypeScript | Google Ecosystem | GEMINI.md Memory, Free Tier | 95.9K |
+| [Qwen Code](docs/deep-dive/Qwen-Code-DEEP-DIVE.md) | TypeScript | Qwen Ecosystem | SubAgents, Skills, Templating | 18.1K |
+| [SWE-agent](docs/deep-dive/SWE-agent-DEEP-DIVE.md) | Python | Research | Trajectory Recording, SWE-bench | 18.4K |
+| [OpenManus](docs/deep-dive/OpenManus-DEEP-DIVE.md) | Python | Quick Experiment | MCP Dual Role, ReAct | - |
+| [Aider](docs/deep-dive/Aider-DEEP-DIVE.md) | Python | Git-Native Coding | Repo Map, Tree-sitter | 41K |
+| [Goose](docs/deep-dive/Goose-DEEP-DIVE.md) | Rust | MCP-Native Framework | MCP-Native, Extensions | 31.4K |
+| [OpenHands](docs/deep-dive/OpenHands-DEEP-DIVE.md) | Python | Full Platform | Docker Sandbox, Micro-Agents | 68.3K |
 
 ### Detailed Capability Matrix
 

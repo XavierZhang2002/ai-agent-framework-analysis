@@ -4,7 +4,7 @@
 **仓库**: https://github.com/block/goose  
 **许可证**: Apache-2.0  
 **版本**: v1.0.0  
-**Stars**: 29.9k | **Forks**: 1.8k | **Contributors**: 156  
+**Stars**: 31.4K | **Forks**: 1.8k | **Contributors**: 156  
 
 ---
 
@@ -31,7 +31,7 @@ Goose 是 **Block (前 Square)** 开源的 AI Agent 框架，核心创新在于 
 - 🔥 **Rust Core**: 高性能 Rust 实现核心逻辑
 
 **关键数据**:
-- 29.9K GitHub Stars（2026年2月）
+- 31.4K GitHub Stars（2026年2月）
 - Block 公司生产环境验证
 - 支持 100+ MCP 服务器生态
 
@@ -381,7 +381,7 @@ Prefix tool names: "{extension}__{tool_name}"
 | MCP | ⭐⭐⭐⭐⭐ 原生 | ⭐⭐⭐⭐ Client 支持 |
 | 架构 | ⭐⭐⭐⭐⭐ 模块化 | ⭐⭐⭐⭐ 单体 |
 | UI | ⭐⭐⭐ TUI 简单 | ⭐⭐⭐⭐⭐ 丰富 |
-| Stars | 29.9K | 97.5K |
+| Stars | 31.4K | 97.5K |
 
 **结论**: OpenCode 更适合终端用户，Goose 更适合构建自定义 Agent 平台。
 
