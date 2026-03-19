@@ -2012,8 +2012,8 @@
 <p><strong>基于深度代码分析的全面对比报告</strong></p>
 <blockquote>
 <p><strong>调研方法</strong>：<br />
-本报告基于对 9 个主流 Agent 框架的深度代码分析，包括源码审计、架构分析、扩展点研究。<br />
-每个项目的详细技术调研文档见 <code>agent_deep_dive/*-DEEP-DIVE.md</code>。</p>
+本报告基于对 12 个主流 Agent 框架的深度代码分析，包括源码审计、架构分析、扩展点研究。<br />
+每个项目的详细技术调研文档见 <code>deep-dive/*-DEEP-DIVE.md</code>。</p>
 <p><strong>判定口径</strong>：<br />
 1) "仓库开源" = 代码仓库公开 + 有开源许可证；<br />
 2) "核心逻辑可看可改" = Agent 编排/工具调用主逻辑是否在仓库可审计并可改；<br />
@@ -3106,6 +3106,24 @@
 <td>社区维护</td>
 <td>使用 main.py（稳定）</td>
 </tr>
+<tr>
+<td><strong>Aider</strong></td>
+<td>⚠️ 无 MCP 支持、无 Sub-Agent、无沙箱</td>
+<td>扩展性有限</td>
+<td>Git 回滚机制、支持本地模型</td>
+</tr>
+<tr>
+<td><strong>Goose</strong></td>
+<td>⚠️ TUI 简单、依赖 MCP 生态</td>
+<td>MCP 配置复杂度</td>
+<td>Block 企业级支持、Rust 核心</td>
+</tr>
+<tr>
+<td><strong>OpenHands</strong></td>
+<td>⚠️ Docker 强依赖、资源占用高</td>
+<td>无法无 Docker 运行</td>
+<td>$18.8M 融资、全职团队维护</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -3123,6 +3141,9 @@
 <th>Qwen</th>
 <th>SWE-agent</th>
 <th>OpenManus</th>
+<th>Aider</th>
+<th>Goose</th>
+<th>OpenHands</th>
 </tr>
 </thead>
 <tbody>
@@ -3137,6 +3158,9 @@
 <td>✅ ✅ ✅</td>
 <td>⚠️</td>
 <td>⚠️</td>
+<td>❌</td>
+<td>⚠️</td>
+<td>✅ ✅</td>
 </tr>
 <tr>
 <td><strong>Handoffs</strong></td>
@@ -3149,6 +3173,9 @@
 <td>✅ ✅</td>
 <td>❌</td>
 <td>⚠️</td>
+<td>❌</td>
+<td>⚠️</td>
+<td>✅ ✅</td>
 </tr>
 <tr>
 <td><strong>Sessions</strong></td>
@@ -3161,6 +3188,9 @@
 <td>✅</td>
 <td>✅</td>
 <td>❌</td>
+<td>⚠️</td>
+<td>✅ ✅</td>
+<td>✅ ✅</td>
 </tr>
 <tr>
 <td><strong>Tracing</strong></td>
@@ -3173,6 +3203,9 @@
 <td>⚠️ Logs</td>
 <td>❌</td>
 <td>❌</td>
+<td>⚠️ Logs</td>
+<td>⚠️ Telem</td>
+<td>⚠️ Logs</td>
 </tr>
 <tr>
 <td><strong>HITL</strong></td>
@@ -3185,6 +3218,9 @@
 <td>✅ ✅</td>
 <td>⚠️</td>
 <td>⚠️</td>
+<td>✅ ✅</td>
+<td>✅ ✅</td>
+<td>✅ ✅</td>
 </tr>
 <tr>
 <td><strong>Streaming</strong></td>
@@ -3197,6 +3233,9 @@
 <td>✅ ✅</td>
 <td>⚠️</td>
 <td>⚠️</td>
+<td>✅ ✅</td>
+<td>✅ ✅ ✅</td>
+<td>✅ ✅</td>
 </tr>
 <tr>
 <td><strong>Guardrails</strong></td>
@@ -3209,6 +3248,9 @@
 <td>✅ ✅</td>
 <td>⚠️</td>
 <td>⚠️</td>
+<td>⚠️</td>
+<td>✅ ✅</td>
+<td>✅ ✅ ✅</td>
 </tr>
 <tr>
 <td><strong>MCP Client</strong></td>
@@ -3221,6 +3263,9 @@
 <td>✅ ✅ ✅</td>
 <td>❌</td>
 <td>✅ ✅ ✅</td>
+<td>❌</td>
+<td>✅ ✅ ✅</td>
+<td>✅ ✅</td>
 </tr>
 <tr>
 <td><strong>MCP Server</strong></td>
@@ -3233,6 +3278,9 @@
 <td>❌</td>
 <td>❌</td>
 <td>✅ ✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
 </tr>
 <tr>
 <td><strong>Sandbox</strong></td>
@@ -3245,6 +3293,9 @@
 <td>⚠️ Docker</td>
 <td>✅ Docker</td>
 <td>❌</td>
+<td>❌</td>
+<td>⚠️ Docker</td>
+<td>✅ ✅ ✅</td>
 </tr>
 <tr>
 <td><strong>IDE 集成</strong></td>
@@ -3257,6 +3308,9 @@
 <td>✅ ✅ ✅ MCP</td>
 <td>❌</td>
 <td>❌</td>
+<td>❌</td>
+<td>⚠️</td>
+<td>⚠️</td>
 </tr>
 <tr>
 <td><strong>Skills/Flows</strong></td>
@@ -3269,6 +3323,9 @@
 <td>✅ ✅ ✅ Skills</td>
 <td>❌</td>
 <td>⚠️ Flow不稳定</td>
+<td>❌</td>
+<td>⚠️ Recipe</td>
+<td>✅ Micro-agents</td>
 </tr>
 <tr>
 <td><strong>Provider-agnostic</strong></td>
@@ -3279,6 +3336,9 @@
 <td>⚠️</td>
 <td>⚠️</td>
 <td>⚠️</td>
+<td>✅ ✅</td>
+<td>✅ ✅</td>
+<td>✅ ✅</td>
 <td>✅ ✅</td>
 <td>✅ ✅</td>
 </tr>
@@ -3293,6 +3353,9 @@
 <td>Apache-2.0</td>
 <td>MIT</td>
 <td>MIT</td>
+<td>Apache-2.0</td>
+<td>Apache-2.0</td>
+<td>MIT</td>
 </tr>
 <tr>
 <td><strong>生产就绪</strong></td>
@@ -3305,6 +3368,9 @@
 <td>✅</td>
 <td>❌</td>
 <td>⚠️</td>
+<td>✅ ✅</td>
+<td>✅ ✅</td>
+<td>✅ ✅ ✅</td>
 </tr>
 </tbody>
 </table>
@@ -3385,6 +3451,27 @@
 <td><code>manus.py</code> 165<br><code>planning.py</code> 442<br><code>llm.py</code> 766</td>
 <td>⭐⭐ 简单</td>
 </tr>
+<tr>
+<td><strong>Aider</strong></td>
+<td>~8,000 lines</td>
+<td>Python</td>
+<td><code>base_coder.py</code> ~1,200<br><code>repomap.py</code> ~800</td>
+<td>⭐⭐ 简单</td>
+</tr>
+<tr>
+<td><strong>Goose</strong></td>
+<td>Core ~3,000 lines</td>
+<td>Rust</td>
+<td><code>agent.rs</code> ~700<br><code>extension_manager.rs</code> ~500</td>
+<td>⭐⭐⭐ 中等</td>
+</tr>
+<tr>
+<td><strong>OpenHands</strong></td>
+<td>~15,000 lines</td>
+<td>Python</td>
+<td><code>agent.py</code> ~1,200<br><code>agent_controller.py</code> ~900</td>
+<td>⭐⭐⭐⭐ 高</td>
+</tr>
 </tbody>
 </table>
 <hr />
@@ -3412,7 +3499,7 @@
 <hr />
 <h2 id="11">11) 参考资源<a class="headerlink" href="#11" title="Permanent link">&para;</a></h2>
 <h3 id="111">11.1 深度调研文档（本次调研产出）<a class="headerlink" href="#111" title="Permanent link">&para;</a></h3>
-<p>所有项目的深度技术调研文档位于 <code>agent_deep_dive/</code> 目录：</p>
+<p>所有项目的深度技术调研文档位于 <code>deep-dive/</code> 目录：</p>
 <ul>
 <li><strong>OpenAI-Agents-SDK-DEEP-DIVE.md</strong> (106 KB) - 最详细示范文档</li>
 <li><strong>Claude-Agent-SDK-Python-DEEP-DIVE.md</strong> (40 KB)</li>
@@ -3423,6 +3510,9 @@
 <li><strong>Gemini-CLI-DEEP-DIVE.md</strong> (6.5 KB)</li>
 <li><strong>Qwen-Code-DEEP-DIVE.md</strong> (7.3 KB)</li>
 <li><strong>SWE-agent-DEEP-DIVE.md</strong> (7.7 KB)</li>
+<li><strong>Aider-DEEP-DIVE.md</strong> (8.9 KB)</li>
+<li><strong>Goose-DEEP-DIVE.md</strong> (16 KB)</li>
+<li><strong>OpenHands-DEEP-DIVE.md</strong> (14 KB)</li>
 </ul>
 <p>每个文档包含：
 - ✅ 代码架构深度分析（具体到文件路径和行号）
@@ -3441,6 +3531,9 @@
 <li><strong>Gemini CLI</strong>: <a href="https://github.com/google-gemini/gemini-cli">https://github.com/google-gemini/gemini-cli</a>  </li>
 <li><strong>Qwen Code</strong>: <a href="https://github.com/QwenLM/qwen-code">https://github.com/QwenLM/qwen-code</a>  </li>
 <li><strong>SWE-agent</strong>: <a href="https://github.com/SWE-agent/SWE-agent">https://github.com/SWE-agent/SWE-agent</a>  </li>
+<li><strong>Aider</strong>: <a href="https://github.com/Aider-AI/aider">https://github.com/Aider-AI/aider</a>  </li>
+<li><strong>Goose</strong>: <a href="https://github.com/block/goose">https://github.com/block/goose</a>  </li>
+<li><strong>OpenHands</strong>: <a href="https://github.com/All-Hands-AI/OpenHands">https://github.com/All-Hands-AI/OpenHands</a>  </li>
 <li><strong>Swarm</strong> (deprecated): <a href="https://github.com/openai/swarm">https://github.com/openai/swarm</a></li>
 </ul>
 <h3 id="113">11.3 关键代码位置速查<a class="headerlink" href="#113" title="Permanent link">&para;</a></h3>
@@ -3541,7 +3634,7 @@
 </table>
 <hr />
 <h2 id="_1">总结<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<p>本调研基于 <strong>2026-02-26</strong>的深度代码分析，覆盖 9 个主流 Agent 框架，总计审查<strong>~300 KB</strong> 源码文档。</p>
+<p>本调研基于 <strong>2026-02-26</strong>的深度代码分析，覆盖 12 个主流 Agent 框架，总计审查<strong>~400 KB</strong> 源码文档。</p>
 <p><strong>核心发现</strong>:</p>
 <ol>
 <li><strong>Python SDK 双雄</strong>: OpenAI Agents SDK（provider-agnostic，完整特性）vs. Claude Agent SDK（强 Hooks，Claude-only）</li>
@@ -3555,7 +3648,7 @@
 <p><strong>调研团队</strong>: 深度技术调研组<br />
 <strong>调研日期</strong>: 2026-02-26<br />
 <strong>文档版本</strong>: 2.0（基于深度代码分析）<br />
-<strong>总计调研</strong>: 9 个项目，~300 KB 深度文档，包含具体代码位置和架构分析</p>
+<strong>总计调研</strong>: 12 个项目，~400 KB 深度文档，包含具体代码位置和架构分析</p>
 
 
 
