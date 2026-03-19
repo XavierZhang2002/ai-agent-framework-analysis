@@ -4,14 +4,17 @@
 
 **English** | [中文](README.zh.md)
 
+[![Website](https://img.shields.io/badge/Website-Live-blue?style=flat-square&logo=github)](https://XavierZhang2002.github.io/ai-agent-framework-analysis)
+
 ---
 
 ## 📖 Quick Navigation
 
-- **[Read the Blog (English)](BLOG.en.md)** - Core insights from auditing 12 agent frameworks
-- **[Read the Blog (中文)](BLOG.zh.md)** - 审计12个Agent框架的核心洞察
-- **[Framework Comparison](COMPARISON.md)** - Detailed feature comparison matrix
-- **[Deep Dive Reports](deep-dive/)** - Source code analysis for each framework
+- **[Website](https://XavierZhang2002.github.io/ai-agent-framework-analysis)** - Full knowledge base with navigation and search
+- **[Read the Blog (English)](docs/BLOG.en.md)** - Core insights from auditing 12 agent frameworks
+- **[Read the Blog (中文)](docs/BLOG.zh.md)** - 审计12个Agent框架的核心洞察
+- **[Framework Comparison](docs/COMPARISON.md)** - Detailed feature comparison matrix
+- **[Deep Dive Reports](docs/deep-dive/)** - Source code analysis for each framework
 
 ## 🎯 TL;DR
 

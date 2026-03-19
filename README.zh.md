@@ -4,14 +4,17 @@
 
 [English](README.md) | **中文**
 
+[![网站](https://img.shields.io/badge/网站-在线-blue?style=flat-square&logo=github)](https://XavierZhang2002.github.io/ai-agent-framework-analysis)
+
 ---
 
 ## 📖 快速导航
 
-- **[阅读博客（中文）](BLOG.zh.md)** - 审计12个Agent框架的核心洞察
-- **[Read the Blog (English)](BLOG.en.md)** - Core insights from auditing 12 agent frameworks
-- **[框架对比](COMPARISON.md)** - 详细的特性对比矩阵
-- **[深度调研报告](deep-dive/)** - 每个框架的源代码分析
+- **[在线知识库](https://XavierZhang2002.github.io/ai-agent-framework-analysis)** - 完整网站，支持导航和搜索
+- **[阅读博客（中文）](docs/BLOG.zh.md)** - 审计12个Agent框架的核心洞察
+- **[Read the Blog (English)](docs/BLOG.en.md)** - Core insights from auditing 12 agent frameworks
+- **[框架对比](docs/COMPARISON.md)** - 详细的特性对比矩阵
+- **[深度调研报告](docs/deep-dive/)** - 每个框架的源代码分析
 
 ## 🎯 核心观点
 
