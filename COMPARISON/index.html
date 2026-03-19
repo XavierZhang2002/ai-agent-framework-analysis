@@ -1,0 +1,3677 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Deep code audit of 12 open-source agent frameworks — capability differentiation, MCP support, and engineering feature comparison.">
+      
+      
+        <meta name="author" content="Xavier">
+      
+      
+        <link rel="canonical" href="https://XavierZhang2002.github.io/ai-agent-framework-analysis/COMPARISON/">
+      
+      
+        <link rel="prev" href="../BLOG.zh/">
+      
+      
+        <link rel="next" href="../deep-dive/Aider-DEEP-DIVE/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+    
+    
+      
+        <title>Comparison - AI Agent Framework Analysis</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#agent-2026-02-26" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="AI Agent Framework Analysis" class="md-header__button md-logo" aria-label="AI Agent Framework Analysis" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            AI Agent Framework Analysis
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Comparison
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/XavierZhang2002/ai-agent-framework-analysis" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    XavierZhang2002/ai-agent-framework-analysis
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../BLOG.en/" class="md-tabs__link">
+          
+  
+  
+  Blog
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Comparison
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../deep-dive/Aider-DEEP-DIVE/" class="md-tabs__link">
+          
+  
+  
+  Deep Dive
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="AI Agent Framework Analysis" class="md-nav__button md-logo" aria-label="AI Agent Framework Analysis" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    AI Agent Framework Analysis
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/XavierZhang2002/ai-agent-framework-analysis" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    XavierZhang2002/ai-agent-framework-analysis
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Blog
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Blog
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../BLOG.en/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    English
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../BLOG.zh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    中文
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Comparison
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Comparison
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-stars-2026-02-27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1) 总览表（按 Stars 排序，截至 2026-02-27）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2) 技术架构深度对比
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2) 技术架构深度对比">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 核心编排实现对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 工具/协议扩展能力对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 权限与安全控制对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-multi-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Multi-Agent / 子代理能力对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 Session/会话管理对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26-tracing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.6 Tracing/可观测性对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3) 深度技术对比
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3) 深度技术对比">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 架构风格分类
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.1 架构风格分类">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-sdk-python" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A) 纯 SDK 层（Python 应用嵌入）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B) 终端 CLI 型（终端重度用户）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C) 研究/实验框架
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4) 关键差异总结（基于代码审计）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4) 关键差异总结（基于代码审计）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 开源透明度分级
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-python" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Python 生态可嵌入性
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-provider-agnostic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Provider-agnostic（跨模型）能力分级
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 架构成熟度与生产就绪度
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5) 技术亮点与独特优势
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5) 技术亮点与独特优势">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-openai-agents-sdk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 OpenAI Agents SDK 的独特优势
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-claude-agent-sdk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Claude Agent SDK 的独特优势
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-opencode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 OpenCode 的独特优势
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-codex-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 Codex CLI 的独特优势
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5 其他项目的独特优势
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6) 选择决策树（基于深度分析）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6) 选择决策树（基于深度分析）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 按需求选择
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 按技术栈选择
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 按安全需求选择
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7) 技术债务与风险评估
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8) 功能矩阵（完整对比）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9) 代码规模与复杂度对比
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10) 最终推荐（基于深度分析）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10) 最终推荐（基于深度分析）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 生产应用（按优先级）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 研究/实验（按优先级）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.3 不推荐的组合
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11) 参考资源
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11) 参考资源">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.1 深度调研文档（本次调研产出）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#112-github" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.2 GitHub 仓库链接
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#113" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.3 关键代码位置速查
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12) 版本信息与更新日志
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        总结
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deep Dive
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Deep Dive
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deep-dive/Aider-DEEP-DIVE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Aider
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deep-dive/Claude-Agent-SDK-Python-DEEP-DIVE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claude Agent SDK
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deep-dive/Codex-CLI-DEEP-DIVE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Codex CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deep-dive/Gemini-CLI-DEEP-DIVE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gemini CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deep-dive/Goose-DEEP-DIVE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Goose
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deep-dive/Kimi-CLI-DEEP-DIVE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kimi CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deep-dive/OpenAI-Agents-SDK-DEEP-DIVE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenAI Agents SDK
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deep-dive/OpenCode-DEEP-DIVE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenCode
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deep-dive/OpenHands-DEEP-DIVE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenHands
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deep-dive/OpenManus-DEEP-DIVE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenManus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deep-dive/Qwen-Code-DEEP-DIVE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qwen Code
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deep-dive/SWE-agent-DEEP-DIVE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SWE-agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-stars-2026-02-27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1) 总览表（按 Stars 排序，截至 2026-02-27）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2) 技术架构深度对比
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2) 技术架构深度对比">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 核心编排实现对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 工具/协议扩展能力对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 权限与安全控制对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-multi-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Multi-Agent / 子代理能力对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 Session/会话管理对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26-tracing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.6 Tracing/可观测性对比
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3) 深度技术对比
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3) 深度技术对比">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 架构风格分类
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.1 架构风格分类">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-sdk-python" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A) 纯 SDK 层（Python 应用嵌入）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B) 终端 CLI 型（终端重度用户）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C) 研究/实验框架
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4) 关键差异总结（基于代码审计）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4) 关键差异总结（基于代码审计）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 开源透明度分级
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-python" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Python 生态可嵌入性
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-provider-agnostic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Provider-agnostic（跨模型）能力分级
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 架构成熟度与生产就绪度
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5) 技术亮点与独特优势
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5) 技术亮点与独特优势">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-openai-agents-sdk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 OpenAI Agents SDK 的独特优势
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-claude-agent-sdk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Claude Agent SDK 的独特优势
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-opencode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 OpenCode 的独特优势
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-codex-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 Codex CLI 的独特优势
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5 其他项目的独特优势
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6) 选择决策树（基于深度分析）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6) 选择决策树（基于深度分析）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 按需求选择
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 按技术栈选择
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 按安全需求选择
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7) 技术债务与风险评估
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8) 功能矩阵（完整对比）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9) 代码规模与复杂度对比
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10) 最终推荐（基于深度分析）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10) 最终推荐（基于深度分析）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 生产应用（按优先级）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 研究/实验（按优先级）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.3 不推荐的组合
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11) 参考资源
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11) 参考资源">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.1 深度调研文档（本次调研产出）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#112-github" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.2 GitHub 仓库链接
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#113" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.3 关键代码位置速查
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12) 版本信息与更新日志
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        总结
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/XavierZhang2002/ai-agent-framework-analysis/edit/main/docs/COMPARISON.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="agent-2026-02-26">Agent 开源与编排对比调研（截至 2026-02-26）<a class="headerlink" href="#agent-2026-02-26" title="Permanent link">&para;</a></h1>
+<p><strong>基于深度代码分析的全面对比报告</strong></p>
+<blockquote>
+<p><strong>调研方法</strong>：<br />
+本报告基于对 9 个主流 Agent 框架的深度代码分析，包括源码审计、架构分析、扩展点研究。<br />
+每个项目的详细技术调研文档见 <code>agent_deep_dive/*-DEEP-DIVE.md</code>。</p>
+<p><strong>判定口径</strong>：<br />
+1) "仓库开源" = 代码仓库公开 + 有开源许可证；<br />
+2) "核心逻辑可看可改" = Agent 编排/工具调用主逻辑是否在仓库可审计并可改；<br />
+3) "黑盒" 主要指运行时依赖的闭源服务（模型推理、托管工具、商业条款约束组件）。</p>
+</blockquote>
+<hr />
+<h2 id="1-stars-2026-02-27">1) 总览表（按 Stars 排序，截至 2026-02-27）<a class="headerlink" href="#1-stars-2026-02-27" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>Stars</th>
+<th>仓库/许可证</th>
+<th>核心逻辑透明度</th>
+<th>主要语言</th>
+<th>Python SDK</th>
+<th>代码规模</th>
+<th>设计动机</th>
+<th>适用场景</th>
+<th>主要黑盒点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OpenCode</strong></td>
+<td>112k</td>
+<td><code>anomalyco/opencode</code> / MIT</td>
+<td>✅ ✅ ✅ 100% 开源</td>
+<td>TypeScript (Bun)</td>
+<td>❌ CLI/TUI 为主</td>
+<td>~47k lines</td>
+<td>Provider-agnostic 终端编码 Agent，强 TUI 与开放生态</td>
+<td>日常本地编码、跨模型、终端重度用户</td>
+<td>所选模型服务</td>
+</tr>
+<tr>
+<td><strong>Gemini CLI</strong></td>
+<td>95.9k</td>
+<td><code>google-gemini/gemini-cli</code> / Apache-2.0</td>
+<td>✅ ✅ 开源</td>
+<td>TypeScript</td>
+<td>❌ Node CLI</td>
+<td>Core ~866 files</td>
+<td>Gemini 能力终端化，工具与 MCP 扩展</td>
+<td>代码与自动化、Google 生态协同</td>
+<td>Gemini/Google 云侧能力</td>
+</tr>
+<tr>
+<td><strong>Claude Code</strong></td>
+<td>70.8k</td>
+<td><code>anthropics/claude-code</code> / Proprietary</td>
+<td>⚠️ CLI 闭源</td>
+<td>TypeScript</td>
+<td>❌ 有 SDK 封装</td>
+<td>未统计</td>
+<td>功能最丰富的终端 Agent，深度 IDE 集成</td>
+<td>专业开发、复杂任务、企业级</td>
+<td>Claude Code CLI + Anthropic ToS</td>
+</tr>
+<tr>
+<td><strong>OpenHands</strong></td>
+<td>68.3k</td>
+<td><code>All-Hands-AI/OpenHands</code> / MIT</td>
+<td>✅ ✅ ✅ 完全开源</td>
+<td>Python</td>
+<td>❌ 平台化</td>
+<td>~15k lines</td>
+<td>完整 Agent 平台，Docker 沙箱</td>
+<td>学术研究、团队协作、SWE-bench</td>
+<td>所选模型服务</td>
+</tr>
+<tr>
+<td><strong>Codex CLI</strong></td>
+<td>62.2k</td>
+<td><code>openai/codex</code> / Apache-2.0</td>
+<td>✅ ✅ 开源</td>
+<td>Rust + TypeScript</td>
+<td>❌ 有 TS SDK</td>
+<td>Core ~10k lines (codex.rs)</td>
+<td>本地优先终端 agent，审批/沙箱/MCP 双角色</td>
+<td>本地工程、受控执行、可审计工作流</td>
+<td>OpenAI 模型服务（主）</td>
+</tr>
+<tr>
+<td><strong>Aider</strong></td>
+<td>41k</td>
+<td><code>Aider-AI/aider</code> / Apache-2.0</td>
+<td>✅ ✅ ✅ 完全开源</td>
+<td>Python</td>
+<td>❌ CLI 工具</td>
+<td>~8k lines</td>
+<td>Git-native 编码助手，首创 Repo Map</td>
+<td>大型代码库、多文件编辑、Git 工作流</td>
+<td>所选模型服务</td>
+</tr>
+<tr>
+<td><strong>Goose</strong></td>
+<td>31.4k</td>
+<td><code>block/goose</code> / Apache-2.0</td>
+<td>✅ ✅ ✅ 完全开源</td>
+<td>Rust</td>
+<td>❌ CLI 工具</td>
+<td>Core ~3k lines</td>
+<td>MCP-Native 架构，Block 企业级</td>
+<td>MCP 生态、企业部署、工具多样化</td>
+<td>所选模型服务</td>
+</tr>
+<tr>
+<td><strong>OpenAI Agents SDK</strong></td>
+<td>19.2k</td>
+<td><code>openai/openai-agents-python</code> / MIT</td>
+<td>✅ ✅ ✅ 完全开源</td>
+<td>Python</td>
+<td>✅ 核心定位</td>
+<td>~15k lines</td>
+<td>Swarm 生产演进版，轻量级多 Agent 编排，provider-agnostic</td>
+<td>Python 应用多 Agent 工作流、生产级编排、跨 LLM</td>
+<td>所选模型服务（100+ LLMs）</td>
+</tr>
+<tr>
+<td><strong>Claude Agent SDK</strong></td>
+<td>5k</td>
+<td><code>anthropics/claude-agent-sdk-python</code> / MIT + ToS</td>
+<td>⚠️ SDK 开源，CLI 闭源</td>
+<td>Python</td>
+<td>✅ 核心定位</td>
+<td>SDK ~3k lines + 闭源 CLI</td>
+<td>以 Python 编排 Claude Code 能力，强 Hooks</td>
+<td>Python 应用接入 Claude、工具与 hooks</td>
+<td>Claude Code CLI（bundled）+ Anthropic ToS</td>
+</tr>
+<tr>
+<td><strong>Kimi CLI</strong></td>
+<td>5.9k</td>
+<td><code>MoonshotAI/kimi-cli</code> / Apache-2.0</td>
+<td>✅ ✅ 开源</td>
+<td>Python + TypeScript</td>
+<td>⚠️ CLI 可 pip 安装</td>
+<td>未统计</td>
+<td>终端 + shell 一体化，强 IDE/ACP 接入</td>
+<td>终端开发、IDE Agent Server、命令行增强</td>
+<td>Kimi/外部模型服务</td>
+</tr>
+<tr>
+<td><strong>Qwen Code</strong></td>
+<td>18.1k</td>
+<td><code>QwenLM/qwen-code</code> / Apache-2.0</td>
+<td>✅ ✅ 开源</td>
+<td>TypeScript</td>
+<td>❌ Node CLI</td>
+<td>未统计</td>
+<td>终端优先 + Skills/SubAgents，Qwen 协同演进</td>
+<td>代码理解与改造、终端自动化、Qwen 集成</td>
+<td>Qwen OAuth/API 服务</td>
+</tr>
+<tr>
+<td><strong>SWE-agent</strong></td>
+<td>18.4k</td>
+<td><code>SWE-agent/SWE-agent</code> / MIT</td>
+<td>✅ ✅ ✅ 研究导向</td>
+<td>Python</td>
+<td>❌ 框架本体</td>
+<td>Agent ~1.3k lines</td>
+<td>自动修 issue/基准评测的研究型 Agent</td>
+<td>SWE-bench、自动修复、研究</td>
+<td>所接入 LLM 服务</td>
+</tr>
+<tr>
+<td><strong>OpenManus</strong></td>
+<td>未统计</td>
+<td><code>FoundationAgents/OpenManus</code> / MIT</td>
+<td>✅ ✅ Python 开源</td>
+<td>Python</td>
+<td>❌ 可运行框架</td>
+<td>未统计</td>
+<td>快速复现 Manus 风格 Agent，社区共建</td>
+<td>通用任务 Agent、MCP 实验、多 Agent 研究</td>
+<td>所连接 LLM/API 服务</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2">2) 技术架构深度对比<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
+<h3 id="21">2.1 核心编排实现对比<a class="headerlink" href="#21" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>核心编排文件</th>
+<th>编排模式</th>
+<th>关键实现细节</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OpenAI Agents SDK</strong></td>
+<td><code>src/agents/run.py:396-1329</code> (1623 lines)</td>
+<td>Agent loop with NextStep state machine</td>
+<td>• RunState 可序列化 HITL<br>• Handoff 作为 first-class primitive<br>• Parallel guardrails</td>
+</tr>
+<tr>
+<td><strong>Claude Agent SDK</strong></td>
+<td><code>_internal/query.py</code> (634 lines)</td>
+<td>Control protocol over subprocess</td>
+<td>• Bidirectional JSON-RPC<br>• Hook callbacks at 10+ events<br>• SDK MCP in-process routing</td>
+</tr>
+<tr>
+<td><strong>OpenCode</strong></td>
+<td><code>src/session/prompt.ts:274-724</code></td>
+<td>Event-driven loop with SSE streaming</td>
+<td>• Instance-scoped state<br>• Permission ruleset engine<br>• Subtask 同步执行</td>
+</tr>
+<tr>
+<td><strong>Codex CLI</strong></td>
+<td><code>codex-rs/core/src/codex.rs</code> (9,712 lines)</td>
+<td>Rust event stream architecture</td>
+<td>• Arc-based shared state<br>• Thread-safe message passing<br>• Sandbox abstraction layer</td>
+</tr>
+<tr>
+<td><strong>Kimi CLI</strong></td>
+<td><code>src/kimi_cli/soul/kimisoul.py</code></td>
+<td>KimiSoul main loop</td>
+<td>• Wire protocol JSON-RPC<br>• Multi-process token coordination<br>• ACP server multi-session</td>
+</tr>
+<tr>
+<td><strong>Gemini CLI</strong></td>
+<td><code>packages/core/src/core/client.ts</code> (1120 lines)</td>
+<td>GeminiClient streaming loop</td>
+<td>• React/Ink UI<br>• Tool scheduler (758 lines)<br>• Policy engine (792 lines)</td>
+</tr>
+<tr>
+<td><strong>Qwen Code</strong></td>
+<td><code>packages/core/src/core/client.ts</code> (678 lines)</td>
+<td>GeminiClient with IDE context</td>
+<td>• Context variable templating<br>• SubAgent isolation<br>• File-lock token manager</td>
+</tr>
+<tr>
+<td><strong>SWE-agent</strong></td>
+<td><code>sweagent/agent/agents.py:1265</code></td>
+<td>DefaultAgent.run()</td>
+<td>• YAML-driven config<br>• Trajectory recording<br>• Tool bundle system</td>
+</tr>
+<tr>
+<td><strong>OpenManus</strong></td>
+<td><code>app/agent/base.py:116-154</code></td>
+<td>BaseAgent.run() template method</td>
+<td>• ReAct inheritance chain<br>• ToolCollection composition<br>• Singleton LLM</td>
+</tr>
+<tr>
+<td><strong>Aider</strong></td>
+<td><code>aider/coders/base_coder.py:800+</code></td>
+<td>Coder.step()</td>
+<td>• Git-native workflow<br>• Repo Map (tree-sitter)<br>• Multi-file editing</td>
+</tr>
+<tr>
+<td><strong>Goose</strong></td>
+<td><code>crates/goose-core/src/agent.rs:800+</code></td>
+<td>Agent loop with MCP routing</td>
+<td>• MCP-Native architecture<br>• Process isolation<br>• Rust performance</td>
+</tr>
+<tr>
+<td><strong>OpenHands</strong></td>
+<td><code>openhands/controller/agent_controller.py:900+</code></td>
+<td>AgentController.step()</td>
+<td>• Micro-agent orchestration<br>• Docker sandbox<br>• Web UI + API</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22">2.2 工具/协议扩展能力对比<a class="headerlink" href="#22" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>MCP 支持</th>
+<th>工具定义方式</th>
+<th>扩展机制</th>
+<th>工具数量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OpenAI Agents SDK</strong></td>
+<td>⚠️ 可通过 tools 接入外部 MCP</td>
+<td><code>@function_tool</code> decorator</td>
+<td>Protocol-based (Session/Model/Tracing)</td>
+<td>无内置（需自定义）</td>
+</tr>
+<tr>
+<td><strong>Claude Agent SDK</strong></td>
+<td>✅ ✅ ✅ Native in-process SDK MCP</td>
+<td><code>@tool</code> decorator + <code>create_sdk_mcp_server()</code></td>
+<td>Custom Transport, Hooks (10+ events)</td>
+<td>依赖 Claude Code CLI 内置工具</td>
+</tr>
+<tr>
+<td><strong>OpenCode</strong></td>
+<td>✅ MCP client（连接外部服务器）</td>
+<td><code>Tool.define()</code> + 文件型工具 (<code>.opencode/tool/*.ts</code>)</td>
+<td>Plugin system, custom agents via config</td>
+<td>39 个核心模块</td>
+</tr>
+<tr>
+<td><strong>Codex CLI</strong></td>
+<td>✅ ✅ ✅ MCP Client + Server（双角色）</td>
+<td>Rust <code>ToolHandler</code> trait + MCP servers</td>
+<td>Custom tool handlers (Rust), MCP servers</td>
+<td>30+ 内置 handlers</td>
+</tr>
+<tr>
+<td><strong>Kimi CLI</strong></td>
+<td>✅ MCP client（via fastmcp）</td>
+<td><code>CallableTool2</code> + import paths</td>
+<td>Agent spec (YAML), custom tools, skills</td>
+<td>15+ 内置工具</td>
+</tr>
+<tr>
+<td><strong>Gemini CLI</strong></td>
+<td>✅ ✅ MCP (Stdio/SSE/HTTP) + OAuth</td>
+<td><code>BaseDeclarativeTool</code> + <code>ToolInvocation</code></td>
+<td>Extension framework, MCP servers</td>
+<td>30+ 内置工具</td>
+</tr>
+<tr>
+<td><strong>Qwen Code</strong></td>
+<td>✅ ✅ MCP + IDE integration</td>
+<td><code>BaseDeclarativeTool</code> + dynamic schema</td>
+<td>Extensions (agents/skills/tools), MCP</td>
+<td>30+ 内置工具</td>
+</tr>
+<tr>
+<td><strong>SWE-agent</strong></td>
+<td>❌ 无 MCP</td>
+<td>Tool bundles (YAML + shell scripts in <code>tools/</code>)</td>
+<td>Custom agents, tool bundles, parsers</td>
+<td>15+ tool bundles</td>
+</tr>
+<tr>
+<td><strong>OpenManus</strong></td>
+<td>✅ ✅ MCP Client + Server（双角色）</td>
+<td><code>BaseTool</code> + Pydantic</td>
+<td>Subclass BaseTool, MCP servers, Flow system</td>
+<td>8 个内置工具</td>
+</tr>
+<tr>
+<td><strong>Aider</strong></td>
+<td>❌ 无 MCP</td>
+<td>Python 函数 + 内置命令</td>
+<td>Git-native workflow, custom commands</td>
+<td>10+ 内置命令</td>
+</tr>
+<tr>
+<td><strong>Goose</strong></td>
+<td>✅ ✅ ✅ MCP-Native</td>
+<td>Rust <code>Tool</code> trait</td>
+<td>MCP servers, extensions</td>
+<td>通过 MCP 扩展</td>
+</tr>
+<tr>
+<td><strong>OpenHands</strong></td>
+<td>✅ ✅ MCP Client</td>
+<td>Python 类 + 内置工具</td>
+<td>Micro-agents, Docker sandbox</td>
+<td>15+ 内置工具</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23">2.3 权限与安全控制对比<a class="headerlink" href="#23" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>安全机制</th>
+<th>配置方式</th>
+<th>细粒度</th>
+<th>沙箱</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OpenAI Agents SDK</strong></td>
+<td>Guardrails (input/output/tool)</td>
+<td>Python decorators (<code>@input_guardrail</code>)</td>
+<td>✅ ✅ 函数级</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Claude Agent SDK</strong></td>
+<td>Hooks (10+ events) + <code>permission_mode</code></td>
+<td>Python callbacks, <code>allowed_tools</code> list</td>
+<td>✅ ✅ ✅ Hook 事件级</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>OpenCode</strong></td>
+<td>Permission ruleset engine</td>
+<td>JSON config + wildcards</td>
+<td>✅ ✅ ✅ Pattern-based</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Codex CLI</strong></td>
+<td>Approval policy + Sandbox + Network control</td>
+<td><code>.rules</code> files + config.toml</td>
+<td>✅ ✅ ✅ ✅ Command prefix + network</td>
+<td>✅ ✅ ✅ Platform-specific</td>
+</tr>
+<tr>
+<td><strong>Kimi CLI</strong></td>
+<td>Approval system + yolo mode</td>
+<td>Session state, agent spec</td>
+<td>✅ ✅ Action-level</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Gemini CLI</strong></td>
+<td>Policy engine + approval modes</td>
+<td>TOML policies + trusted folders</td>
+<td>✅ ✅ ✅ Policy rules</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Qwen Code</strong></td>
+<td>Approval mode + tool config</td>
+<td>JSON settings, allowed/exclude tools</td>
+<td>✅ ✅ Tool-level</td>
+<td>⚠️ 可配置 Docker sandbox</td>
+</tr>
+<tr>
+<td><strong>SWE-agent</strong></td>
+<td>Command blocklists</td>
+<td>YAML config, tool bundles</td>
+<td>⚠️ 基础</td>
+<td>✅ Docker/Modal 容器</td>
+</tr>
+<tr>
+<td><strong>OpenManus</strong></td>
+<td>运行环境约束</td>
+<td>配置文件</td>
+<td>⚠️ 基础</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Aider</strong></td>
+<td>Git-native rollback</td>
+<td>Git commands</td>
+<td>⚠️ 文件级</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Goose</strong></td>
+<td>MCP server isolation</td>
+<td>Runtime config</td>
+<td>✅ ✅ Process-level</td>
+<td>⚠️ Optional Docker</td>
+</tr>
+<tr>
+<td><strong>OpenHands</strong></td>
+<td>Docker sandbox + approval</td>
+<td>Policy config</td>
+<td>✅ ✅ ✅ Container-level</td>
+<td>✅ ✅ Docker (default)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="24-multi-agent">2.4 Multi-Agent / 子代理能力对比<a class="headerlink" href="#24-multi-agent" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>实现方式</th>
+<th>关键特性</th>
+<th>代码位置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OpenAI Agents SDK</strong></td>
+<td>Handoff 类（first-class）</td>
+<td>• Input filter<br>• History nesting<br>• 自动 tool schema 生成</td>
+<td><code>src/agents/handoffs/__init__.py:93-321</code></td>
+</tr>
+<tr>
+<td><strong>Claude Agent SDK</strong></td>
+<td>Subagents（文档化） + Hooks</td>
+<td>• Session forking<br>• SubagentStart/Stop hooks</td>
+<td>通过 Hooks + Claude Code CLI</td>
+</tr>
+<tr>
+<td><strong>OpenCode</strong></td>
+<td>Task 工具 + Agent profiles</td>
+<td>• Parent/child sessions<br>• Permission 继承<br>• Model 继承</td>
+<td><code>src/tool/task.ts:45-163</code></td>
+</tr>
+<tr>
+<td><strong>Codex CLI</strong></td>
+<td>Multi-agent tool handler</td>
+<td>• Thread hierarchy<br>• Approval 链</td>
+<td><code>tools/handlers/multi_agents.rs</code></td>
+</tr>
+<tr>
+<td><strong>Kimi CLI</strong></td>
+<td>Task + CreateSubagent 工具</td>
+<td>• Dynamic subagent creation<br>• Event emitter communication<br>• Labor market（subagent pool）</td>
+<td><code>tools/multiagent/task.py</code><br><code>soul/agent.py:183-207</code></td>
+</tr>
+<tr>
+<td><strong>Gemini CLI</strong></td>
+<td>Agent registry + remote agents</td>
+<td>• Local/remote agents<br>• A2A protocol</td>
+<td><code>agents/agent-scheduler.ts</code><br><code>a2a-server/</code> package</td>
+</tr>
+<tr>
+<td><strong>Qwen Code</strong></td>
+<td>SubAgent system + Skills</td>
+<td>• Context variable templating<br>• Precedence: session&gt;project&gt;user<br>• ContextState isolation</td>
+<td><code>subagents/subagent.ts:183-272</code><br><code>subagents/subagent-manager.ts:147-195</code></td>
+</tr>
+<tr>
+<td><strong>SWE-agent</strong></td>
+<td>单 agent 为主</td>
+<td>• RetryAgent（multi-attempt）<br>• Reviewer/Chooser 机制</td>
+<td><code>sweagent/agent/agents.py:257-441</code></td>
+</tr>
+<tr>
+<td><strong>OpenManus</strong></td>
+<td>PlanningFlow（实验性）</td>
+<td>• Agent 选择器<br>• LLM-driven planning</td>
+<td><code>app/flow/planning.py:77-92</code></td>
+</tr>
+<tr>
+<td><strong>Aider</strong></td>
+<td>❌ 无内置</td>
+<td>• 单线程交互<br>• Git 分支管理</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><strong>Goose</strong></td>
+<td>⚠️ 实验性</td>
+<td>• Agent composition<br>• Recipe system</td>
+<td><code>crates/goose-core/src/recipe/</code></td>
+</tr>
+<tr>
+<td><strong>OpenHands</strong></td>
+<td>✅ ✅ 内置</td>
+<td>• Micro-agent orchestration<br>• Delegator agent<br>• Agent hub</td>
+<td><code>openhands/agenthub/</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="25-session">2.5 Session/会话管理对比<a class="headerlink" href="#25-session" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>Session 支持</th>
+<th>存储后端</th>
+<th>持久化格式</th>
+<th>压缩/Compaction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OpenAI Agents SDK</strong></td>
+<td>✅ ✅ ✅ 内置</td>
+<td>SQLite, Redis, 自定义（Protocol）</td>
+<td>JSON (SQLite) / List (Redis)</td>
+<td>❌ 无（需自实现）</td>
+</tr>
+<tr>
+<td><strong>Claude Agent SDK</strong></td>
+<td>❌ 需手动管理</td>
+<td>无</td>
+<td>无</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>OpenCode</strong></td>
+<td>✅ ✅ 内置</td>
+<td>SQLite (Drizzle ORM)</td>
+<td>MessageV2 + Parts 结构</td>
+<td>✅ SessionCompaction</td>
+</tr>
+<tr>
+<td><strong>Codex CLI</strong></td>
+<td>✅ ✅ Rollout files</td>
+<td>JSONL files + SQLite metadata</td>
+<td>JSONL (每行一个事件)</td>
+<td>⚠️ 未明确</td>
+</tr>
+<tr>
+<td><strong>Kimi CLI</strong></td>
+<td>✅ ✅ 内置</td>
+<td>JSONL files + state.json</td>
+<td><code>context.jsonl</code> + <code>wire.jsonl</code></td>
+<td>✅ Compaction service</td>
+</tr>
+<tr>
+<td><strong>Gemini CLI</strong></td>
+<td>✅ ChatRecordingService</td>
+<td>JSON files</td>
+<td>Conversation history JSON</td>
+<td>⚠️ 未明确</td>
+</tr>
+<tr>
+<td><strong>Qwen Code</strong></td>
+<td>✅ Session system</td>
+<td>未详细说明</td>
+<td>未详细说明</td>
+<td>⚠️ 未明确</td>
+</tr>
+<tr>
+<td><strong>SWE-agent</strong></td>
+<td>✅ Trajectory files</td>
+<td>JSON/JSONL</td>
+<td>Trajectory steps</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>OpenManus</strong></td>
+<td>❌ Memory in-memory</td>
+<td>In-memory list</td>
+<td>无持久化</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Aider</strong></td>
+<td>⚠️ Git history</td>
+<td>Git commits</td>
+<td>Commit messages</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Goose</strong></td>
+<td>✅ Session files</td>
+<td>JSON/JSONL</td>
+<td>Session state</td>
+<td>⚠️ 未明确</td>
+</tr>
+<tr>
+<td><strong>OpenHands</strong></td>
+<td>✅ ✅ 内置</td>
+<td>SQLite/JSON</td>
+<td>Conversation + state</td>
+<td>✅ Context management</td>
+</tr>
+</tbody>
+</table>
+<h3 id="26-tracing">2.6 Tracing/可观测性对比<a class="headerlink" href="#26-tracing" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>Tracing 支持</th>
+<th>实现方式</th>
+<th>外部集成</th>
+<th>Span 类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OpenAI Agents SDK</strong></td>
+<td>✅ ✅ ✅ 内置</td>
+<td>TracingProcessor Protocol</td>
+<td>Logfire, AgentOps, Braintrust, Scorecard, Keywords AI</td>
+<td>Agent, Generation, Function, Handoff, Guardrail, Custom</td>
+</tr>
+<tr>
+<td><strong>Claude Agent SDK</strong></td>
+<td>❌ 无内置</td>
+<td>需自实现</td>
+<td>无</td>
+<td>无</td>
+</tr>
+<tr>
+<td><strong>OpenCode</strong></td>
+<td>⚠️ OpenTelemetry（实验）</td>
+<td>实验性 OTEL 集成</td>
+<td>OTEL endpoints</td>
+<td>未详细说明</td>
+</tr>
+<tr>
+<td><strong>Codex CLI</strong></td>
+<td>⚠️ Telemetry hooks</td>
+<td>Hook system</td>
+<td>自定义 hooks</td>
+<td>未详细说明</td>
+</tr>
+<tr>
+<td><strong>Kimi CLI</strong></td>
+<td>⚠️ 基础日志</td>
+<td>Structlog</td>
+<td>无</td>
+<td>无</td>
+</tr>
+<tr>
+<td><strong>Gemini CLI</strong></td>
+<td>⚠️ Telemetry service</td>
+<td>内置 telemetry</td>
+<td>Google telemetry, OTLP</td>
+<td>未详细说明</td>
+</tr>
+<tr>
+<td><strong>Qwen Code</strong></td>
+<td>⚠️ 基础日志</td>
+<td>日志系统</td>
+<td>无</td>
+<td>无</td>
+</tr>
+<tr>
+<td><strong>SWE-agent</strong></td>
+<td>❌ 无（仅 trajectory）</td>
+<td>Trajectory recording</td>
+<td>无</td>
+<td>无</td>
+</tr>
+<tr>
+<td><strong>OpenManus</strong></td>
+<td>❌ 无</td>
+<td>仅日志</td>
+<td>无</td>
+<td>无</td>
+</tr>
+<tr>
+<td><strong>Aider</strong></td>
+<td>⚠️ 基础日志</td>
+<td>日志输出</td>
+<td>无</td>
+<td>无</td>
+</tr>
+<tr>
+<td><strong>Goose</strong></td>
+<td>⚠️ 基础 telemetry</td>
+<td>Event logs</td>
+<td>无</td>
+<td>无</td>
+</tr>
+<tr>
+<td><strong>OpenHands</strong></td>
+<td>⚠️ 实验性</td>
+<td>Logging + metrics</td>
+<td>无</td>
+<td>无</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3">3) 深度技术对比<a class="headerlink" href="#3" title="Permanent link">&para;</a></h2>
+<h3 id="31">3.1 架构风格分类<a class="headerlink" href="#31" title="Permanent link">&para;</a></h3>
+<h4 id="a-sdk-python"><strong>A) 纯 SDK 层（Python 应用嵌入）</strong><a class="headerlink" href="#a-sdk-python" title="Permanent link">&para;</a></h4>
+<p><strong>OpenAI Agents SDK</strong>:
+- <strong>架构</strong>: 纯 Python SDK，无 CLI 依赖
+- <strong>核心抽象</strong>: Agent, Handoff, Session, Guardrail, Tracing
+- <strong>执行模式</strong>: <code>Runner.run()</code> → AgentRunner → run_internal/<em>
+- </em><em>状态管理</em><em>: RunState (2384 lines) 支持 HITL
+- </em><em>扩展性</em><em>: Protocol-based (Session/Model/TracingProcessor)
+- </em><em>代码规模</em><em>: ~15,000 lines core + 12,775 lines examples
+- </em><em>适用</em>*: Python 应用中嵌入多 agent 工作流</p>
+<p><strong>Claude Agent SDK</strong>:
+- <strong>架构</strong>: Python SDK + 闭源 Claude Code CLI（bundled）
+- <strong>核心抽象</strong>: query(), ClaudeSDKClient, Hooks, SDK MCP Server
+- <strong>执行模式</strong>: SDK → Subprocess → Claude Code CLI → Anthropic API
+- <strong>状态管理</strong>: 无（需手动管理历史）
+- <strong>扩展性</strong>: Hooks (10+ events), Custom Transport, SDK MCP Servers
+- <strong>代码规模</strong>: SDK ~3,000 lines + 闭源 CLI
+- <strong>适用</strong>: Python 应用深度集成 Claude 能力</p>
+<p><strong>对比总结</strong>:
+- OpenAI Agents SDK: 完全开源，provider-agnostic，更轻量
+- Claude Agent SDK: 强大的 Hooks，in-process MCP，但依赖闭源 CLI</p>
+<h4 id="b-cli"><strong>B) 终端 CLI 型（终端重度用户）</strong><a class="headerlink" href="#b-cli" title="Permanent link">&para;</a></h4>
+<p><strong>OpenCode</strong> (TypeScript/Bun):
+- <strong>架构</strong>: 事件驱动 + Instance-scoped state
+- <strong>核心模块</strong>: 39 个顶级模块，~47k lines
+- <strong>Agent 系统</strong>: Profile-based (build/plan/general/explore)
+- <strong>权限引擎</strong>: Wildcard pattern matching, Last match wins
+- <strong>TUI</strong>: Solid.js + Tauri（桌面应用）
+- <strong>特色</strong>: 100% 开源，强大的 permission system</p>
+<p><strong>Codex CLI</strong> (Rust + TypeScript):
+- <strong>架构</strong>: Rust 核心 (9,712 lines in codex.rs) + TS SDK
+- <strong>安全</strong>: 三层（Platform Sandbox + Approval Policy + Network Proxy）
+- <strong>MCP</strong>: 双角色（Client 接入工具 + Server 暴露 codex_tool_call）
+- <strong>配置</strong>: 100+ config fields, profile system, constraints
+- <strong>特色</strong>: 企业级安全，高性能 Rust 核心</p>
+<p><strong>Kimi CLI</strong> (Python + TypeScript):
+- <strong>架构</strong>: Python backend + React web UI
+- <strong>ACP</strong>: 完整 Agent Client Protocol 服务器
+- <strong>Wire Protocol</strong>: JSON-RPC for IDE integration
+- <strong>Skills</strong>: Markdown + Flow workflows (Mermaid/D2)
+- <strong>特色</strong>: IDE 深度集成，多 UI 模式（shell/web/ACP）</p>
+<p><strong>Gemini CLI</strong> (TypeScript):
+- <strong>架构</strong>: Monorepo (CLI + Core + SDK + VS Code ext)
+- <strong>工具</strong>: 30+ 内置工具 + MCP integration
+- <strong>Policy</strong>: TOML-based security policies
+- <strong>Google 生态</strong>: OAuth2, Code Assist, Search grounding
+- <strong>特色</strong>: React/Ink UI，Google 服务深度集成</p>
+<p><strong>Qwen Code</strong> (TypeScript):
+- <strong>架构</strong>: Monorepo with SDK (TS + Java)
+- <strong>SubAgents</strong>: Context variable templating, precedence system
+- <strong>Skills</strong>: Auto-discovery with file watching
+- <strong>IDE</strong>: Deep MCP integration (VS Code, Zed, JetBrains)
+- <strong>特色</strong>: Qwen OAuth with PKCE，variable templating</p>
+<p><strong>对比总结</strong>:
+- <strong>最强安全</strong>: Codex CLI（Sandbox + Approval + Network）
+- <strong>最开放</strong>: OpenCode（100% 开源 + provider-agnostic）
+- <strong>最强 IDE</strong>: Kimi CLI（ACP + Wire）+ Qwen Code（MCP IDE）
+- <strong>最佳 Google</strong>: Gemini CLI（Search grounding + Code Assist）</p>
+<h4 id="c"><strong>C) 研究/实验框架</strong><a class="headerlink" href="#c" title="Permanent link">&para;</a></h4>
+<p><strong>SWE-agent</strong> (Python):
+- <strong>架构</strong>: YAML-driven configuration
+- <strong>核心</strong>: DefaultAgent (1294 lines), RetryAgent
+- <strong>工具</strong>: Bundle system (YAML + shell scripts)
+- <strong>评测</strong>: SWE-Bench 集成，批量执行
+- <strong>Trajectory</strong>: 完整执行轨迹记录
+- <strong>适用</strong>: 研究、benchmark、自动修复</p>
+<p><strong>OpenManus</strong> (Python):
+- <strong>架构</strong>: ReAct 继承链（BaseAgent → ReActAgent → ToolCallAgent → Manus）
+- <strong>Flow</strong>: PlanningFlow (442 lines, 标注为不稳定)
+- <strong>MCP</strong>: 双角色（Client + Server via FastMCP）
+- <strong>工具</strong>: 8 个内置工具 + MCP tools
+- <strong>适用</strong>: 快速实验、MCP 探索、社区共建</p>
+<p><strong>对比总结</strong>:
+- <strong>SWE-agent</strong>: 专注 benchmark，YAML 配置化，trajectory 分析
+- <strong>OpenManus</strong>: 通用实验框架，MCP 双角色，Flow 系统不稳定</p>
+<hr />
+<h2 id="4">4) 关键差异总结（基于代码审计）<a class="headerlink" href="#4" title="Permanent link">&para;</a></h2>
+<h3 id="41">4.1 开源透明度分级<a class="headerlink" href="#41" title="Permanent link">&para;</a></h3>
+<p><strong>A 级（完全开源，核心逻辑可审计）</strong>:
+1. <strong>OpenAI Agents SDK</strong>: MIT，完整 run loop 实现可见（<code>run.py:396-1329</code>）
+2. <strong>OpenCode</strong>: MIT，所有 39 个模块开源（~47k lines）
+3. <strong>SWE-agent</strong>: MIT，研究导向，完全透明
+4. <strong>OpenManus</strong>: MIT，Python 主体开源
+5. <strong>Qwen Code</strong>: Apache-2.0，TypeScript 开源
+6. <strong>Gemini CLI</strong>: Apache-2.0，TypeScript 开源（866 files）
+7. <strong>Codex CLI</strong>: Apache-2.0，Rust core 开源（9,712 lines in codex.rs）
+8. <strong>Kimi CLI</strong>: Apache-2.0，Python + TS 开源
+9. <strong>Aider</strong>: Apache-2.0，Git-native 代码库理解（~8k lines）
+10. <strong>Goose</strong>: Apache-2.0，MCP-Native Rust 核心（~3k lines）
+11. <strong>OpenHands</strong>: MIT，完整平台开源（~15k lines）</p>
+<p><strong>B 级（SDK 开源但执行链路含闭源组件）</strong>:
+12. <strong>Claude Agent SDK</strong>: MIT + Anthropic ToS，SDK 开源但依赖闭源 Claude Code CLI</p>
+<h3 id="42-python">4.2 Python 生态可嵌入性<a class="headerlink" href="#42-python" title="Permanent link">&para;</a></h3>
+<p><strong>Tier 1: 纯 Python SDK 产品</strong>
+- <strong>OpenAI Agents SDK</strong>: 生产就绪，<code>pip install openai-agents</code>
+- <strong>Claude Agent SDK</strong>: 生产就绪，<code>pip install claude-agent-sdk</code></p>
+<p><strong>Tier 2: Python 主体框架</strong>
+- <strong>OpenManus</strong>: 可运行框架，ReAct 继承链
+- <strong>SWE-agent</strong>: 研究框架，YAML 驱动
+- <strong>Kimi CLI</strong>: CLI 本体，<code>pip install kimi-cli</code>
+- <strong>Aider</strong>: CLI 工具，<code>pip install aider-chat</code>
+- <strong>OpenHands</strong>: 完整平台，Python SDK</p>
+<p><strong>Tier 3: 非 Python（有 Rust/TS）</strong>
+- <strong>Codex CLI</strong>: Rust CLI + TypeScript SDK
+- <strong>Gemini CLI</strong>: TypeScript CLI（Node.js）
+- <strong>Qwen Code</strong>: TypeScript CLI + TS/Java SDK
+- <strong>OpenCode</strong>: TypeScript CLI（Bun）
+- <strong>Goose</strong>: Rust CLI + core library</p>
+<h3 id="43-provider-agnostic">4.3 Provider-agnostic（跨模型）能力分级<a class="headerlink" href="#43-provider-agnostic" title="Permanent link">&para;</a></h3>
+<p><strong>Level 1: 明确支持多供应商</strong>
+- <strong>OpenAI Agents SDK</strong>: ✅ ✅ ✅ 100+ LLMs via LiteLLM，无绑定
+- <strong>OpenCode</strong>: ✅ ✅ ✅ Provider-agnostic 设计，Vercel AI SDK</p>
+<p><strong>Level 2: 可配置但倾向特定供应商</strong>
+- <strong>SWE-agent</strong>: ✅ ✅ LiteLLM 集成，完全可配（研究用）
+- <strong>OpenManus</strong>: ✅ ✅ LiteLLM 集成，可配置
+- <strong>Kimi CLI</strong>: ✅ kosong 框架支持多供应商，Kimi 为主
+- <strong>Codex CLI</strong>: ✅ 支持多 LLMs，OpenAI 为主
+- <strong>Gemini CLI</strong>: ✅ 支持 OpenAI/Anthropic，Gemini 为主
+- <strong>Qwen Code</strong>: ✅ 支持 OpenAI/Anthropic/Gemini，Qwen 优化
+- <strong>Aider</strong>: ✅ ✅ 支持 OpenAI/Anthropic/Gemini/本地模型，无绑定
+- <strong>Goose</strong>: ✅ 支持多 LLMs，通过配置切换
+- <strong>OpenHands</strong>: ✅ ✅ 支持 100+ LLMs via LiteLLM</p>
+<p><strong>Level 3: 严格绑定供应商</strong>
+- <strong>Claude Agent SDK</strong>: ❌ Claude-only，无法使用其他 LLMs</p>
+<h3 id="44">4.4 架构成熟度与生产就绪度<a class="headerlink" href="#44" title="Permanent link">&para;</a></h3>
+<p><strong>生产就绪（Production-Ready）</strong>:
+1. <strong>OpenAI Agents SDK</strong>: ✅ ✅ ✅ (1,135 commits, 219 contributors, v0.10.2)
+2. <strong>Claude Agent SDK</strong>: ✅ ✅ (333 commits, 47 contributors, v0.1.44, 官方维护)
+3. <strong>Codex CLI</strong>: ✅ ✅ (OpenAI 官方，Rust 高性能)
+4. <strong>Gemini CLI</strong>: ✅ ✅ (Google 官方，monorepo)
+5. <strong>Kimi CLI</strong>: ✅ (Moonshot AI 官方，PyPI 发布)
+6. <strong>Qwen Code</strong>: ✅ (阿里云通义千问团队)
+7. <strong>Aider</strong>: ✅ ✅ (41k stars, 活跃维护，生产验证)
+8. <strong>Goose</strong>: ✅ ✅ (Block 公司生产验证，企业级)
+9. <strong>OpenHands</strong>: ✅ ✅ ✅ (68k stars, $18.8M 融资，完整平台)</p>
+<p><strong>实验性/社区驱动</strong>:
+10. <strong>OpenCode</strong>: ⚠️ 社区驱动（非大厂官方）
+11. <strong>OpenManus</strong>: ⚠️ 社区实验（Flow 系统标注为不稳定）
+12. <strong>SWE-agent</strong>: ⚠️ 研究框架（非生产目的）</p>
+<hr />
+<h2 id="5">5) 技术亮点与独特优势<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
+<h3 id="51-openai-agents-sdk">5.1 OpenAI Agents SDK 的独特优势<a class="headerlink" href="#51-openai-agents-sdk" title="Permanent link">&para;</a></h3>
+<p><strong>核心亮点</strong>:
+1. <strong>Protocol-based 扩展</strong>: Session/Model/TracingProcessor 使用 Protocol（duck typing）
+2. <strong>RunState for HITL</strong>: 2,384 lines 的可序列化状态，支持中断恢复
+3. <strong>Handoff as First-Class</strong>: 专门的 Handoff 类with input_filter 和 history nesting
+4. <strong>内置 Tracing</strong>: 完整的 Trace → Span 架构，支持 6+ 外部平台
+5. <strong>Streaming 优先</strong>: <code>run_streamed()</code> 一等公民
+6. <strong>社区活跃</strong>: 219 contributors，19.2k stars</p>
+<p><strong>代码证据</strong>:
+- <code>src/agents/run.py:396-1329</code> - 主 agent loop 实现
+- <code>src/agents/run_state.py</code> - 2,384 lines RunState
+- <code>src/agents/handoffs/__init__.py:93-321</code> - Handoff 实现
+- <code>src/agents/tracing/processor_interface.py</code> - TracingProcessor Protocol</p>
+<h3 id="52-claude-agent-sdk">5.2 Claude Agent SDK 的独特优势<a class="headerlink" href="#52-claude-agent-sdk" title="Permanent link">&para;</a></h3>
+<p><strong>核心亮点</strong>:
+1. <strong>10+ Hook Events</strong>: PreToolUse, PostToolUse, UserPromptSubmit, SubagentStart/Stop 等
+2. <strong>SDK MCP Servers</strong>: In-process MCP 服务器，无子进程开销
+3. <strong>Bidirectional Control</strong>: 双向 JSON-RPC control protocol
+4. <strong>Auto-bundled CLI</strong>: 自动下载并打包 Claude Code CLI
+5. <strong>Python Keyword Safe</strong>: <code>async_</code>, <code>continue_</code> 字段名自动转换</p>
+<p><strong>代码证据</strong>:
+- <code>_internal/query.py:119-163</code> - Hook 注册
+- <code>_internal/query.py:286-299</code> - Hook 调用
+- <code>_internal/query.py:391-527</code> - SDK MCP JSONRPC 路由
+- <code>__init__.py:157-319</code> - <code>create_sdk_mcp_server()</code></p>
+<h3 id="53-opencode">5.3 OpenCode 的独特优势<a class="headerlink" href="#53-opencode" title="Permanent link">&para;</a></h3>
+<p><strong>核心亮点</strong>:
+1. <strong>Permission Ruleset Engine</strong>: Wildcard matching, last match wins, 3 层 merge
+2. <strong>Instance-Scoped State</strong>: Per-project 状态隔离
+3. <strong>Event Bus Architecture</strong>: 中央 pub/sub 消息系统
+4. <strong>Agent Profiles</strong>: 4 个内置（build/plan/general/explore）+ 用户自定义
+5. <strong>Plugin System</strong>: Native plugins with lifecycle hooks
+6. <strong>TUI</strong>: Solid.js + Tauri 桌面应用</p>
+<p><strong>代码证据</strong>:
+- <code>src/permission/next.ts:236-243</code> - Permission evaluation
+- <code>src/agent/agent.ts:76-203</code> - Agent profiles
+- <code>src/tool/task.ts:66-102</code> - Hierarchical sessions
+- <code>src/session/prompt.ts:274-724</code> - Main execution loop</p>
+<h3 id="54-codex-cli">5.4 Codex CLI 的独特优势<a class="headerlink" href="#54-codex-cli" title="Permanent link">&para;</a></h3>
+<p><strong>核心亮点</strong>:
+1. <strong>Platform Sandboxes</strong>: Seatbelt (macOS) / Landlock (Linux) / Windows Job Objects
+2. <strong>MCP 双角色</strong>: 既是 client 也是 server，唯一完整实现
+3. <strong>Approval Policy</strong>: <code>.rules</code> 文件with prefix/network rules
+4. <strong>Rust 核心</strong>: 高性能，type-safe，9,712 lines in codex.rs
+5. <strong>67 Crates</strong>: 模块化设计，职责清晰
+6. <strong>App Server</strong>: JSON-RPC protocol for IDE integration</p>
+<p><strong>代码证据</strong>:
+- <code>codex-rs/core/src/codex.rs</code> - 9,712 lines 核心编排
+- <code>codex-rs/core/src/exec_policy.rs</code> - 2,149 lines 审批引擎
+- <code>codex-rs/mcp-server/src/message_processor.rs</code> - 603 lines MCP server
+- <code>codex-rs/core/src/seatbelt.rs</code> - macOS sandbox</p>
+<h3 id="55">5.5 其他项目的独特优势<a class="headerlink" href="#55" title="Permanent link">&para;</a></h3>
+<p><strong>Kimi CLI</strong>:
+- ✅ <strong>完整 ACP Server</strong>: 351 lines in <code>acp/server.py</code>
+- ✅ <strong>Multi-process OAuth</strong>: File-lock based token coordination
+- ✅ <strong>Skills + Flow</strong>: Markdown skills + Mermaid/D2 workflows
+- ✅ <strong>Triple UI</strong>: Shell TUI + Web UI + ACP</p>
+<p><strong>Gemini CLI</strong>:
+- ✅ <strong>Google Search Grounding</strong>: Native web-search model with citations
+- ✅ <strong>Monorepo</strong>: CLI + Core + SDK + VS Code ext + A2A server
+- ✅ <strong>Policy Engine</strong>: TOML-based, 792 lines
+- ✅ <strong>Service Account</strong>: Google SA impersonation for enterprise</p>
+<p><strong>Qwen Code</strong>:
+- ✅ <strong>Context Variable Templating</strong>: <code>${project_name}</code>, <code>${current_directory}</code> in prompts
+- ✅ <strong>SubAgent Precedence</strong>: session &gt; project &gt; user &gt; extension &gt; builtin
+- ✅ <strong>IDE Context Injection</strong>: Full &amp; delta modes
+- ✅ <strong>Multi-SDK</strong>: TypeScript + Java SDK</p>
+<p><strong>SWE-agent</strong>:
+- ✅ <strong>YAML-Driven</strong>: 完全配置化 agent 行为
+- ✅ <strong>Tool Bundles</strong>: Shell scripts + YAML definitions
+- ✅ <strong>Trajectory Recording</strong>: 完整执行路径
+- ✅ <strong>SWE-Bench</strong>: 自动 benchmark 集成</p>
+<p><strong>OpenManus</strong>:
+- ✅ <strong>ReAct 继承链</strong>: BaseAgent → ReActAgent → ToolCallAgent → Manus
+- ✅ <strong>PlanningFlow</strong>: LLM-driven multi-agent planning (442 lines)
+- ✅ <strong>MCP 双角色</strong>: Client + Server (FastMCP)
+- ✅ <strong>Browser Automation</strong>: Browser context helper</p>
+<hr />
+<h2 id="6">6) 选择决策树（基于深度分析）<a class="headerlink" href="#6" title="Permanent link">&para;</a></h2>
+<h3 id="61">6.1 按需求选择<a class="headerlink" href="#61" title="Permanent link">&para;</a></h3>
+<p><strong>需求: 构建生产级 Python 多 agent 应用</strong>
+→ <strong>OpenAI Agents SDK</strong>
+- 理由: 完整的 Session/Tracing/Guardrails，provider-agnostic，社区活跃
+- 代码: <code>src/agents/run.py</code>, <code>src/agents/handoffs/</code>, <code>src/agents/tracing/</code></p>
+<p><strong>需求: 深度集成 Claude，需要强大的 Hooks</strong>
+→ <strong>Claude Agent SDK</strong>
+- 理由: 10+ hook events，SDK MCP servers，官方支持
+- 代码: <code>_internal/query.py:286-299</code> (hook invocation)
+- 权衡: 接受闭源 CLI 和 Anthropic ToS</p>
+<p><strong>需求: 终端编码，需要完全开源 + 强权限控制</strong>
+→ <strong>OpenCode</strong>
+- 理由: 100% 开源，强大的 permission engine，provider-agnostic
+- 代码: <code>src/permission/next.ts:236-243</code> (permission evaluation)</p>
+<p><strong>需求: 企业级安全，需要 Sandbox + 审批策略</strong>
+→ <strong>Codex CLI</strong>
+- 理由: 唯一提供平台 sandbox，审批策略完善，MCP 双角色
+- 代码: <code>codex-rs/core/src/exec_policy.rs</code> (2,149 lines)
+- 权衡: Rust 学习曲线，配置复杂</p>
+<p><strong>需求: IDE 集成，需要 ACP Server</strong>
+→ <strong>Kimi CLI</strong>或<strong>Qwen Code</strong>
+- Kimi: 完整 ACP 实现 (<code>acp/server.py:107-166</code>)
+- Qwen: 深度 IDE MCP 集成 (<code>ide/ide-client.ts:77-206</code>)</p>
+<p><strong>需求: Google 生态，需要 Search grounding</strong>
+→ <strong>Gemini CLI</strong>
+- 理由: Native Google Search，Code Assist，OAuth2
+- 代码: <code>tools/web-search.ts:82-200</code> (grounding implementation)</p>
+<p><strong>需求: 学术研究，需要 benchmark SWE-Bench</strong>
+→ <strong>SWE-agent</strong>
+- 理由: YAML-driven，trajectory recording，SWE-Bench 集成
+- 代码: <code>sweagent/agent/agents.py:1265</code> (run loop)</p>
+<p><strong>需求: 快速实验，需要 MCP 双角色</strong>
+→ <strong>OpenManus</strong>
+- 理由: 简单 ReAct 链，MCP client+server，易上手
+- 代码: <code>app/agent/manus.py</code>, <code>app/mcp/server.py</code>
+- 权衡: Flow 系统不稳定</p>
+<h3 id="62">6.2 按技术栈选择<a class="headerlink" href="#62" title="Permanent link">&para;</a></h3>
+<p><strong>Python 应用嵌入</strong>:
+1. <strong>首选</strong>: OpenAI Agents SDK（完整特性，provider-agnostic）
+2. <strong>次选</strong>: Claude Agent SDK（强 Hooks，但 Claude-only）
+3. <strong>备选</strong>: Kimi CLI/OpenManus（CLI 本体，非纯 SDK）</p>
+<p><strong>终端 CLI 工具</strong>:
+1. <strong>开源 + 跨模型</strong>: OpenCode（Bun/TS，permission engine）
+2. <strong>企业安全</strong>: Codex CLI（Rust，sandbox + approval）
+3. <strong>IDE 集成</strong>: Kimi CLI（ACP）或 Qwen Code（MCP IDE）
+4. <strong>Google 生态</strong>: Gemini CLI（Search grounding）</p>
+<p><strong>研究/实验</strong>:
+1. <strong>Benchmark</strong>: SWE-agent（YAML-driven, SWE-Bench）
+2. <strong>通用实验</strong>: OpenManus（ReAct 链，MCP 双角色）</p>
+<h3 id="63">6.3 按安全需求选择<a class="headerlink" href="#63" title="Permanent link">&para;</a></h3>
+<p><strong>最高安全（Sandbox + Approval + Network）</strong>:
+→ <strong>Codex CLI</strong>（唯一提供 OS-level sandbox）</p>
+<p><strong>细粒度权限控制</strong>:
+1. <strong>OpenCode</strong>: Permission ruleset with wildcards
+2. <strong>Claude Agent SDK</strong>: 10+ hook events
+3. <strong>OpenAI Agents SDK</strong>: Guardrails (input/output/tool)
+4. <strong>Gemini CLI</strong>: TOML policy engine</p>
+<p><strong>基础审批</strong>:
+- Kimi CLI, Qwen Code, SWE-agent, OpenManus</p>
+<hr />
+<h2 id="7">7) 技术债务与风险评估<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>技术债务</th>
+<th>风险点</th>
+<th>缓解措施</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OpenAI Agents SDK</strong></td>
+<td>⚠️ 缺少 RAG/Vector stores</td>
+<td>Provider API 依赖</td>
+<td>使用外部 RAG 库集成</td>
+</tr>
+<tr>
+<td><strong>Claude Agent SDK</strong></td>
+<td>❌ 依赖闭源 CLI</td>
+<td>Anthropic ToS 约束</td>
+<td>无法缓解（架构限制）</td>
+</tr>
+<tr>
+<td><strong>OpenCode</strong></td>
+<td>⚠️ Bun 运行时依赖</td>
+<td>社区维护风险</td>
+<td>Bun 兼容性良好</td>
+</tr>
+<tr>
+<td><strong>Codex CLI</strong></td>
+<td>⚠️ Rust 学习曲线高</td>
+<td>配置复杂度</td>
+<td>详细文档 + TypeScript SDK</td>
+</tr>
+<tr>
+<td><strong>Kimi CLI</strong></td>
+<td>⚠️ 文档主要为中文</td>
+<td>Kimi 服务依赖</td>
+<td>支持其他 LLMs</td>
+</tr>
+<tr>
+<td><strong>Gemini CLI</strong></td>
+<td>⚠️ Google 生态绑定</td>
+<td>Gemini 服务依赖</td>
+<td>支持 OpenAI/Anthropic</td>
+</tr>
+<tr>
+<td><strong>Qwen Code</strong></td>
+<td>⚠️ 文档部分中文</td>
+<td>Qwen 服务依赖</td>
+<td>支持其他 LLMs</td>
+</tr>
+<tr>
+<td><strong>SWE-agent</strong></td>
+<td>❌ 非生产目的</td>
+<td>研究框架，API 不稳定</td>
+<td>仅用于研究</td>
+</tr>
+<tr>
+<td><strong>OpenManus</strong></td>
+<td>❌ Flow 系统不稳定</td>
+<td>社区维护</td>
+<td>使用 main.py（稳定）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8">8) 功能矩阵（完整对比）<a class="headerlink" href="#8" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>OpenAI SDK</th>
+<th>Claude SDK</th>
+<th>OpenCode</th>
+<th>Codex</th>
+<th>Kimi</th>
+<th>Gemini</th>
+<th>Qwen</th>
+<th>SWE-agent</th>
+<th>OpenManus</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Multi-agent</strong></td>
+<td>✅ ✅ ✅</td>
+<td>✅ ✅</td>
+<td>✅ ✅</td>
+<td>✅</td>
+<td>✅ ✅</td>
+<td>✅ ✅</td>
+<td>✅ ✅ ✅</td>
+<td>⚠️</td>
+<td>⚠️</td>
+</tr>
+<tr>
+<td><strong>Handoffs</strong></td>
+<td>✅ ✅ ✅</td>
+<td>✅ ✅</td>
+<td>✅ ✅</td>
+<td>✅</td>
+<td>✅ ✅</td>
+<td>✅</td>
+<td>✅ ✅</td>
+<td>❌</td>
+<td>⚠️</td>
+</tr>
+<tr>
+<td><strong>Sessions</strong></td>
+<td>✅ ✅ ✅</td>
+<td>❌</td>
+<td>✅ ✅</td>
+<td>✅ ✅</td>
+<td>✅ ✅</td>
+<td>✅ ✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Tracing</strong></td>
+<td>✅ ✅ ✅</td>
+<td>❌</td>
+<td>⚠️ OTEL</td>
+<td>⚠️ Hooks</td>
+<td>⚠️ Logs</td>
+<td>⚠️ Telem</td>
+<td>⚠️ Logs</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>HITL</strong></td>
+<td>✅ ✅ ✅</td>
+<td>✅ ✅ ✅</td>
+<td>✅ ✅</td>
+<td>✅ ✅</td>
+<td>✅ ✅</td>
+<td>✅ ✅</td>
+<td>✅ ✅</td>
+<td>⚠️</td>
+<td>⚠️</td>
+</tr>
+<tr>
+<td><strong>Streaming</strong></td>
+<td>✅ ✅ ✅</td>
+<td>✅ ✅</td>
+<td>✅ ✅ ✅</td>
+<td>✅ ✅</td>
+<td>✅ ✅</td>
+<td>✅ ✅</td>
+<td>✅ ✅</td>
+<td>⚠️</td>
+<td>⚠️</td>
+</tr>
+<tr>
+<td><strong>Guardrails</strong></td>
+<td>✅ ✅ ✅</td>
+<td>✅ ✅ ✅</td>
+<td>✅ ✅ ✅</td>
+<td>✅ ✅</td>
+<td>✅ ✅</td>
+<td>✅ ✅ ✅</td>
+<td>✅ ✅</td>
+<td>⚠️</td>
+<td>⚠️</td>
+</tr>
+<tr>
+<td><strong>MCP Client</strong></td>
+<td>⚠️</td>
+<td>❌</td>
+<td>✅ ✅</td>
+<td>✅ ✅ ✅</td>
+<td>✅ ✅</td>
+<td>✅ ✅ ✅</td>
+<td>✅ ✅ ✅</td>
+<td>❌</td>
+<td>✅ ✅ ✅</td>
+</tr>
+<tr>
+<td><strong>MCP Server</strong></td>
+<td>❌</td>
+<td>✅ ✅ ✅</td>
+<td>❌</td>
+<td>✅ ✅ ✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅ ✅</td>
+</tr>
+<tr>
+<td><strong>Sandbox</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅ ✅ ✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>⚠️ Docker</td>
+<td>✅ Docker</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>IDE 集成</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>⚠️ ACP</td>
+<td>✅ App Server</td>
+<td>✅ ✅ ✅ ACP</td>
+<td>✅ VS Code</td>
+<td>✅ ✅ ✅ MCP</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Skills/Flows</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>✅ Skills</td>
+<td>❌</td>
+<td>✅ ✅ Skills+Flow</td>
+<td>❌</td>
+<td>✅ ✅ ✅ Skills</td>
+<td>❌</td>
+<td>⚠️ Flow不稳定</td>
+</tr>
+<tr>
+<td><strong>Provider-agnostic</strong></td>
+<td>✅ ✅ ✅</td>
+<td>❌</td>
+<td>✅ ✅ ✅</td>
+<td>⚠️</td>
+<td>⚠️</td>
+<td>⚠️</td>
+<td>⚠️</td>
+<td>✅ ✅</td>
+<td>✅ ✅</td>
+</tr>
+<tr>
+<td><strong>License</strong></td>
+<td>MIT</td>
+<td>MIT+ToS</td>
+<td>MIT</td>
+<td>Apache-2.0</td>
+<td>Apache-2.0</td>
+<td>Apache-2.0</td>
+<td>Apache-2.0</td>
+<td>MIT</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><strong>生产就绪</strong></td>
+<td>✅ ✅ ✅</td>
+<td>✅ ✅</td>
+<td>⚠️</td>
+<td>✅ ✅</td>
+<td>✅</td>
+<td>✅ ✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>⚠️</td>
+</tr>
+</tbody>
+</table>
+<p><strong>图例</strong>: ✅ ✅ ✅ = 优秀 | ✅ ✅ = 良好 | ✅ = 基础支持 | ⚠️ = 部分/实验性 | ❌ = 不支持</p>
+<hr />
+<h2 id="9">9) 代码规模与复杂度对比<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>核心代码行数</th>
+<th>语言</th>
+<th>关键文件行数</th>
+<th>复杂度评级</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OpenAI Agents SDK</strong></td>
+<td>~15,000 lines</td>
+<td>Python</td>
+<td><code>run.py</code> 1,623<br><code>run_state.py</code> 2,384<br><code>tool_execution.py</code> ~1,400</td>
+<td>⭐⭐⭐ 中等</td>
+</tr>
+<tr>
+<td><strong>Claude Agent SDK</strong></td>
+<td>SDK ~3,000 lines + 闭源 CLI</td>
+<td>Python</td>
+<td><code>query.py</code> 634<br><code>subprocess_cli.py</code> 629<br><code>types.py</code> 859</td>
+<td>⭐⭐ 简单（SDK层）</td>
+</tr>
+<tr>
+<td><strong>OpenCode</strong></td>
+<td>~47,324 lines</td>
+<td>TypeScript</td>
+<td><code>prompt.ts</code> 1,451+<br><code>config.ts</code> ~2,000</td>
+<td>⭐⭐⭐⭐ 高</td>
+</tr>
+<tr>
+<td><strong>Codex CLI</strong></td>
+<td>Core ~9,712 lines (codex.rs)</td>
+<td>Rust + TS</td>
+<td><code>codex.rs</code> 9,712<br><code>exec_policy.rs</code> 2,149</td>
+<td>⭐⭐⭐⭐⭐ 很高</td>
+</tr>
+<tr>
+<td><strong>Kimi CLI</strong></td>
+<td>未统计</td>
+<td>Python + TS</td>
+<td><code>toolset.py</code> 466<br><code>oauth.py</code> 790<br><code>wire/server.py</code> 732</td>
+<td>⭐⭐⭐ 中等</td>
+</tr>
+<tr>
+<td><strong>Gemini CLI</strong></td>
+<td>Core ~866 files</td>
+<td>TypeScript</td>
+<td><code>client.ts</code> 1,120<br><code>coreToolScheduler.ts</code> 1,354<br><code>mcp-client.ts</code> 2,073</td>
+<td>⭐⭐⭐⭐ 高</td>
+</tr>
+<tr>
+<td><strong>Qwen Code</strong></td>
+<td>未统计</td>
+<td>TypeScript</td>
+<td><code>subagent.ts</code> 1,004<br><code>subagent-manager.ts</code> 975<br><code>skill-manager.ts</code> 661</td>
+<td>⭐⭐⭐ 中等</td>
+</tr>
+<tr>
+<td><strong>SWE-agent</strong></td>
+<td>Agent ~1,294 lines</td>
+<td>Python</td>
+<td><code>agents.py</code> 1,294<br><code>models.py</code> 903<br><code>tools.py</code> 430</td>
+<td>⭐⭐ 简单</td>
+</tr>
+<tr>
+<td><strong>OpenManus</strong></td>
+<td>未统计</td>
+<td>Python</td>
+<td><code>manus.py</code> 165<br><code>planning.py</code> 442<br><code>llm.py</code> 766</td>
+<td>⭐⭐ 简单</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10">10) 最终推荐（基于深度分析）<a class="headerlink" href="#10" title="Permanent link">&para;</a></h2>
+<h3 id="101">10.1 生产应用（按优先级）<a class="headerlink" href="#101" title="Permanent link">&para;</a></h3>
+<p><strong>Python 应用嵌入</strong>:
+1. <strong>OpenAI Agents SDK</strong> - 如果需要 provider-agnostic + 完整特性（Session/Tracing/Guardrails）
+2. <strong>Claude Agent SDK</strong> - 如果深度集成 Claude + 需要强大 Hooks</p>
+<p><strong>终端 CLI 工具</strong>:
+1. <strong>Codex CLI</strong> - 如果需要最高安全（Sandbox + Approval）
+2. <strong>OpenCode</strong> - 如果需要 100% 开源 + 强权限控制
+3. <strong>Kimi CLI</strong> - 如果需要 IDE 集成（ACP Server）
+4. <strong>Gemini CLI</strong> - 如果深度集成 Google 生态
+5. <strong>Qwen Code</strong> - 如果使用 Qwen 生态 + 需要 SubAgents</p>
+<h3 id="102">10.2 研究/实验（按优先级）<a class="headerlink" href="#102" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>SWE-agent</strong> - Benchmark, 自动修复研究</li>
+<li><strong>OpenManus</strong> - 快速实验，MCP 探索</li>
+</ol>
+<h3 id="103">10.3 不推荐的组合<a class="headerlink" href="#103" title="Permanent link">&para;</a></h3>
+<p>❌ <strong>OpenAI Agents SDK + 需要 RAG</strong>: 无内置 RAG，选 LangChain<br />
+❌ <strong>Claude Agent SDK + 跨 LLM</strong>: Claude-only，选 OpenAI SDK<br />
+❌ <strong>SWE-agent + 生产应用</strong>: 研究框架，非生产目的<br />
+❌ <strong>OpenManus + 稳定 multi-agent</strong>: Flow 系统标注为不稳定  </p>
+<hr />
+<h2 id="11">11) 参考资源<a class="headerlink" href="#11" title="Permanent link">&para;</a></h2>
+<h3 id="111">11.1 深度调研文档（本次调研产出）<a class="headerlink" href="#111" title="Permanent link">&para;</a></h3>
+<p>所有项目的深度技术调研文档位于 <code>agent_deep_dive/</code> 目录：</p>
+<ul>
+<li><strong>OpenAI-Agents-SDK-DEEP-DIVE.md</strong> (106 KB) - 最详细示范文档</li>
+<li><strong>Claude-Agent-SDK-Python-DEEP-DIVE.md</strong> (40 KB)</li>
+<li><strong>OpenCode-DEEP-DIVE.md</strong> (20 KB)</li>
+<li><strong>OpenManus-DEEP-DIVE.md</strong> (21 KB)</li>
+<li><strong>Codex-CLI-DEEP-DIVE.md</strong> (17 KB)</li>
+<li><strong>Kimi-CLI-DEEP-DIVE.md</strong> (11 KB)</li>
+<li><strong>Gemini-CLI-DEEP-DIVE.md</strong> (6.5 KB)</li>
+<li><strong>Qwen-Code-DEEP-DIVE.md</strong> (7.3 KB)</li>
+<li><strong>SWE-agent-DEEP-DIVE.md</strong> (7.7 KB)</li>
+</ul>
+<p>每个文档包含：
+- ✅ 代码架构深度分析（具体到文件路径和行号）
+- ✅ 底层实现原理（带代码片段）
+- ✅ 与竞品对比
+- ✅ 扩展开发指南（完整代码示例）
+- ✅ 评估与建议</p>
+<h3 id="112-github">11.2 GitHub 仓库链接<a class="headerlink" href="#112-github" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>OpenManus</strong>: <a href="https://github.com/FoundationAgents/OpenManus">https://github.com/FoundationAgents/OpenManus</a>  </li>
+<li><strong>OpenCode</strong>: <a href="https://github.com/anomalyco/opencode">https://github.com/anomalyco/opencode</a>  </li>
+<li><strong>OpenAI Agents SDK</strong>: <a href="https://github.com/openai/openai-agents-python">https://github.com/openai/openai-agents-python</a>  </li>
+<li><strong>Claude Agent SDK</strong>: <a href="https://github.com/anthropics/claude-agent-sdk-python">https://github.com/anthropics/claude-agent-sdk-python</a>  </li>
+<li><strong>Codex CLI</strong>: <a href="https://github.com/openai/codex">https://github.com/openai/codex</a>  </li>
+<li><strong>Kimi CLI</strong>: <a href="https://github.com/MoonshotAI/kimi-cli">https://github.com/MoonshotAI/kimi-cli</a>  </li>
+<li><strong>Gemini CLI</strong>: <a href="https://github.com/google-gemini/gemini-cli">https://github.com/google-gemini/gemini-cli</a>  </li>
+<li><strong>Qwen Code</strong>: <a href="https://github.com/QwenLM/qwen-code">https://github.com/QwenLM/qwen-code</a>  </li>
+<li><strong>SWE-agent</strong>: <a href="https://github.com/SWE-agent/SWE-agent">https://github.com/SWE-agent/SWE-agent</a>  </li>
+<li><strong>Swarm</strong> (deprecated): <a href="https://github.com/openai/swarm">https://github.com/openai/swarm</a></li>
+</ul>
+<h3 id="113">11.3 关键代码位置速查<a class="headerlink" href="#113" title="Permanent link">&para;</a></h3>
+<p><strong>OpenAI Agents SDK</strong>:
+- Agent loop: <code>src/agents/run.py:396-1329</code>
+- Handoffs: <code>src/agents/handoffs/__init__.py:93-321</code>
+- Tracing: <code>src/agents/tracing/processor_interface.py</code></p>
+<p><strong>Claude Agent SDK</strong>:
+- Query control: <code>_internal/query.py:119-163</code>
+- Hook invocation: <code>_internal/query.py:286-299</code>
+- SDK MCP: <code>_internal/query.py:391-527</code></p>
+<p><strong>OpenCode</strong>:
+- Run command: <code>src/cli/cmd/run.ts:221-623</code>
+- Permission engine: <code>src/permission/next.ts:236-243</code>
+- Task delegation: <code>src/tool/task.ts:45-163</code></p>
+<p><strong>Codex CLI</strong>:
+- Core orchestration: <code>codex-rs/core/src/codex.rs</code> (9,712 lines)
+- Approval policy: <code>codex-rs/core/src/exec_policy.rs</code> (2,149 lines)
+- MCP server: <code>codex-rs/mcp-server/src/message_processor.rs</code> (603 lines)</p>
+<p><strong>其他项目</strong>: 详见各自的 DEEP-DIVE 文档</p>
+<hr />
+<h2 id="12">12) 版本信息与更新日志<a class="headerlink" href="#12" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>最新版本</th>
+<th>发布日期</th>
+<th>更新频率</th>
+<th>维护状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OpenAI Agents SDK</strong></td>
+<td>v0.10.2</td>
+<td>2026-02-26</td>
+<td>活跃（1,135 commits）</td>
+<td>✅ 官方维护</td>
+</tr>
+<tr>
+<td><strong>Claude Agent SDK</strong></td>
+<td>v0.1.44</td>
+<td>2026-02-26</td>
+<td>活跃（333 commits）</td>
+<td>✅ 官方维护</td>
+</tr>
+<tr>
+<td><strong>OpenCode</strong></td>
+<td>未查询</td>
+<td>持续更新</td>
+<td>活跃</td>
+<td>✅ 社区维护</td>
+</tr>
+<tr>
+<td><strong>Codex CLI</strong></td>
+<td>未公开</td>
+<td>持续更新</td>
+<td>活跃</td>
+<td>✅ 官方维护</td>
+</tr>
+<tr>
+<td><strong>Kimi CLI</strong></td>
+<td>未查询</td>
+<td>持续更新</td>
+<td>活跃</td>
+<td>✅ 官方维护</td>
+</tr>
+<tr>
+<td><strong>Gemini CLI</strong></td>
+<td>未查询</td>
+<td>持续更新</td>
+<td>活跃</td>
+<td>✅ 官方维护</td>
+</tr>
+<tr>
+<td><strong>Qwen Code</strong></td>
+<td>未查询</td>
+<td>持续更新</td>
+<td>活跃</td>
+<td>✅ 官方维护</td>
+</tr>
+<tr>
+<td><strong>SWE-agent</strong></td>
+<td>未查询</td>
+<td>持续更新</td>
+<td>活跃</td>
+<td>✅ 社区维护</td>
+</tr>
+<tr>
+<td><strong>OpenManus</strong></td>
+<td>未查询</td>
+<td>持续更新</td>
+<td>中等</td>
+<td>⚠️ 社区维护</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_1">总结<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>本调研基于 <strong>2026-02-26</strong>的深度代码分析，覆盖 9 个主流 Agent 框架，总计审查<strong>~300 KB</strong> 源码文档。</p>
+<p><strong>核心发现</strong>:</p>
+<ol>
+<li><strong>Python SDK 双雄</strong>: OpenAI Agents SDK（provider-agnostic，完整特性）vs. Claude Agent SDK（强 Hooks，Claude-only）</li>
+<li><strong>终端 CLI 多样化</strong>: OpenCode（100% 开源）、Codex（最强安全）、Kimi（ACP IDE）、Gemini（Google）、Qwen（Skills）各有千秋</li>
+<li><strong>MCP 双角色</strong>: 仅 Codex CLI 和 OpenManus 同时实现 MCP Client + Server</li>
+<li><strong>Security 领袖</strong>: Codex CLI 唯一提供 OS-level Sandbox（Seatbelt/Landlock/Windows）</li>
+<li><strong>研究框架</strong>: SWE-agent 专注 benchmark，OpenManus Flow 系统不稳定</li>
+</ol>
+<p><strong>选择建议</strong>: 根据 <strong>需求（功能）</strong>+<strong>技术栈（语言）</strong>+<strong>安全级别</strong> 三维度综合决策，详见第 6 节决策树。</p>
+<hr />
+<p><strong>调研团队</strong>: 深度技术调研组<br />
+<strong>调研日期</strong>: 2026-02-26<br />
+<strong>文档版本</strong>: 2.0（基于深度代码分析）<br />
+<strong>总计调研</strong>: 9 个项目，~300 KB 深度文档，包含具体代码位置和架构分析</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../BLOG.zh/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 中文">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                中文
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../deep-dive/Aider-DEEP-DIVE/" class="md-footer__link md-footer__link--next" aria-label="Next: Aider">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Aider
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/XavierZhang2002/ai-agent-framework-analysis" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.action.edit"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
