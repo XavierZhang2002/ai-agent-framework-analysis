@@ -1117,45 +1117,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="6. 评估与建议">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#61" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6.1 优势
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#62" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6.2 限制
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#63" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6.3 适用场景
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -1901,45 +1862,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="6. 评估与建议">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#61" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6.1 优势
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#62" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6.2 限制
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#63" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6.3 适用场景
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -1996,11 +1918,14 @@
 
 
 <h1 id="codex-cli-">Codex CLI - 深度技术调研<a class="headerlink" href="#codex-cli-" title="Permanent link">&para;</a></h1>
+<div class="admonition info">
+<p class="admonition-title">项目概览</p>
 <p><strong>调研日期</strong>: 2026-02-26<br />
 <strong>仓库</strong>: https://github.com/openai/codex<br />
 <strong>许可证</strong>: Apache-2.0<br />
 <strong>主要语言</strong>: Rust + TypeScript<br />
 <strong>定位</strong>: 本地优先的终端 coding agent，带审批/沙箱/MCP  </p>
+</div>
 <hr />
 <h2 id="1">1. 项目概述<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
 <h3 id="11">1.1 核心特点<a class="headerlink" href="#11" title="Permanent link">&para;</a></h3>
@@ -2736,7 +2661,8 @@
 </table>
 <hr />
 <h2 id="6">6. 评估与建议<a class="headerlink" href="#6" title="Permanent link">&para;</a></h2>
-<h3 id="61">6.1 优势<a class="headerlink" href="#61" title="Permanent link">&para;</a></h3>
+<div class="admonition success">
+<p class="admonition-title">核心优势</p>
 <ol>
 <li>✅ <strong>多层安全</strong>: Sandbox + Approval + Network Control</li>
 <li>✅ <strong>高性能</strong>: Rust 核心</li>
@@ -2744,21 +2670,31 @@
 <li>✅ <strong>企业级</strong>: 可控执行、可审计</li>
 <li>✅ <strong>官方支持</strong>: OpenAI 维护</li>
 </ol>
-<h3 id="62">6.2 限制<a class="headerlink" href="#62" title="Permanent link">&para;</a></h3>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">局限性</p>
 <ol>
 <li>⚠️ <strong>OpenAI 倾向</strong>: 虽支持其他 LLMs，但优化for OpenAI</li>
 <li>❌ <strong>复杂度高</strong>: Rust + TypeScript 双语言栈</li>
 <li>⚠️ <strong>文档分散</strong>: 部分功能需查看源码</li>
 </ol>
-<h3 id="63">6.3 适用场景<a class="headerlink" href="#63" title="Permanent link">&para;</a></h3>
-<p><strong>强烈推荐</strong>:
-- ✅ 需要企业级安全控制
-- ✅ 本地工程改码
-- ✅ 受控执行环境
-- ✅ MCP 生态集成</p>
-<p><strong>不推荐</strong>:
-- ❌ 快速原型（配置复杂）
-- ❌ 非技术用户（需理解 Rust/安全概念）</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">推荐场景</p>
+<ul>
+<li>✅ 需要企业级安全控制</li>
+<li>✅ 本地工程改码</li>
+<li>✅ 受控执行环境</li>
+<li>✅ MCP 生态集成</li>
+</ul>
+</div>
+<div class="admonition danger">
+<p class="admonition-title">不推荐场景</p>
+<ul>
+<li>❌ 快速原型（配置复杂）</li>
+<li>❌ 非技术用户（需理解 Rust/安全概念）</li>
+</ul>
+</div>
 <hr />
 <h2 id="_1">附录<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <h3 id="a">A. 关键文件速查<a class="headerlink" href="#a" title="Permanent link">&para;</a></h3>

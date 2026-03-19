@@ -1185,45 +1185,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="5. 评估与建议">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#51" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5.1 优势
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#52" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5.2 限制
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#53" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5.3 适用场景
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -1656,45 +1617,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="5. 评估与建议">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#51" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5.1 优势
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#52" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5.2 限制
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#53" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5.3 适用场景
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -1762,11 +1684,14 @@
 
 
 <h1 id="openmanus-">OpenManus - 深度技术调研<a class="headerlink" href="#openmanus-" title="Permanent link">&para;</a></h1>
+<div class="admonition info">
+<p class="admonition-title">项目概览</p>
 <p><strong>调研日期</strong>: 2026-02-26<br />
 <strong>仓库</strong>: https://github.com/FoundationAgents/OpenManus<br />
 <strong>许可证</strong>: MIT<br />
 <strong>主要语言</strong>: Python<br />
 <strong>定位</strong>: 快速复现通用 Manus 风格 Agent，强调可用性和社区共建  </p>
+</div>
 <hr />
 <h2 id="1">1. 项目概述<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
 <h3 id="11">1.1 核心定位<a class="headerlink" href="#11" title="Permanent link">&para;</a></h3>
@@ -2311,28 +2236,39 @@
 </span></code></pre></div>
 <hr />
 <h2 id="5">5. 评估与建议<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
-<h3 id="51">5.1 优势<a class="headerlink" href="#51" title="Permanent link">&para;</a></h3>
+<div class="admonition success">
+<p class="admonition-title">核心优势</p>
 <ol>
 <li>✅ <strong>简单易用</strong>: Python + 清晰的继承链</li>
 <li>✅ <strong>MCP 双角色</strong>: 既是客户端也是服务器</li>
 <li>✅ <strong>多 Agent 支持</strong>: Flow 系统（虽然不稳定）</li>
 <li>✅ <strong>工具丰富</strong>: 内置多种工具 + MCP 扩展</li>
 </ol>
-<h3 id="52">5.2 限制<a class="headerlink" href="#52" title="Permanent link">&para;</a></h3>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">局限性</p>
 <ol>
 <li>⚠️ <strong>Flow 系统不稳定</strong>: <code>run_flow.py</code> 标注为不稳定</li>
 <li>❌ <strong>无内置 Session 管理</strong>: 需手动管理历史</li>
 <li>❌ <strong>无 Tracing</strong>: 需自行实现</li>
 <li>⚠️ <strong>文档不完整</strong>: 部分功能缺少文档</li>
 </ol>
-<h3 id="53">5.3 适用场景<a class="headerlink" href="#53" title="Permanent link">&para;</a></h3>
-<p><strong>推荐</strong>:
-- ✅ 快速搭建通用任务 Agent
-- ✅ MCP 工具实验
-- ✅ 多 Agent 研究（接受不稳定）</p>
-<p><strong>不推荐</strong>:
-- ❌ 生产级应用（Flow 系统不稳定）
-- ❌ 需要企业级特性（session、tracing）</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">推荐场景</p>
+<ul>
+<li>✅ 快速搭建通用任务 Agent</li>
+<li>✅ MCP 工具实验</li>
+<li>✅ 多 Agent 研究（接受不稳定）</li>
+</ul>
+</div>
+<div class="admonition danger">
+<p class="admonition-title">不推荐场景</p>
+<ul>
+<li>❌ 生产级应用（Flow 系统不稳定）</li>
+<li>❌ 需要企业级特性（session、tracing）</li>
+</ul>
+</div>
 <hr />
 <h2 id="6">6. 关键文件清单<a class="headerlink" href="#6" title="Permanent link">&para;</a></h2>
 <h3 id="core-implementation-files">Core Implementation Files<a class="headerlink" href="#core-implementation-files" title="Permanent link">&para;</a></h3>

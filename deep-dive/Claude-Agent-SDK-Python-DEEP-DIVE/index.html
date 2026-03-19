@@ -1109,39 +1109,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#71" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7.1 优势
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#72" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7.2 限制
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#73" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7.3 适用场景
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#74" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1970,39 +1937,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#71" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7.1 优势
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#72" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7.2 限制
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#73" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7.3 适用场景
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#74" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2094,11 +2028,14 @@
 
 
 <h1 id="claude-agent-sdk-python-">Claude Agent SDK (Python) - 深度技术调研<a class="headerlink" href="#claude-agent-sdk-python-" title="Permanent link">&para;</a></h1>
+<div class="admonition info">
+<p class="admonition-title">项目概览</p>
 <p><strong>调研日期</strong>: 2026-02-26<br />
 <strong>仓库</strong>: https://github.com/anthropics/claude-agent-sdk-python<br />
 <strong>许可证</strong>: MIT (repository) + Anthropic Commercial Terms<br />
 <strong>版本</strong>: v0.1.44<br />
 <strong>Stars</strong>: 5k | <strong>Forks</strong>: 667 | <strong>Contributors</strong>: 47  </p>
+</div>
 <hr />
 <h2 id="_1">目录<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <ol>
@@ -3270,14 +3207,17 @@
 </span></code></pre></div>
 <hr />
 <h2 id="7">7. 评估与建议<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
-<h3 id="71">7.1 优势<a class="headerlink" href="#71" title="Permanent link">&para;</a></h3>
+<div class="admonition success">
+<p class="admonition-title">核心优势</p>
 <ol>
 <li>✅ <strong>强大的 Hook 系统</strong>: 10+ 事件类型，细粒度控制</li>
 <li>✅ <strong>SDK MCP Servers</strong>: 无需子进程的进程内工具</li>
 <li>✅ <strong>官方支持</strong>: Anthropic 官方维护</li>
 <li>✅ <strong>自动 CLI 捆绑</strong>: 零配置安装</li>
 </ol>
-<h3 id="72">7.2 限制<a class="headerlink" href="#72" title="Permanent link">&para;</a></h3>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">局限性</p>
 <ol>
 <li>❌ <strong>Claude-only</strong>: 无法使用其他 LLM</li>
 <li>❌ <strong>闭源 CLI</strong>: Claude Code CLI 不开源</li>
@@ -3285,16 +3225,24 @@
 <li>❌ <strong>无 Tracing</strong>: 需自行实现可观测性</li>
 <li>⚠️ <strong>商业条款</strong>: 受 Anthropic ToS 约束</li>
 </ol>
-<h3 id="73">7.3 适用场景<a class="headerlink" href="#73" title="Permanent link">&para;</a></h3>
-<p><strong>强烈推荐</strong>:
-- ✅ 深度集成 Claude 生态
-- ✅ 需要强大的 Hook 系统
-- ✅ 需要 in-process MCP 工具
-- ✅ Python 应用嵌入 Claude 能力</p>
-<p><strong>不推荐</strong>:
-- ❌ 需要跨 LLM provider
-- ❌ 需要完全开源方案
-- ❌ 需要内置 session/tracing</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">推荐场景</p>
+<ul>
+<li>✅ 深度集成 Claude 生态</li>
+<li>✅ 需要强大的 Hook 系统</li>
+<li>✅ 需要 in-process MCP 工具</li>
+<li>✅ Python 应用嵌入 Claude 能力</li>
+</ul>
+</div>
+<div class="admonition danger">
+<p class="admonition-title">不推荐场景</p>
+<ul>
+<li>❌ 需要跨 LLM provider</li>
+<li>❌ 需要完全开源方案</li>
+<li>❌ 需要内置 session/tracing</li>
+</ul>
+</div>
 <h3 id="74">7.4 最佳实践<a class="headerlink" href="#74" title="Permanent link">&para;</a></h3>
 <ol>
 <li>使用 Hooks 实现细粒度控制</li>

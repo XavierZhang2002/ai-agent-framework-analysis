@@ -1282,39 +1282,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#71" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7.1 优势总结
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#72" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7.2 限制与不足
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#73" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7.3 适用场景建议
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#74" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2036,39 +2003,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#71" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7.1 优势总结
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#72" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7.2 限制与不足
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#73" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        7.3 适用场景建议
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#74" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2160,11 +2094,14 @@
 
 
 <h1 id="openai-agents-sdk-">OpenAI Agents SDK - 深度技术调研<a class="headerlink" href="#openai-agents-sdk-" title="Permanent link">&para;</a></h1>
+<div class="admonition info">
+<p class="admonition-title">项目概览</p>
 <p><strong>调研日期</strong>: 2026-02-26<br />
 <strong>仓库</strong>: https://github.com/openai/openai-agents-python<br />
 <strong>许可证</strong>: MIT<br />
 <strong>版本</strong>: v0.10.2<br />
 <strong>Stars</strong>: 19.2k | <strong>Forks</strong>: 3.2k | <strong>Contributors</strong>: 219  </p>
+</div>
 <hr />
 <h2 id="_1">目录<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <ol>
@@ -4874,53 +4811,80 @@
 </span></code></pre></div>
 <hr />
 <h2 id="7">7. 评估与建议<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
-<h3 id="71">7.1 优势总结<a class="headerlink" href="#71" title="Permanent link">&para;</a></h3>
-<p><strong>架构优势</strong>:
-1. ✅ <strong>清晰的关注点分离</strong>: Runner → AgentRunner → run_internal/<em> 三层架构，职责明确
-2. ✅ </em><em>Protocol-based 扩展</em><em>: Session/Model/Tracing 使用 Protocol 而非 ABC，降低耦合
-3. ✅ </em><em>一等公民抽象</em><em>: Handoff、Session、Tracing 都是框架核心，非事后添加
-4. ✅ </em><em>完整的状态管理</em><em>: RunState 支持 HITL、中断恢复、序列化
-5. ✅ </em><em>生产就绪</em>*: 内置 tracing、session、guardrails、错误处理</p>
-<p><strong>开发者体验</strong>:
-1. ✅ <strong>简单的入门</strong>: <code>Runner.run(agent, input)</code> 即可开始
-2. ✅ <strong>渐进式复杂度</strong>: 从简单到复杂（基础 → handoff → session → tracing → HITL）
-3. ✅ <strong>类型安全</strong>: 广泛使用 type hints，IDE 支持良好
-4. ✅ <strong>丰富示例</strong>: 12,775 行示例代码，覆盖各种场景</p>
-<p><strong>生态优势</strong>:
-1. ✅ <strong>Provider-agnostic</strong>: 100+ LLMs（不绑定 OpenAI）
-2. ✅ <strong>活跃社区</strong>: 19.2k stars, 219 contributors
-3. ✅ <strong>官方维护</strong>: OpenAI 团队积极维护（1,135 commits）</p>
-<h3 id="72">7.2 限制与不足<a class="headerlink" href="#72" title="Permanent link">&para;</a></h3>
-<p><strong>功能限制</strong>:
-1. ❌ <strong>无 RAG 支持</strong>: 需要自行实现 vector stores、embeddings、retrieval
-2. ❌ <strong>无 MCP 原生支持</strong>: 虽然可通过 tools 接入，但不如 Claude SDK 的 in-process MCP
-3. ⚠️ <strong>有限的工具生态</strong>: 依赖开发者自定义工具（vs. LangChain 的 1000+ tools）
-4. ⚠️ <strong>Session 功能基础</strong>: 仅支持 append-only 历史（无摘要、compaction 等高级功能）</p>
-<p><strong>设计权衡</strong>:
-1. ⚠️ <strong>轻量 vs. 功能</strong>: 专注 agent 编排，牺牲了 RAG、chains 等 LangChain 特性
-2. ⚠️ <strong>Handoff 单向性</strong>: 一次只处理一个 handoff（无并行 handoff）
-3. ⚠️ <strong>Tracing 开销</strong>: 内置 tracing 会增加少量性能开销（可禁用）</p>
-<p><strong>生产考量</strong>:
-1. ⚠️ <strong>缺少内置速率限制</strong>: 需自行实现
-2. ⚠️ <strong>缺少内置重试</strong>: 需手动包装（如 tenacity）
-3. ⚠️ <strong>Session 扩展性</strong>: SQLite 不适合高并发（推荐生产环境用 Redis/PostgreSQL）</p>
-<h3 id="73">7.3 适用场景建议<a class="headerlink" href="#73" title="Permanent link">&para;</a></h3>
-<p><strong>强烈推荐</strong>:
-- ✅ 构建 multi-agent 编排系统（客服、工作流自动化等）
-- ✅ 需要跨 LLM provider（不绑定特定供应商）
-- ✅ 需要轻量级、可控的 agent 框架
-- ✅ 需要内置 HITL（Human-in-the-Loop）
-- ✅ Python 应用中嵌入 agent 能力
-- ✅ 需要完整的 tracing/observability</p>
-<p><strong>不推荐</strong>:
-- ❌ 需要 RAG/Vector stores（选 LangChain 或自行集成）
-- ❌ 需要丰富的预构建工具（选 LangChain）
-- ❌ 只需要简单的 LLM 调用（直接用 OpenAI SDK）
-- ❌ 需要 TypeScript/JavaScript（用 Agents SDK JS/TS 版本）</p>
-<p><strong>可以考虑（需评估）</strong>:
-- ⚠️ 大规模生产部署（需自行实现 rate limiting、circuit breaker 等）
-- ⚠️ 复杂的 memory 需求（Session 功能较基础）
-- ⚠️ 需要 UI（需自行构建，SDK 本身无 UI）</p>
+<div class="admonition success">
+<p class="admonition-title">核心优势</p>
+<p><strong>架构优势</strong>:</p>
+<ol>
+<li>✅ <strong>清晰的关注点分离</strong>: Runner → AgentRunner → run_internal/* 三层架构，职责明确</li>
+<li>✅ <strong>Protocol-based 扩展</strong>: Session/Model/Tracing 使用 Protocol 而非 ABC，降低耦合</li>
+<li>✅ <strong>一等公民抽象</strong>: Handoff、Session、Tracing 都是框架核心，非事后添加</li>
+<li>✅ <strong>完整的状态管理</strong>: RunState 支持 HITL、中断恢复、序列化</li>
+<li>✅ <strong>生产就绪</strong>: 内置 tracing、session、guardrails、错误处理</li>
+</ol>
+<p><strong>开发者体验</strong>:</p>
+<ol>
+<li>✅ <strong>简单的入门</strong>: <code>Runner.run(agent, input)</code> 即可开始</li>
+<li>✅ <strong>渐进式复杂度</strong>: 从简单到复杂（基础 → handoff → session → tracing → HITL）</li>
+<li>✅ <strong>类型安全</strong>: 广泛使用 type hints，IDE 支持良好</li>
+<li>✅ <strong>丰富示例</strong>: 12,775 行示例代码，覆盖各种场景</li>
+</ol>
+<p><strong>生态优势</strong>:</p>
+<ol>
+<li>✅ <strong>Provider-agnostic</strong>: 100+ LLMs（不绑定 OpenAI）</li>
+<li>✅ <strong>活跃社区</strong>: 19.2k stars, 219 contributors</li>
+<li>✅ <strong>官方维护</strong>: OpenAI 团队积极维护（1,135 commits）</li>
+</ol>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">局限性</p>
+<p><strong>功能限制</strong>:</p>
+<ol>
+<li>❌ <strong>无 RAG 支持</strong>: 需要自行实现 vector stores、embeddings、retrieval</li>
+<li>❌ <strong>无 MCP 原生支持</strong>: 虽然可通过 tools 接入，但不如 Claude SDK 的 in-process MCP</li>
+<li>⚠️ <strong>有限的工具生态</strong>: 依赖开发者自定义工具（vs. LangChain 的 1000+ tools）</li>
+<li>⚠️ <strong>Session 功能基础</strong>: 仅支持 append-only 历史（无摘要、compaction 等高级功能）</li>
+</ol>
+<p><strong>设计权衡</strong>:</p>
+<ol>
+<li>⚠️ <strong>轻量 vs. 功能</strong>: 专注 agent 编排，牺牲了 RAG、chains 等 LangChain 特性</li>
+<li>⚠️ <strong>Handoff 单向性</strong>: 一次只处理一个 handoff（无并行 handoff）</li>
+<li>⚠️ <strong>Tracing 开销</strong>: 内置 tracing 会增加少量性能开销（可禁用）</li>
+</ol>
+<p><strong>生产考量</strong>:</p>
+<ol>
+<li>⚠️ <strong>缺少内置速率限制</strong>: 需自行实现</li>
+<li>⚠️ <strong>缺少内置重试</strong>: 需手动包装（如 tenacity）</li>
+<li>⚠️ <strong>Session 扩展性</strong>: SQLite 不适合高并发（推荐生产环境用 Redis/PostgreSQL）</li>
+</ol>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">推荐场景</p>
+<ul>
+<li>✅ 构建 multi-agent 编排系统（客服、工作流自动化等）</li>
+<li>✅ 需要跨 LLM provider（不绑定特定供应商）</li>
+<li>✅ 需要轻量级、可控的 agent 框架</li>
+<li>✅ 需要内置 HITL（Human-in-the-Loop）</li>
+<li>✅ Python 应用中嵌入 agent 能力</li>
+<li>✅ 需要完整的 tracing/observability</li>
+</ul>
+</div>
+<div class="admonition danger">
+<p class="admonition-title">不推荐场景</p>
+<ul>
+<li>❌ 需要 RAG/Vector stores（选 LangChain 或自行集成）</li>
+<li>❌ 需要丰富的预构建工具（选 LangChain）</li>
+<li>❌ 只需要简单的 LLM 调用（直接用 OpenAI SDK）</li>
+<li>❌ 需要 TypeScript/JavaScript（用 Agents SDK JS/TS 版本）</li>
+</ul>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">需评估场景</p>
+<ul>
+<li>⚠️ 大规模生产部署（需自行实现 rate limiting、circuit breaker 等）</li>
+<li>⚠️ 复杂的 memory 需求（Session 功能较基础）</li>
+<li>⚠️ 需要 UI（需自行构建，SDK 本身无 UI）</li>
+</ul>
+</div>
 <h3 id="74">7.4 最佳实践<a class="headerlink" href="#74" title="Permanent link">&para;</a></h3>
 <p><strong>开发阶段</strong>:
 1. 从简单 agent 开始，逐步添加 handoffs

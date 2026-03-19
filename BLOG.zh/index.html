@@ -551,50 +551,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#standard-synchronous-loop" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        模式一：标准同步循环（Standard Synchronous Loop）
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#asynchronous-event-driven" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        模式二：异步事件驱动（Asynchronous Event-Driven）
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#actor-three-layer-actor-model" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        模式三：三层 Actor 模型（Three-Layer Actor Model）
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#enhanced-loop-with-capabilities" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        模式四：增强型循环（Enhanced Loop with Capabilities）
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#agent-loop" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1592,50 +1548,6 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#standard-synchronous-loop" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        模式一：标准同步循环（Standard Synchronous Loop）
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#asynchronous-event-driven" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        模式二：异步事件驱动（Asynchronous Event-Driven）
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#actor-three-layer-actor-model" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        模式三：三层 Actor 模型（Three-Layer Actor Model）
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#enhanced-loop-with-capabilities" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        模式四：增强型循环（Enhanced Loop with Capabilities）
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#agent-loop" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2172,27 +2084,34 @@
 <h1 id="ai-agent">AI Agent 框架的"特性分化"：从代码审计看学术与工业的特性需求差异<a class="headerlink" href="#ai-agent" title="Permanent link">&para;</a></h1>
 <p><strong><a href="../BLOG.en/">English Version</a></strong>|<strong>中文</strong></p>
 <hr />
-<blockquote>
-<p><strong>TL;DR</strong>: 我审计了 12 个主流 Agent 框架的源码（<a href="../deep-dive/OpenAI-Agents-SDK-DEEP-DIVE/">OpenAI Agents SDK</a>、<a href="../deep-dive/Claude-Agent-SDK-Python-DEEP-DIVE/">Claude Agent SDK</a>、<a href="../deep-dive/Codex-CLI-DEEP-DIVE/">Codex CLI</a>、<a href="../deep-dive/OpenCode-DEEP-DIVE/">OpenCode</a>、<a href="../deep-dive/Kimi-CLI-DEEP-DIVE/">Kimi CLI</a>、<a href="../deep-dive/Gemini-CLI-DEEP-DIVE/">Gemini CLI</a>、<a href="../deep-dive/Qwen-Code-DEEP-DIVE/">Qwen Code</a>、<a href="../deep-dive/SWE-agent-DEEP-DIVE/">SWE-agent</a>、<a href="../deep-dive/OpenManus-DEEP-DIVE/">OpenManus</a>、<a href="../deep-dive/Aider-DEEP-DIVE/">Aider</a>、<a href="../deep-dive/Goose-DEEP-DIVE/">Goose</a>、<a href="../deep-dive/OpenHands-DEEP-DIVE/">OpenHands</a>），发现一个反直觉的事实：<strong>各框架的核心循环（Agent Loop）逻辑高度相似</strong>。真正的差异不在于"用了什么算法"，而在于<strong>工程特性的组合选择</strong>——状态管理、安全控制、协议支持等 30+ 个特性的不同实现。这种"特性分化"导致学术界难以使用最先进的 Agent 能力，形成了一道隐形的鸿沟。</p>
+<div class="admonition abstract">
+<p class="admonition-title">TL;DR</p>
+<p>我审计了 12 个主流 Agent 框架的源码（<a href="../deep-dive/OpenAI-Agents-SDK-DEEP-DIVE/">OpenAI Agents SDK</a>、<a href="../deep-dive/Claude-Agent-SDK-Python-DEEP-DIVE/">Claude Agent SDK</a>、<a href="../deep-dive/Codex-CLI-DEEP-DIVE/">Codex CLI</a>、<a href="../deep-dive/OpenCode-DEEP-DIVE/">OpenCode</a>、<a href="../deep-dive/Kimi-CLI-DEEP-DIVE/">Kimi CLI</a>、<a href="../deep-dive/Gemini-CLI-DEEP-DIVE/">Gemini CLI</a>、<a href="../deep-dive/Qwen-Code-DEEP-DIVE/">Qwen Code</a>、<a href="../deep-dive/SWE-agent-DEEP-DIVE/">SWE-agent</a>、<a href="../deep-dive/OpenManus-DEEP-DIVE/">OpenManus</a>、<a href="../deep-dive/Aider-DEEP-DIVE/">Aider</a>、<a href="../deep-dive/Goose-DEEP-DIVE/">Goose</a>、<a href="../deep-dive/OpenHands-DEEP-DIVE/">OpenHands</a>），发现一个反直觉的事实：<strong>各框架的核心循环（Agent Loop）逻辑高度相似</strong>。真正的差异不在于"用了什么算法"，而在于<strong>工程特性的组合选择</strong>——状态管理、安全控制、协议支持等 30+ 个特性的不同实现。这种"特性分化"导致学术界难以使用最先进的 Agent 能力，形成了一道隐形的鸿沟。</p>
 <p><strong>Stars 排名</strong>（截至 2026-02-27）：OpenCode (112K) &gt; Gemini CLI (95.9K) &gt; Claude Code (70.8K) &gt; OpenHands (68.3K) &gt; Codex CLI (62.2K) &gt; Aider (41K) &gt; Goose (31.4K) &gt; OpenAI Agents SDK (19.2K)</p>
-<p><strong>阅读导航</strong>：
-- 第 1-3 节：代码审计观察（事实层）
-- 第 4 节：学术与工业特性需求差异的具体表现（事实 + 推断）
-- 第 5 节：未来收敛趋势（作者判断）
-- 第 6 节：选型与实践建议（行动层）
-- <a href="../COMPARISON/">详细框架对比矩阵</a>
-- <a href="deep-dive/">各框架深度源码分析</a></p>
-</blockquote>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">阅读导航</p>
+<ul>
+<li>第 1-3 节：代码审计观察（事实层）</li>
+<li>第 4 节：学术与工业特性需求差异的具体表现（事实 + 推断）</li>
+<li>第 5 节：未来收敛趋势（作者判断）</li>
+<li>第 6 节：选型与实践建议（行动层）</li>
+<li><a href="../COMPARISON/">详细框架对比矩阵</a></li>
+<li><a href="deep-dive/">各框架深度源码分析</a></li>
+</ul>
+</div>
 <hr />
 <h2 id="agent">一、破除迷思：Agent 的核心循环高度稳定<a class="headerlink" href="#agent" title="Permanent link">&para;</a></h2>
-<blockquote>
-<p><strong>重要限定</strong>：本文聚焦<strong>单 Agent 工具调用范式</strong>（Single-Agent Tool-Calling Pattern）。这是当前 12 个开源框架的主流架构。Multi-Agent 编排（如 Planning、Agent 间通信）、Planner-Executor 分离等范式不在本文讨论范围。</p>
-</blockquote>
+<div class="admonition warning">
+<p class="admonition-title">重要限定</p>
+<p>本文聚焦<strong>单 Agent 工具调用范式</strong>（Single-Agent Tool-Calling Pattern）。这是当前 12 个开源框架的主流架构。Multi-Agent 编排（如 Planning、Agent 间通信）、Planner-Executor 分离等范式不在本文讨论范围。</p>
+</div>
 <h3 id="11-12">1.1 12 个框架的核心循环：统一的底层逻辑<a class="headerlink" href="#11-12" title="Permanent link">&para;</a></h3>
 <p>基于对 12 个框架源代码的深度审计，一个反直觉的事实浮现出来：<strong>尽管实现语言、设计哲学和应用场景千差万别，所有框架的核心控制流（Agent Loop）遵循着高度相似的范式</strong>。这种相似性如此稳定，以至于可以追溯到 2022 年 ReAct 论文发表时的基本结构。</p>
 <p>本节将 12 个框架归纳为 <strong>4 种架构模式</strong>，展示它们如何在同一底层逻辑上进行差异化实现。</p>
-<hr />
-<h4 id="standard-synchronous-loop">模式一：标准同步循环（Standard Synchronous Loop）<a class="headerlink" href="#standard-synchronous-loop" title="Permanent link">&para;</a></h4>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:4"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">模式一：标准同步循环</label><label for="__tabbed_1_2">模式二：异步事件驱动</label><label for="__tabbed_1_3">模式三：三层 Actor 模型</label><label for="__tabbed_1_4">模式四：增强型循环</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
 <p><strong>代表框架</strong>：OpenAI Agents SDK、SWE-agent、OpenManus、Aider</p>
 <p>这是最经典、最直观的实现方式。一个 <code>while</code> 循环持续运转，直到满足终止条件。</p>
 <p><strong>OpenAI Agents SDK</strong>（Python，600+ 行生产级实现）：
@@ -2233,8 +2152,8 @@
 </span></code></pre></div>
 <em>详见 <a href="https://github.com/Aider-AI/aider/blob/main/aider/coders/base_coder.py">GitHub 源码</a></em></p>
 <p><strong>共同特征</strong>：显式 <code>while</code> 循环、同步/异步单线程执行、直接的状态管理。</p>
-<hr />
-<h4 id="asynchronous-event-driven">模式二：异步事件驱动（Asynchronous Event-Driven）<a class="headerlink" href="#asynchronous-event-driven" title="Permanent link">&para;</a></h4>
+</div>
+<div class="tabbed-block">
 <p><strong>代表框架</strong>：OpenHands</p>
 <p>OpenHands 采用了完全不同的架构哲学：<strong>没有显式循环，只有事件流</strong>。</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># openhands/controller/agent_controller.py（核心逻辑）</span>
@@ -2251,13 +2170,15 @@
 </span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">source</span> <span class="o">==</span> <span class="n">EventSource</span><span class="o">.</span><span class="n">AGENT</span><span class="p">:</span>
 </span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>            <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_step</span><span class="p">()</span>
 </span></code></pre></div>
-<p><strong>架构特点</strong>：
-- <strong>EventStream</strong>：所有状态变更通过事件流传播
-- <strong>回调驱动</strong>：无需 <code>while True</code>，事件自然触发下一步
-- <strong>松耦合</strong>：Agent、Runtime、Controller 通过事件而非直接调用交互</p>
+<p><strong>架构特点</strong>：</p>
+<ul>
+<li><strong>EventStream</strong>：所有状态变更通过事件流传播</li>
+<li><strong>回调驱动</strong>：无需 <code>while True</code>，事件自然触发下一步</li>
+<li><strong>松耦合</strong>：Agent、Runtime、Controller 通过事件而非直接调用交互</li>
+</ul>
 <p><em>详见 <a href="https://github.com/All-Hands-AI/OpenHands/blob/main/openhands/controller/agent_controller.py">GitHub 源码</a></em></p>
-<hr />
-<h4 id="actor-three-layer-actor-model">模式三：三层 Actor 模型（Three-Layer Actor Model）<a class="headerlink" href="#actor-three-layer-actor-model" title="Permanent link">&para;</a></h4>
+</div>
+<div class="tabbed-block">
 <p><strong>代表框架</strong>：Codex CLI</p>
 <p>Codex CLI 使用 Rust 的 Actor 模型实现了<strong>三层嵌套循环</strong>，将复杂度分层管理：</p>
 <p><strong>第一层：Submission Loop</strong> - 消息分发中心
@@ -2291,13 +2212,15 @@
 </span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">    </span><span class="p">}</span>
 </span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="p">}</span>
 </span></code></pre></div></p>
-<p><strong>设计哲学</strong>：
-- <strong>关注点分离</strong>：用户交互、回合管理、LLM 调用分层
-- <strong>高并发</strong>：Rust 的 <code>FuturesOrdered</code> 支持并行工具执行
-- <strong>可中断</strong>：每一层都可独立处理中断信号</p>
+<p><strong>设计哲学</strong>：</p>
+<ul>
+<li><strong>关注点分离</strong>：用户交互、回合管理、LLM 调用分层</li>
+<li><strong>高并发</strong>：Rust 的 <code>FuturesOrdered</code> 支持并行工具执行</li>
+<li><strong>可中断</strong>：每一层都可独立处理中断信号</li>
+</ul>
 <p><em>详见 <a href="https://github.com/openai/codex">GitHub 源码</a> | <a href="../deep-dive/Codex-CLI-DEEP-DIVE/">Deep Dive</a></em></p>
-<hr />
-<h4 id="enhanced-loop-with-capabilities">模式四：增强型循环（Enhanced Loop with Capabilities）<a class="headerlink" href="#enhanced-loop-with-capabilities" title="Permanent link">&para;</a></h4>
+</div>
+<div class="tabbed-block">
 <p><strong>代表框架</strong>：OpenCode、Kimi CLI、Gemini CLI、Qwen Code、Goose</p>
 <p>这类框架在标准循环基础上，嵌入了特定的工程能力，体现为代码中的特定检查点和处理逻辑。</p>
 <p><strong>OpenCode</strong>（上下文压缩与权限检查）：
@@ -2391,11 +2314,15 @@
 </span><span id="__span-11-15"><a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a><span class="w">    </span><span class="p">}))</span>
 </span><span id="__span-11-16"><a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a><span class="p">}</span>
 </span></code></pre></div></p>
-<p><strong>共同特征</strong>：
-- 标准 <code>while</code> 循环骨架
-- 在关键节点嵌入工程能力检查（压缩、权限、循环检测等）
-- 流式处理成为标配</p>
-<hr />
+<p><strong>共同特征</strong>：</p>
+<ul>
+<li>标准 <code>while</code> 循环骨架</li>
+<li>在关键节点嵌入工程能力检查（压缩、权限、循环检测等）</li>
+<li>流式处理成为标配</li>
+</ul>
+</div>
+</div>
+</div>
 <h4 id="agent-loop">统一视图：Agent Loop 的本质<a class="headerlink" href="#agent-loop" title="Permanent link">&para;</a></h4>
 <p>无论哪种架构模式，它们都实现了相同的<strong>抽象控制流</strong>：</p>
 <pre class="mermaid"><code>flowchart TD
@@ -2420,11 +2347,18 @@
    - 用户显式中断
    - 遇到错误或异常
    - 任务完成标记</p>
-<p><strong>关键洞察</strong>：实际实现中，步骤 4-6 可能有复杂的内部逻辑（并行工具、状态检查、安全检查等），但宏观上都是这个循环结构的变体。</p>
-<p><strong>关键洞察</strong>：
-1. <strong>算法层高度稳定</strong>：ReAct、Function Calling、Tool Use 的本质都是这个循环
-2. <strong>差异在工程实现</strong>：状态管理、安全检查、流式处理、压缩策略
-3. <strong>架构选择反映场景</strong>：研究追求简单可解释，生产追求鲁棒可扩展</p>
+<div class="admonition note">
+<p class="admonition-title">关键洞察</p>
+<p>实际实现中，步骤 4-6 可能有复杂的内部逻辑（并行工具、状态检查、安全检查等），但宏观上都是这个循环结构的变体。</p>
+</div>
+<div class="admonition success">
+<p class="admonition-title">关键洞察</p>
+<ol>
+<li><strong>算法层高度稳定</strong>：ReAct、Function Calling、Tool Use 的本质都是这个循环</li>
+<li><strong>差异在工程实现</strong>：状态管理、安全检查、流式处理、压缩策略</li>
+<li><strong>架构选择反映场景</strong>：研究追求简单可解释，生产追求鲁棒可扩展</li>
+</ol>
+</div>
 <p>这就是 <strong>Agent Loop</strong>——自 2022 年 ReAct 论文发表以来，<strong>本质逻辑保持高度稳定</strong>。</p>
 <h3 id="12">1.2 那么，差异到底在哪里？<a class="headerlink" href="#12" title="Permanent link">&para;</a></h3>
 <p>如果核心循环相同，为什么这些框架在实际使用中感觉如此不同？</p>
@@ -2445,7 +2379,10 @@
 - 解析输出（Output Parsing）
 - 执行工具（Tool Execution）
 - 重复直到完成（Iteration）</p>
-<p><strong>重要结论</strong>：选择框架时，<strong>不要被"用了什么算法"迷惑</strong>。所有框架都支持 ReAct、Function Calling、甚至 Tree-of-Thoughts（只是 prompt 不同）。</p>
+<div class="admonition tip">
+<p class="admonition-title">重要结论</p>
+<p>选择框架时，<strong>不要被"用了什么算法"迷惑</strong>。所有框架都支持 ReAct、Function Calling、甚至 Tree-of-Thoughts（只是 prompt 不同）。</p>
+</div>
 <h3 id="layer-2engineering-capabilities-">Layer 2：工程特性（Engineering Capabilities）- 差异化竞争<a class="headerlink" href="#layer-2engineering-capabilities-" title="Permanent link">&para;</a></h3>
 <p>这是<strong>真正影响使用体验</strong>的层面。基于代码审计，我将关键工程特性归纳为 <strong>5 个核心维度</strong>：</p>
 <h4 id="21-state-management">2.1 状态管理特性（State Management）<a class="headerlink" href="#21-state-management" title="Permanent link">&para;</a></h4>
@@ -2491,8 +2428,14 @@
 </tr>
 </tbody>
 </table>
-<p><strong>为什么重要</strong>：生产环境必须支持对话历史持久化。如果 Agent 崩溃了，用户期望能恢复对话，而不是从头开始。</p>
-<p><strong>学术困境</strong>：SWE-agent 和 OpenManus 缺少通用的生产级 Session 管理（SWE-agent 以 trajectory 持久化为主），导致研究代码难以直接用于生产。</p>
+<div class="admonition info">
+<p class="admonition-title">为什么重要</p>
+<p>生产环境必须支持对话历史持久化。如果 Agent 崩溃了，用户期望能恢复对话，而不是从头开始。</p>
+</div>
+<div class="admonition example">
+<p class="admonition-title">学术困境</p>
+<p>SWE-agent 和 OpenManus 缺少通用的生产级 Session 管理（SWE-agent 以 trajectory 持久化为主），导致研究代码难以直接用于生产。</p>
+</div>
 <hr />
 <p><strong>特性：状态序列化与 HITL（Human-in-the-Loop）</strong></p>
 <p>这是<strong>生产级框架的标志</strong>。</p>
@@ -2529,16 +2472,29 @@
 </span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="w">    </span><span class="k">continue</span><span class="p">;</span><span class="w">  </span><span class="c1">// 重新循环，使用压缩后的上下文</span>
 </span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="p">}</span>
 </span></code></pre></div></p>
-<p><strong>为什么重要</strong>：Long-context LLM（如 Gemini 1M tokens）虽然出现，但 cost 仍是问题。OpenCode 的 Smart Compaction 在长会话场景下有助于降低 token 消耗（具体收益取决于任务与配置）。</p>
-<p><strong>学术困境</strong>：学术界通常使用短对话（&lt; 10 轮），对 compaction 需求较低；但生产环境的长对话（&gt; 50 轮）往往更需要此特性。</p>
+<div class="admonition info">
+<p class="admonition-title">为什么重要</p>
+<p>Long-context LLM（如 Gemini 1M tokens）虽然出现，但 cost 仍是问题。OpenCode 的 Smart Compaction 在长会话场景下有助于降低 token 消耗（具体收益取决于任务与配置）。</p>
+</div>
+<div class="admonition example">
+<p class="admonition-title">学术困境</p>
+<p>学术界通常使用短对话（&lt; 10 轮），对 compaction 需求较低；但生产环境的长对话（&gt; 50 轮）往往更需要此特性。</p>
+</div>
 <hr />
 <h4 id="22-security-controls">2.2 安全控制特性（Security Controls）<a class="headerlink" href="#22-security-controls" title="Permanent link">&para;</a></h4>
 <p>这是<strong>企业级框架的核心差异点</strong>。5 种安全模型并存：</p>
-<p><strong>模型 1：无安全（No Security）</strong>
-- <strong>OpenManus</strong>：依赖运行环境安全
-- <strong>适用场景</strong>：受控的学术研究环境</p>
-<p><strong>模型 2：Guardrails（护栏）</strong>
-- <strong>OpenAI Agents SDK</strong>：
+<div class="tabbed-set tabbed-alternate" data-tabs="2:5"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><input id="__tabbed_2_4" name="__tabbed_2" type="radio" /><input id="__tabbed_2_5" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">模型 1：无安全</label><label for="__tabbed_2_2">模型 2：Guardrails</label><label for="__tabbed_2_3">模型 3：Hooks</label><label for="__tabbed_2_4">模型 4：策略引擎</label><label for="__tabbed_2_5">模型 5：沙箱隔离</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<ul>
+<li><strong>OpenManus</strong>：依赖运行环境安全</li>
+<li><strong>适用场景</strong>：受控的学术研究环境</li>
+</ul>
+</div>
+<div class="tabbed-block">
+<ul>
+<li>
+<p><strong>OpenAI Agents SDK</strong>：
 <div class="language-python highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nd">@input_guardrail</span>
 </span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">check_pii</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">input_items</span><span class="p">):</span>
 </span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;检查是否包含个人信息&quot;&quot;&quot;</span>
@@ -2551,13 +2507,17 @@
 </span><span id="__span-14-10"><a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a><span class="k">def</span><span class="w"> </span><span class="nf">dangerous_tool_guardrail</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">tool_call</span><span class="p">):</span>
 </span><span id="__span-14-11"><a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;检查工具调用是否危险&quot;&quot;&quot;</span>
 </span></code></pre></div></p>
-<ul>
-<li><strong>特点</strong>：三层防护（输入/输出/工具），Python 装饰器实现</li>
+</li>
+<li>
+<p><strong>特点</strong>：三层防护（输入/输出/工具），Python 装饰器实现</p>
+</li>
 <li><strong>局限</strong>：纯软件层，无法阻止底层系统调用</li>
 </ul>
-<hr />
-<p><strong>模型 3：Hooks（钩子）</strong>
-- <strong>Claude Agent SDK</strong>（代表性实现）：
+</div>
+<div class="tabbed-block">
+<ul>
+<li>
+<p><strong>Claude Agent SDK</strong>（代表性实现）：
 <div class="language-python highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># 10+ 个钩子事件</span>
 </span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="n">hooks</span> <span class="o">=</span> <span class="p">{</span>
 </span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    <span class="s2">&quot;PreToolUse&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">check_safety</span><span class="p">],</span>           <span class="c1"># 工具执行前</span>
@@ -2568,13 +2528,17 @@
 </span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>    <span class="c1"># ... 更多</span>
 </span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="p">}</span>
 </span></code></pre></div></p>
-<ul>
-<li><strong>特点</strong>：极致灵活，可在任何步骤介入</li>
+</li>
+<li>
+<p><strong>特点</strong>：极致灵活，可在任何步骤介入</p>
+</li>
 <li><strong>代价</strong>：需要开发者深度参与，学习成本高</li>
 </ul>
-<hr />
-<p><strong>模型 4：策略引擎（Policy Engine）</strong>
-- <strong>OpenCode</strong>（Wildcard Pattern）：
+</div>
+<div class="tabbed-block">
+<ul>
+<li>
+<p><strong>OpenCode</strong>（Wildcard Pattern）：
 <div class="language-json highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="p">{</span>
 </span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">  </span><span class="nt">&quot;permission&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 </span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span><span class="nt">&quot;bash&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
@@ -2585,7 +2549,7 @@
 </span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="w">  </span><span class="p">}</span>
 </span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="p">}</span>
 </span></code></pre></div></p>
-<ul>
+</li>
 <li>
 <p><strong>Gemini CLI</strong>（TOML Policy）：
 <div class="language-toml highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">[policy]</span>
@@ -2603,9 +2567,11 @@
 </li>
 <li><strong>优势</strong>：非开发者也能理解和修改</li>
 </ul>
-<hr />
-<p><strong>模型 5：沙箱隔离（Sandbox Isolation）</strong>
-- <strong>Codex CLI</strong>（代表性实现）：
+</div>
+<div class="tabbed-block">
+<ul>
+<li>
+<p><strong>Codex CLI</strong>（代表性实现）：
 <div class="language-rust highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1">// codex-rs/core/src/seatbelt.rs (macOS)</span>
 </span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="c1">// codex-rs/core/src/landlock.rs (Linux)  </span>
 </span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="c1">// codex-rs/core/src/windows_sandbox.rs (Windows)</span>
@@ -2621,11 +2587,15 @@
 </span><span id="__span-18-13"><a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a><span class="mf">2.</span><span class="w"> </span><span class="n">Approval</span><span class="w"> </span><span class="n">Policy</span><span class="err">（</span><span class="p">.</span><span class="n">rules</span><span class="w"> </span><span class="err">文件，命令级控制）</span>
 </span><span id="__span-18-14"><a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a><span class="mf">3.</span><span class="w"> </span><span class="n">Network</span><span class="w"> </span><span class="n">Control</span><span class="err">（协议</span><span class="o">/</span><span class="err">主机</span><span class="o">/</span><span class="err">端口级控制）</span>
 </span></code></pre></div></p>
-<ul>
-<li><strong>特点</strong>：在本次调研框架中提供最完整的 OS-level 隔离能力</li>
+</li>
+<li>
+<p><strong>特点</strong>：在本次调研框架中提供最完整的 OS-level 隔离能力</p>
+</li>
 <li><strong>代价</strong>：Rust 实现，配置复杂，性能开销</li>
 </ul>
-<hr />
+</div>
+</div>
+</div>
 <p><strong>安全特性总结</strong>：</p>
 <table>
 <thead>
@@ -2669,7 +2639,10 @@
 </tr>
 </tbody>
 </table>
-<p><strong>学术困境</strong>：学术界通常使用 Level 0-1，但工业界（尤其金融、医疗）需要 Level 3-4。这导致学术代码难以直接部署。</p>
+<div class="admonition example">
+<p class="admonition-title">学术困境</p>
+<p>学术界通常使用 Level 0-1，但工业界（尤其金融、医疗）需要 Level 3-4。这导致学术代码难以直接部署。</p>
+</div>
 <hr />
 <h4 id="23-tooling-system">2.3 工具系统特性（Tooling System）<a class="headerlink" href="#23-tooling-system" title="Permanent link">&para;</a></h4>
 <p><strong>特性：MCP（Model Context Protocol）支持深度</strong></p>
@@ -2722,7 +2695,10 @@
 </span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>
 </span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="n">server</span> <span class="o">=</span> <span class="n">create_sdk_mcp_server</span><span class="p">(</span><span class="s2">&quot;math-tools&quot;</span><span class="p">,</span> <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">fibonacci</span><span class="p">])</span>
 </span></code></pre></div></p>
-<p><strong>为什么重要</strong>：传统 MCP 常需启动子进程（npx, python 等），会带来额外启动与通信开销。Claude 的 SDK MCP 直接在进程中运行，可显著降低这部分开销。</p>
+<div class="admonition info">
+<p class="admonition-title">为什么重要</p>
+<p>传统 MCP 常需启动子进程（npx, python 等），会带来额外启动与通信开销。Claude 的 SDK MCP 直接在进程中运行，可显著降低这部分开销。</p>
+</div>
 <hr />
 <p><strong>特性：并行工具执行（Parallel Tool Execution）</strong></p>
 <p><strong>OpenAI Agents SDK</strong>：
@@ -2737,7 +2713,10 @@
 </span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">execute_tool</span><span class="p">(</span><span class="n">tool_call</span><span class="p">)</span>
 </span></code></pre></div></p>
 <p><strong>性能差异</strong>：如果 Agent 需要同时"查询天气、查日历、搜索邮件"，并行执行快 2-3 倍。</p>
-<p><strong>学术困境</strong>：学术研究通常用串行（易于分析执行顺序），但生产环境往往更需要并行。</p>
+<div class="admonition example">
+<p class="admonition-title">学术困境</p>
+<p>学术研究通常用串行（易于分析执行顺序），但生产环境往往更需要并行。</p>
+</div>
 <hr />
 <h4 id="24-observability">2.4 可观测性特性（Observability）<a class="headerlink" href="#24-observability" title="Permanent link">&para;</a></h4>
 <p><strong>特性：结构化追踪（Structured Tracing）</strong></p>
@@ -2758,12 +2737,20 @@
 </span><span id="__span-22-14"><a id="__codelineno-22-14" name="__codelineno-22-14" href="#__codelineno-22-14"></a>    <span class="c1"># ...</span>
 </span><span id="__span-22-15"><a id="__codelineno-22-15" name="__codelineno-22-15" href="#__codelineno-22-15"></a><span class="p">])</span>
 </span></code></pre></div></p>
-<p><strong>为什么重要</strong>：You can't improve what you can't measure。生产环境通常需要知道：
-- 每个 LLM 调用花了多少钱？
-- 哪个工具最慢？
-- 为什么 Agent 陷入循环？</p>
+<div class="admonition info">
+<p class="admonition-title">为什么重要</p>
+<p>You can't improve what you can't measure。生产环境通常需要知道：</p>
+<ul>
+<li>每个 LLM 调用花了多少钱？</li>
+<li>哪个工具最慢？</li>
+<li>为什么 Agent 陷入循环？</li>
+</ul>
+</div>
 <p><strong>采用率</strong>：仅 OpenAI SDK 提供较完整的内置结构化 Tracing；其他框架多为实验性 telemetry、hooks 或基础日志。</p>
-<p><strong>学术困境</strong>：学术界用 Trajectory 文件（SWE-agent），但那是给人类读的，不是给机器分析的。</p>
+<div class="admonition example">
+<p class="admonition-title">学术困境</p>
+<p>学术界用 Trajectory 文件（SWE-agent），但那是给人类读的，不是给机器分析的。</p>
+</div>
 <hr />
 <h4 id="25-project-context">2.5 项目上下文特性（Project Context）<a class="headerlink" href="#25-project-context" title="Permanent link">&para;</a></h4>
 <p><strong>特性：Project Memory Files（项目记忆文件）</strong></p>
@@ -2789,10 +2776,14 @@
 </span><span id="__span-23-18"><a id="__codelineno-23-18" name="__codelineno-23-18" href="#__codelineno-23-18"></a><span class="k">-</span><span class="w"> </span><span class="sb">`app/routers/`</span> - API 路由
 </span><span id="__span-23-19"><a id="__codelineno-23-19" name="__codelineno-23-19" href="#__codelineno-23-19"></a><span class="k">-</span><span class="w"> </span><span class="sb">`tests/conftest.py`</span> - 测试配置
 </span></code></pre></div></p>
-<p><strong>为什么重要</strong>：
-- <strong>知识沉淀</strong>：将项目知识从人脑转移到文件
-- <strong>跨会话记忆</strong>：Agent 重启后仍能读取项目上下文
-- <strong>团队协作</strong>：团队成员共享相同的 Agent 配置</p>
+<div class="admonition info">
+<p class="admonition-title">为什么重要</p>
+<ul>
+<li><strong>知识沉淀</strong>：将项目知识从人脑转移到文件</li>
+<li><strong>跨会话记忆</strong>：Agent 重启后仍能读取项目上下文</li>
+<li><strong>团队协作</strong>：团队成员共享相同的 Agent 配置</li>
+</ul>
+</div>
 <p><strong>采用情况</strong>：
 - <strong>Claude Code</strong>: <code>CLAUDE.md</code>
 - <strong>OpenCode</strong>: <code>AGENTS.md</code>
@@ -2807,11 +2798,9 @@
 <p><strong>什么是 MCP</strong></p>
 <p>MCP（Model Context Protocol）是 Anthropic 于 2024 年 11 月提出的开放协议标准，旨在为 AI Agent 与外部工具、数据源之间的通信建立统一规范。其设计哲学类似于计算机硬件的 <strong>USB 接口</strong>——标准化连接器，即插即用。</p>
 <p><strong>核心架构</strong>：
-<div class="language-text highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>┌─────────────┐          ┌─────────────┐          ┌─────────────┐
-</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>│   Host      │◄────────►│   Client    │◄────────►│   Server    │
-</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>│  (Agent)    │  stdio   │  (Transport)│  MCP协议  │  (Tools)    │
-</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>└─────────────┘          └─────────────┘          └─────────────┘
-</span></code></pre></div></p>
+<pre class="mermaid"><code>flowchart LR
+    Host["Host\n(Agent)"] &lt;--&gt;|"stdio"| Client["Client\n(Transport)"]
+    Client &lt;--&gt;|"MCP协议"| Server["Server\n(Tools)"]</code></pre></p>
 <p><strong>设计原则</strong>：
 1. <strong>Transport 无关</strong>：支持 stdio、HTTP、WebSocket 等多种传输层
 2. <strong>能力协商</strong>：Client 与 Server 动态协商支持的功能（tools/resources/prompts）
@@ -2861,9 +2850,10 @@
 </ol>
 <p><strong>学术机会</strong>：将 SWE-Bench、HumanEval 等评估工具的沙箱环境封装为 MCP Server，让工业级框架（OpenAI SDK、Codex）也能在标准环境下评估，消除"我的框架比你强"这类不可比结论。</p>
 <p><strong>MCP 的局限与替代方案</strong></p>
-<blockquote>
+<div class="admonition abstract">
+<p class="admonition-title">引用</p>
 <p>本节基于业界实践观察，特别是 <a href="https://mp.weixin.qq.com/s/dAnNHayrE49FEl8TcLII2Q">Lynxe 作者的系列文章</a>（2025）中的深入分析。</p>
-</blockquote>
+</div>
 <p>尽管 MCP 提供了标准化的协议层，但在实践中它并非唯一选择，甚至可能存在更轻量的替代方案：</p>
 <p><strong>1. MCP 的局限性</strong>
 - <strong>协议转换开销</strong>：MCP 需要在 Client 和 Server 之间进行 JSON-RPC 协议转换，对于简单的工具调用而言，这一层可能是"过度设计"
@@ -2913,7 +2903,10 @@
 </tr>
 </tbody>
 </table>
-<p><strong>关键洞察</strong>：MCP 和直接函数调用并非对立关系，而是<strong>解决不同问题</strong>的方案。MCP 适合需要<strong>广泛复用</strong>的工具（如 GitHub、Slack 集成），而直接函数调用更适合<strong>快速集成内部系统</strong>。未来可能是两者并存的混合模式。</p>
+<div class="admonition success">
+<p class="admonition-title">关键洞察</p>
+<p>MCP 和直接函数调用并非对立关系，而是<strong>解决不同问题</strong>的方案。MCP 适合需要<strong>广泛复用</strong>的工具（如 GitHub、Slack 集成），而直接函数调用更适合<strong>快速集成内部系统</strong>。未来可能是两者并存的混合模式。</p>
+</div>
 <hr />
 <h4 id="32-acpagent-client-protocol">3.2 ACP（Agent Client Protocol）<a class="headerlink" href="#32-acpagent-client-protocol" title="Permanent link">&para;</a></h4>
 <p><strong>什么是 ACP</strong></p>
@@ -2928,16 +2921,10 @@
 - <strong>OpenCode</strong>：部分 ACP 支持，主要用于 IDE 插件通信
 - <strong>IDE 端</strong>：VS Code、JetBrains 通过插件接入（仍在演进）</p>
 <p><strong>与 MCP 的关系</strong>：
-<div class="language-text highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>┌──────────────────────────────────────────────────────────────┐
-</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>│                      IDE (VS Code/Zed)                       │
-</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>└─────────────┬────────────────────────────────┬───────────────┘
-</span><span id="__span-25-4"><a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>              │ ACP (Agent 控制协议)            │ MCP (工具协议)
-</span><span id="__span-25-5"><a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>              ▼                                ▼
-</span><span id="__span-25-6"><a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>┌──────────────────────┐              ┌──────────────────────┐
-</span><span id="__span-25-7"><a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>│    Kimi/OpenCode     │              │   External Tools     │
-</span><span id="__span-25-8"><a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a>│     (Agent Host)     │─────────────►│   (MCP Servers)      │
-</span><span id="__span-25-9"><a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a>└──────────────────────┘              └──────────────────────┘
-</span></code></pre></div></p>
+<pre class="mermaid"><code>flowchart TD
+    IDE["IDE (VS Code/Zed)"] --&gt;|"ACP (Agent 控制协议)"| Agent["Kimi/OpenCode\n(Agent Host)"]
+    IDE --&gt;|"MCP (工具协议)"| Tools["External Tools\n(MCP Servers)"]
+    Agent --&gt;|"MCP"| Tools</code></pre></p>
 <p>ACP 和 MCP 是<strong>互补关系</strong>：ACP 管"人-Agent 交互"，MCP 管"Agent-工具交互"。</p>
 <hr />
 <h4 id="33-vs">3.3 协议层的战略意义：生态锁定 vs 开放性<a class="headerlink" href="#33-vs" title="Permanent link">&para;</a></h4>
@@ -2986,13 +2973,15 @@
 </tr>
 </tbody>
 </table>
-<p><strong>关键洞察</strong>：</p>
+<div class="admonition success">
+<p class="admonition-title">关键洞察</p>
 <ol>
 <li><strong>协议标准化不可阻挡</strong>：Agent 生态需要互操作性，封闭协议终将被开放标准取代</li>
 <li><strong>先发优势明显</strong>：Anthropic 推动 MCP，其他厂商（OpenAI、Google）已跟进支持</li>
 <li><strong>工具供应商的福音</strong>：写一次 MCP Server，对接所有 Agent 框架，ROI 远高于适配每个框架的私有 API</li>
 <li><strong>企业的迁移成本降低</strong>：内部工具 MCP 化后，Agent 框架可自由替换，避免 vendor lock-in</li>
 </ol>
+</div>
 <p><strong>对框架选型的启示</strong>：
 - 优先选择 MCP 支持完善的框架（Level 3+），确保工具生态兼容性
 - 关注框架的 MCP Server 能力（能否对外暴露 Agent 能力）
@@ -3348,9 +3337,10 @@
 <p><strong>学术机会</strong>：这些是有价值的研究/工程方向。</p>
 <hr />
 <h2 id="_3">四、学术与工业的特性需求差异：基于审计的观察<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
-<blockquote>
+<div class="admonition info">
+<p class="admonition-title">范围说明</p>
 <p>本节基于代码审计与对比表的事实观察，分析学术场景与工业场景对 Agent 框架特性的不同需求模式。这种差异可能导致学术成果向工业迁移时的摩擦。</p>
-</blockquote>
+</div>
 <h3 id="41">4.1 学术界的"最小可行实现"<a class="headerlink" href="#41" title="Permanent link">&para;</a></h3>
 <p>学术界倾向于选择<strong>特性较少</strong>的框架：</p>
 <p><strong>SWE-agent</strong>（研究首选）：
@@ -3404,9 +3394,10 @@
 - <strong>可能结果</strong>：学术界可能倾向于使用特性较简单的框架（SWE-agent, OpenManus），而非工程特性最完善的框架</p>
 <hr />
 <h2 id="_4">五、未来预测：特性会收敛吗？（作者判断）<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
-<blockquote>
+<div class="admonition warning">
+<p class="admonition-title">免责声明</p>
 <p>本节为趋势判断，基于前文事实推演，不等同于已被数据验证的结论。</p>
-</blockquote>
+</div>
 <h3 id="51-layer-2">5.1 Layer 2（工程特性）：短期内难以收敛<a class="headerlink" href="#51-layer-2" title="Permanent link">&para;</a></h3>
 <p><strong>原因</strong>：
 1. <strong>差异化竞争</strong>：框架通过独特特性建立护城河
@@ -3436,24 +3427,38 @@
 - 2 年内，MCP Client 可能成为基础能力
 - 3 年内，MCP Server 成为差异化竞争力（类似现在）</p>
 <h3 id="53">5.3 未来关键特性预测<a class="headerlink" href="#53" title="Permanent link">&para;</a></h3>
-<p><strong>Tier 1：即将成为高优先级能力（未来 1-2 年）</strong>
-1. <strong>Context Compaction</strong>：Long-context LLM 虽强，但 cost 敏感
-2. <strong>Structured Tracing</strong>：可观测性成为生产高优先级能力
-3. <strong>HITL State Management</strong>：人工介入是安全底线</p>
-<p><strong>Tier 2：企业级高优先级（未来 2-3 年）</strong>
-4. <strong>Smart Caching</strong>：Tool Result Cache（尚未实现）
-5. <strong>Multi-Modal Tool</strong>：统一处理文本/图像/音频
-6. <strong>Semantic Memory</strong>：长期记忆（非简单历史）</p>
-<p><strong>Tier 3：前沿探索（长期）</strong>
-7. <strong>Self-Reflection</strong>：自动改进（类似 Reflexion，但生产级）
-8. <strong>Multi-Agent Protocol</strong>：标准化 Agent 间协作</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">Tier 1：即将成为高优先级（1-2 年）</label><label for="__tabbed_3_2">Tier 2：企业级高优先级（2-3 年）</label><label for="__tabbed_3_3">Tier 3：前沿探索（长期）</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<ol>
+<li><strong>Context Compaction</strong>：Long-context LLM 虽强，但 cost 敏感</li>
+<li><strong>Structured Tracing</strong>：可观测性成为生产高优先级能力</li>
+<li><strong>HITL State Management</strong>：人工介入是安全底线</li>
+</ol>
+</div>
+<div class="tabbed-block">
+<ol>
+<li><strong>Smart Caching</strong>：Tool Result Cache（尚未实现）</li>
+<li><strong>Multi-Modal Tool</strong>：统一处理文本/图像/音频</li>
+<li><strong>Semantic Memory</strong>：长期记忆（非简单历史）</li>
+</ol>
+</div>
+<div class="tabbed-block">
+<ol>
+<li><strong>Self-Reflection</strong>：自动改进（类似 Reflexion，但生产级）</li>
+<li><strong>Multi-Agent Protocol</strong>：标准化 Agent 间协作</li>
+</ol>
+</div>
+</div>
+</div>
 <hr />
 <h2 id="agent_1">六、结论与行动建议：评估 Agent 框架的新范式<a class="headerlink" href="#agent_1" title="Permanent link">&para;</a></h2>
 <h3 id="60-meta-agent">6.0 Meta 结论：Agent 框架竞争的本质<a class="headerlink" href="#60-meta-agent" title="Permanent link">&para;</a></h3>
 <p>基于对 9 个框架的代码审计，本文的核心洞察是：</p>
-<blockquote>
+<div class="admonition quote">
+<p class="admonition-title">核心洞察</p>
 <p><strong>Agent 框架的竞争，本质上是工程系统的竞争，而不是推理算法的竞争。</strong></p>
-</blockquote>
+</div>
 <p>在 2022-2026 年间，Agent 领域经历了从"算法创新驱动"到"系统工程驱动"的转变：</p>
 <ul>
 <li><strong>算法创新</strong>（2022-2023）：ReAct、Reflexion、Tree of Thoughts 等新推理范式</li>
@@ -3465,189 +3470,216 @@
 - 工业界如果忽视工程系统建设，再好的算法也难以落地生产
 - 未来的突破可能来自<strong>算法与工程的协同创新</strong>（如 Learned Context Compaction、Adaptive Tool Selection 等）</p>
 <h3 id="61">6.1 先避免这三类低信息量问题<a class="headerlink" href="#61" title="Permanent link">&para;</a></h3>
-<p>❌ "用没用 Function Calling？" → 只是解析方式，不是架构差异
-❌ "支持不支持 MCP？" → 在本次调研中 8/9 支持，深度不同才是关键
-❌ "Stars 多少？" → 人气不等于适合你的场景</p>
+<div class="admonition danger">
+<p class="admonition-title">低信息量问题</p>
+<ul>
+<li>"用没用 Function Calling？" -- 只是解析方式，不是架构差异</li>
+<li>"支持不支持 MCP？" -- 在本次调研中 8/9 支持，深度不同才是关键</li>
+<li>"Stars 多少？" -- 人气不等于适合你的场景</li>
+</ul>
+</div>
 <h3 id="62">6.2 再用这四组问题做场景化选型<a class="headerlink" href="#62" title="Permanent link">&para;</a></h3>
-<p>✅ <strong>"Layer 2 特性组合是否符合我的场景？"</strong>
-- 做研究？→ 选 Stateless + Trajectory（SWE-agent）
-- 做 SaaS？→ 选 Session + Tracing（OpenAI SDK；若是长会话可补充 compaction 能力）
-- 做企业？→ 选 Sandbox + Policy（Codex）</p>
-<p>✅ <strong>"是否需要 HITL？"</strong>
-- 如果涉及危险操作（删数据、转账），应优先选择支持 HITL 状态管理的框架（如 OpenAI SDK）</p>
-<p>✅ <strong>"安全需求级别？"</strong>
-- Level 1-2：OpenAI SDK（Guardrails）
-- Level 3：OpenCode/Gemini（Policy Engine）
-- Level 4：Codex（Sandbox）</p>
-<p>✅ <strong>"Provider Lock-in 容忍度？"</strong>
-- 零容忍 → OpenAI SDK（Provider-agnostic）
-- 只用 Claude → Claude SDK</p>
+<div class="admonition success">
+<p class="admonition-title">高价值选型问题</p>
+<p><strong>"Layer 2 特性组合是否符合我的场景？"</strong></p>
+<ul>
+<li>做研究？-- 选 Stateless + Trajectory（SWE-agent）</li>
+<li>做 SaaS？-- 选 Session + Tracing（OpenAI SDK；若是长会话可补充 compaction 能力）</li>
+<li>做企业？-- 选 Sandbox + Policy（Codex）</li>
+</ul>
+<p><strong>"是否需要 HITL？"</strong></p>
+<ul>
+<li>如果涉及危险操作（删数据、转账），应优先选择支持 HITL 状态管理的框架（如 OpenAI SDK）</li>
+</ul>
+<p><strong>"安全需求级别？"</strong></p>
+<ul>
+<li>Level 1-2：OpenAI SDK（Guardrails）</li>
+<li>Level 3：OpenCode/Gemini（Policy Engine）</li>
+<li>Level 4：Codex（Sandbox）</li>
+</ul>
+<p><strong>"Provider Lock-in 容忍度？"</strong></p>
+<ul>
+<li>零容忍 -- OpenAI SDK（Provider-agnostic）</li>
+<li>只用 Claude -- Claude SDK</li>
+</ul>
+</div>
+<div class="tabbed-set tabbed-alternate" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">给学术界</label><label for="__tabbed_4_2">给工业界</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
 <h3 id="63">6.3 给学术界的建议（可执行）<a class="headerlink" href="#63" title="Permanent link">&para;</a></h3>
 <ol>
-<li><strong>选择 OpenAI Agents SDK 作为基准</strong>：</li>
+<li>
+<p><strong>选择 OpenAI Agents SDK 作为基准</strong>：</p>
+<ul>
 <li>Provider-agnostic（可对比 GPT-4/Claude/Gemini）</li>
 <li>完整特性（Session, Tracing, Guardrails）</li>
-<li>
-<p>生产就绪（易于迁移到工业界）</p>
+<li>生产就绪（易于迁移到工业界）</li>
+</ul>
 </li>
 <li>
 <p><strong>将评估工具 MCP 化</strong>：</p>
-</li>
+<ul>
 <li>把 <code>str_replace_editor</code> 等工具发布为 MCP 服务器</li>
 <li>让所有框架能在相同条件下对比</li>
-<li>
-<p>提高论文的可比性和影响力</p>
+<li>提高论文的可比性和影响力</li>
+</ul>
 </li>
 <li>
 <p><strong>关注未实现的特性</strong>：</p>
-</li>
+<ul>
 <li>Tool Result Cache（Caching）</li>
 <li>Circuit Breaker（Fault Tolerance）</li>
 <li>Semantic Memory（Long-term Memory）</li>
 <li>这些是有价值的工程/研究贡献</li>
+</ul>
+</li>
 </ol>
+</div>
+<div class="tabbed-block">
 <h3 id="64">6.4 给工业界的建议（可执行）<a class="headerlink" href="#64" title="Permanent link">&para;</a></h3>
 <ol>
-<li><strong>不要重新造轮子</strong>：</li>
-<li>核心循环都一样，直接用成熟框架（OpenAI SDK, Codex）</li>
 <li>
-<p>把精力放在业务逻辑，而非基础设施</p>
+<p><strong>不要重新造轮子</strong>：</p>
+<ul>
+<li>核心循环都一样，直接用成熟框架（OpenAI SDK, Codex）</li>
+<li>把精力放在业务逻辑，而非基础设施</li>
+</ul>
 </li>
 <li>
 <p><strong>根据场景选择合适的工具集成方案</strong>：</p>
-</li>
+<ul>
 <li><strong>MCP 模式</strong>：如果需要跨框架复用的标准化工具，用 MCP Server 暴露内部 API</li>
 <li><strong>直接函数/命令行</strong>：如果仅需快速集成内部系统，可直接通过函数接口或 shell 脚本调用</li>
-<li>
-<p>不要 fork 框架代码，保持框架的可升级性</p>
+<li>不要 fork 框架代码，保持框架的可升级性</li>
+</ul>
 </li>
 <li>
 <p><strong>投资可观测性</strong>：</p>
-</li>
+<ul>
 <li>从 Day 1 就接入 Tracing（OpenAI SDK 的 Logfire/AgentOps）</li>
 <li>你不知道自己会踩什么坑，直到监控告诉你</li>
+</ul>
+</li>
 </ol>
+</div>
+</div>
+</div>
 <hr />
 <h2 id="related-work">Related Work（已发表相关文章）<a class="headerlink" href="#related-work" title="Permanent link">&para;</a></h2>
-<blockquote>
+<div class="admonition info">
+<p class="admonition-title">定位说明</p>
 <p>本节用于定位本文与已有公开文章的关系：哪些观点已有讨论、哪些是本文的增量。</p>
-</blockquote>
+</div>
 <h3 id="a">A. 框架选型与工程能力对比（高相关）<a class="headerlink" href="#a" title="Permanent link">&para;</a></h3>
-<ol>
-<li>
-<p><strong>Choosing the Right AI Framework</strong>（Enhancial, 2025-10）<br />
-    https://enhancial.substack.com/p/choosing-the-right-ai-framework-a  </p>
+<details class="abstract">
+<summary>1. Choosing the Right AI Framework（Enhancial, 2025-10）</summary>
+<p>https://enhancial.substack.com/p/choosing-the-right-ai-framework-a</p>
 <ul>
-<li>覆盖 OpenAI Agents SDK、Claude Agent SDK、LangGraph、MCP 的选型框架。  </li>
+<li>覆盖 OpenAI Agents SDK、Claude Agent SDK、LangGraph、MCP 的选型框架。</li>
 <li>与本文相似点：强调工程能力（session、guardrails、tracing）比“模型名气”更重要。</li>
 </ul>
-</li>
-<li>
-<p><strong>How to build AI agents with MCP: 12 framework comparison</strong>（ClickHouse, 2025-10）<br />
-    https://clickhouse.com/blog/how-to-build-ai-agents-mcp-12-frameworks  </p>
+</details>
+<details class="abstract">
+<summary>2. How to build AI agents with MCP: 12 framework comparison（ClickHouse, 2025-10）</summary>
+<p>https://clickhouse.com/blog/how-to-build-ai-agents-mcp-12-frameworks</p>
 <ul>
-<li>以 MCP 为主线横向比较 12 个框架，提供可运行示例。  </li>
+<li>以 MCP 为主线横向比较 12 个框架，提供可运行示例。</li>
 <li>与本文相似点：讨论 MCP 深度差异与安全/工具治理。</li>
 </ul>
-</li>
-<li>
-<p><strong>OpenAI AgentKit vs Claude Agents SDK</strong>（Bind AI, 2025-10）<br />
-    https://blog.getbind.co/openai-agentkit-vs-claude-agents-sdk-which-is-better/  </p>
+</details>
+<details class="abstract">
+<summary>3. OpenAI AgentKit vs Claude Agents SDK（Bind AI, 2025-10）</summary>
+<p>https://blog.getbind.co/openai-agentkit-vs-claude-agents-sdk-which-is-better/</p>
 <ul>
-<li>聚焦平台化（AgentKit）与 SDK 化（Claude + MCP）的治理差异。  </li>
-<li>与本文相似点：将差异落在权限、可观测性、控制面，而非“谁更聪明”。</li>
+<li>聚焦平台化（AgentKit）与 SDK 化（Claude + MCP）的治理差异。</li>
+<li>与本文相似点：将差异落在权限、可观测性、控制面，而非"谁更聪明"。</li>
 </ul>
-</li>
-</ol>
+</details>
 <h3 id="b-cli-agent">B. CLI Agent 生态横评（中高相关）<a class="headerlink" href="#b-cli-agent" title="Permanent link">&para;</a></h3>
-<ol>
-<li>
-<p><strong>EVERY CLI CODING AGENT, COMPARED</strong>（Michael Livshits, 2026-02）<br />
-    https://michaellivs.com/blog/cli-coding-agents-compared/  </p>
+<details class="abstract">
+<summary>4. EVERY CLI CODING AGENT, COMPARED（Michael Livshits, 2026-02）</summary>
+<p>https://michaellivs.com/blog/cli-coding-agents-compared/</p>
 <ul>
-<li>对 Codex/Gemini/Qwen/Kimi/OpenCode/SWE-agent 等进行全景比较。  </li>
+<li>对 Codex/Gemini/Qwen/Kimi/OpenCode/SWE-agent 等进行全景比较。</li>
 <li>与本文相似点：重视 sandbox、hooks、memory files、MCP 等工程特性。</li>
 </ul>
-</li>
-<li>
-<p><strong>The 2026 Guide to Coding CLI Tools: 15 AI Agents Compared</strong>（Tembo, 2026-02）<br />
-    https://www.tembo.io/blog/coding-cli-tools-comparison  </p>
+</details>
+<details class="abstract">
+<summary>5. The 2026 Guide to Coding CLI Tools: 15 AI Agents Compared（Tembo, 2026-02）</summary>
+<p>https://www.tembo.io/blog/coding-cli-tools-comparison</p>
 <ul>
-<li>从“供应商绑定、自治度、成本、模型灵活性”维度做系统分类。  </li>
+<li>从"供应商绑定、自治度、成本、模型灵活性"维度做系统分类。</li>
 <li>与本文相似点：强调工具选型要看约束条件与场景，而非单一指标。</li>
 </ul>
-</li>
-<li>
-<p><strong>The Ultimate Comparison of Claude Code Alternatives</strong>（Kevnu, 2025-11）<br />
-    https://www.kevnu.com/en/posts/the-ultimate-comparison-of-claude-code-alternatives-a-complete-analysis-of-the-10-strongest-cli-ai-programming-tools  </p>
+</details>
+<details class="abstract">
+<summary>6. The Ultimate Comparison of Claude Code Alternatives（Kevnu, 2025-11）</summary>
+<p>https://www.kevnu.com/en/posts/the-ultimate-comparison-of-claude-code-alternatives-a-complete-analysis-of-the-10-strongest-cli-ai-programming-tools</p>
 <ul>
-<li>覆盖 OpenCode、Qwen、Kimi、Codex、Gemini 等 CLI 工具的能力矩阵。  </li>
+<li>覆盖 OpenCode、Qwen、Kimi、Codex、Gemini 等 CLI 工具的能力矩阵。</li>
 <li>与本文相似点：提供多工具横向能力对照。</li>
 </ul>
-</li>
-</ol>
+</details>
 <h3 id="c">C. 官方方法论与单框架深挖（中相关）<a class="headerlink" href="#c" title="Permanent link">&para;</a></h3>
-<ol>
-<li>
-<p><strong>Building agents with the Claude Agent SDK</strong>（Anthropic, 2025-09）<br />
-    https://claude.com/blog/building-agents-with-the-claude-agent-sdk  </p>
+<details class="abstract">
+<summary>7. Building agents with the Claude Agent SDK（Anthropic, 2025-09）</summary>
+<p>https://claude.com/blog/building-agents-with-the-claude-agent-sdk</p>
 <ul>
-<li>提出 gather → act → verify → repeat 的 agent loop 与 compaction/subagent/MCP 实践。  </li>
-<li>与本文相似点：支持“核心循环高度稳定、差异在工程实现”的观察。</li>
+<li>提出 gather → act → verify → repeat 的 agent loop 与 compaction/subagent/MCP 实践。</li>
+<li>与本文相似点：支持"核心循环高度稳定、差异在工程实现"的观察。</li>
 </ul>
-</li>
-<li>
-<p><strong>I tested 5 AI CLI tools</strong>（LogRocket, 2025-12）<br />
-    https://blog.logrocket.com/tested-5-ai-cli-tools/  </p>
+</details>
+<details class="abstract">
+<summary>8. I tested 5 AI CLI tools（LogRocket, 2025-12）</summary>
+<p>https://blog.logrocket.com/tested-5-ai-cli-tools/</p>
 <ul>
-<li>以统一任务对多个 CLI 进行可用性和质量对比。  </li>
+<li>以统一任务对多个 CLI 进行可用性和质量对比。</li>
 <li>与本文相似点：强调工程可用性与真实工作流表现。</li>
 </ul>
-</li>
-</ol>
+</details>
 <h3 id="d">D. 框架实现原理与集成模式深度解析（高相关）<a class="headerlink" href="#d" title="Permanent link">&para;</a></h3>
-<ol>
-<li>
-<p><strong>AI Agent系列｜什么是 ReAct Agent？</strong>（沈询，阿里云开发者，2025-02）<br />
-    https://mp.weixin.qq.com/s/KyWIEX_8oj5lcXjX5Co7Kw  </p>
+<details class="abstract">
+<summary>9. AI Agent系列｜什么是 ReAct Agent？（沈询，阿里云开发者，2025-02）</summary>
+<p>https://mp.weixin.qq.com/s/KyWIEX_8oj5lcXjX5Co7Kw</p>
 <ul>
 <li>Lynxe 作者深入浅出解析 ReAct Agent 核心原理：观察-思考-行动循环。</li>
 <li>与本文相似点：支持"核心循环高度稳定"的观察，详细阐述 ReAct 的 5 个关键要素。</li>
 </ul>
-</li>
-<li>
-<p><strong>AI Agent系列｜深入了解智能体工作流核心：Agent vs 传统编程 vs Workflow 的本质区别</strong>（沈询，阿里云开发者，2025-02）<br />
-    https://mp.weixin.qq.com/s/KE4UWEpoMYiIseykT7_Skw  </p>
+</details>
+<details class="abstract">
+<summary>10. AI Agent系列｜深入了解智能体工作流核心（沈询，阿里云开发者，2025-02）</summary>
+<p>https://mp.weixin.qq.com/s/KE4UWEpoMYiIseykT7_Skw</p>
 <ul>
 <li>对比传统编程、Workflow 与 Agent 的本质差异：谁在做决策？</li>
 <li>与本文相似点：同样关注工程实现差异，但侧重点在于开发范式与集成方式。</li>
 </ul>
-</li>
-<li>
-<p><strong>AI Agent系列｜深入解析Function Calling、MCP和Skills的本质差异与最佳实践</strong>（沈询，阿里云开发者，2025-02）<br />
-    https://mp.weixin.qq.com/s/dAnNHayrE49FEl8TcLII2Q  </p>
+</details>
+<details class="abstract">
+<summary>11. AI Agent系列｜深入解析Function Calling、MCP和Skills的本质差异与最佳实践（沈询，阿里云开发者，2025-02）</summary>
+<p>https://mp.weixin.qq.com/s/dAnNHayrE49FEl8TcLII2Q</p>
 <ul>
 <li>提出 MCP 与 Skills 是"竞争关系"而非"互补关系"的深刻观点。</li>
 <li>与本文的互补性：本文在 3.1 节引用了该文对 MCP 局限性的分析，以及直接函数/命令行调用作为替代方案的讨论。</li>
 </ul>
-</li>
-<li>
-<p><strong>从 ReAct 到 Ralph Loop：AI Agent 的持续迭代范式</strong>（丹坤，阿里云开发者，2025-02）<br />
-    https://mp.weixin.qq.com/s/K4ZUGBzT0s9RwFlaYcuHiA  </p>
+</details>
+<details class="abstract">
+<summary>12. 从 ReAct 到 Ralph Loop：AI Agent 的持续迭代范式（丹坤，阿里云开发者，2025-02）</summary>
+<p>https://mp.weixin.qq.com/s/K4ZUGBzT0s9RwFlaYcuHiA</p>
 <ul>
 <li>介绍源自 <strong>Claude Code 社区</strong>的 Ralph Loop 范式，作为 ReAct 的增强模式，通过 Stop Hook 和外部验证解决 LLM "过早退出"问题。</li>
 <li>核心机制：用文件系统持久化（progress.txt, prd.json, Git）替代上下文窗口记忆，解决"上下文腐烂"。</li>
 <li>与本文的关联：补充了 Agent Loop "何时终止"这一控制策略维度，与本文的"上下文压缩"特性形成技术对照。</li>
 </ul>
-</li>
-</ol>
+</details>
 <h3 id="_5">本文的增量定位<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
-<ul>
-<li>与上述文章相比，本文的主要增量是：
-  1) 用统一的 Layer 1-4 框架整理 12 个项目；<br />
-  2) 将差异系统化到 session/security/policy/MCP/tracing/compaction 等工程维度；<br />
-  3) 明确提出“学术实现到工业落地”之间的特性迁移成本问题。</li>
-</ul>
+<div class="admonition success">
+<p class="admonition-title">本文增量</p>
+<ol>
+<li>用统一的 Layer 1-4 框架整理 12 个项目</li>
+<li>将差异系统化到 session/security/policy/MCP/tracing/compaction 等工程维度</li>
+<li>明确提出“学术实现到工业落地”之间的特性迁移成本问题</li>
+</ol>
+</div>
 <hr />
 <h2 id="12_1">附录：12 个框架的核心代码位置<a class="headerlink" href="#12_1" title="Permanent link">&para;</a></h2>
 <table>

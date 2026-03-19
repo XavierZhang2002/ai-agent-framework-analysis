@@ -2010,15 +2010,17 @@
 
 <h1 id="agent-2026-02-26">Agent 开源与编排对比调研（截至 2026-02-26）<a class="headerlink" href="#agent-2026-02-26" title="Permanent link">&para;</a></h1>
 <p><strong>基于深度代码分析的全面对比报告</strong></p>
-<blockquote>
-<p><strong>调研方法</strong>：<br />
-本报告基于对 12 个主流 Agent 框架的深度代码分析，包括源码审计、架构分析、扩展点研究。<br />
+<div class="admonition info">
+<p class="admonition-title">调研方法</p>
+<p>本报告基于对 12 个主流 Agent 框架的深度代码分析，包括源码审计、架构分析、扩展点研究。
 每个项目的详细技术调研文档见 <code>deep-dive/*-DEEP-DIVE.md</code>。</p>
-<p><strong>判定口径</strong>：<br />
-1) "仓库开源" = 代码仓库公开 + 有开源许可证；<br />
-2) "核心逻辑可看可改" = Agent 编排/工具调用主逻辑是否在仓库可审计并可改；<br />
-3) "黑盒" 主要指运行时依赖的闭源服务（模型推理、托管工具、商业条款约束组件）。</p>
-</blockquote>
+<p><strong>判定口径</strong>：</p>
+<ol>
+<li>"仓库开源" = 代码仓库公开 + 有开源许可证</li>
+<li>"核心逻辑可看可改" = Agent 编排/工具调用主逻辑是否在仓库可审计并可改</li>
+<li>"黑盒" 主要指运行时依赖的闭源服务（模型推理、托管工具、商业条款约束组件）</li>
+</ol>
+</div>
 <hr />
 <h2 id="1-stars-2026-02-27">1) 总览表（按 Stars 排序，截至 2026-02-27）<a class="headerlink" href="#1-stars-2026-02-27" title="Permanent link">&para;</a></h2>
 <table>
@@ -2779,9 +2781,13 @@
 - <strong>扩展性</strong>: Hooks (10+ events), Custom Transport, SDK MCP Servers
 - <strong>代码规模</strong>: SDK ~3,000 lines + 闭源 CLI
 - <strong>适用</strong>: Python 应用深度集成 Claude 能力</p>
-<p><strong>对比总结</strong>:
-- OpenAI Agents SDK: 完全开源，provider-agnostic，更轻量
-- Claude Agent SDK: 强大的 Hooks，in-process MCP，但依赖闭源 CLI</p>
+<div class="admonition tip">
+<p class="admonition-title">对比总结</p>
+<ul>
+<li>OpenAI Agents SDK: 完全开源，provider-agnostic，更轻量</li>
+<li>Claude Agent SDK: 强大的 Hooks，in-process MCP，但依赖闭源 CLI</li>
+</ul>
+</div>
 <h4 id="b-cli"><strong>B) 终端 CLI 型（终端重度用户）</strong><a class="headerlink" href="#b-cli" title="Permanent link">&para;</a></h4>
 <p><strong>OpenCode</strong> (TypeScript/Bun):
 - <strong>架构</strong>: 事件驱动 + Instance-scoped state
@@ -2814,11 +2820,15 @@
 - <strong>Skills</strong>: Auto-discovery with file watching
 - <strong>IDE</strong>: Deep MCP integration (VS Code, Zed, JetBrains)
 - <strong>特色</strong>: Qwen OAuth with PKCE，variable templating</p>
-<p><strong>对比总结</strong>:
-- <strong>最强安全</strong>: Codex CLI（Sandbox + Approval + Network）
-- <strong>最开放</strong>: OpenCode（100% 开源 + provider-agnostic）
-- <strong>最强 IDE</strong>: Kimi CLI（ACP + Wire）+ Qwen Code（MCP IDE）
-- <strong>最佳 Google</strong>: Gemini CLI（Search grounding + Code Assist）</p>
+<div class="admonition tip">
+<p class="admonition-title">对比总结</p>
+<ul>
+<li><strong>最强安全</strong>: Codex CLI（Sandbox + Approval + Network）</li>
+<li><strong>最开放</strong>: OpenCode（100% 开源 + provider-agnostic）</li>
+<li><strong>最强 IDE</strong>: Kimi CLI（ACP + Wire）+ Qwen Code（MCP IDE）</li>
+<li><strong>最佳 Google</strong>: Gemini CLI（Search grounding + Code Assist）</li>
+</ul>
+</div>
 <h4 id="c"><strong>C) 研究/实验框架</strong><a class="headerlink" href="#c" title="Permanent link">&para;</a></h4>
 <p><strong>SWE-agent</strong> (Python):
 - <strong>架构</strong>: YAML-driven configuration
@@ -2833,9 +2843,13 @@
 - <strong>MCP</strong>: 双角色（Client + Server via FastMCP）
 - <strong>工具</strong>: 8 个内置工具 + MCP tools
 - <strong>适用</strong>: 快速实验、MCP 探索、社区共建</p>
-<p><strong>对比总结</strong>:
-- <strong>SWE-agent</strong>: 专注 benchmark，YAML 配置化，trajectory 分析
-- <strong>OpenManus</strong>: 通用实验框架，MCP 双角色，Flow 系统不稳定</p>
+<div class="admonition tip">
+<p class="admonition-title">对比总结</p>
+<ul>
+<li><strong>SWE-agent</strong>: 专注 benchmark，YAML 配置化，trajectory 分析</li>
+<li><strong>OpenManus</strong>: 通用实验框架，MCP 双角色，Flow 系统不稳定</li>
+</ul>
+</div>
 <hr />
 <h2 id="4">4) 关键差异总结（基于代码审计）<a class="headerlink" href="#4" title="Permanent link">&para;</a></h2>
 <h3 id="41">4.1 开源透明度分级<a class="headerlink" href="#41" title="Permanent link">&para;</a></h3>
@@ -3374,7 +3388,10 @@
 </tr>
 </tbody>
 </table>
-<p><strong>图例</strong>: ✅ ✅ ✅ = 优秀 | ✅ ✅ = 良好 | ✅ = 基础支持 | ⚠️ = 部分/实验性 | ❌ = 不支持</p>
+<div class="admonition info">
+<p class="admonition-title">图例</p>
+<p>✅ ✅ ✅ = 优秀 | ✅ ✅ = 良好 | ✅ = 基础支持 | ⚠️ = 部分/实验性 | ❌ = 不支持</p>
+</div>
 <hr />
 <h2 id="9">9) 代码规模与复杂度对比<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
 <table>
@@ -3492,10 +3509,15 @@
 <li><strong>OpenManus</strong> - 快速实验，MCP 探索</li>
 </ol>
 <h3 id="103">10.3 不推荐的组合<a class="headerlink" href="#103" title="Permanent link">&para;</a></h3>
-<p>❌ <strong>OpenAI Agents SDK + 需要 RAG</strong>: 无内置 RAG，选 LangChain<br />
-❌ <strong>Claude Agent SDK + 跨 LLM</strong>: Claude-only，选 OpenAI SDK<br />
-❌ <strong>SWE-agent + 生产应用</strong>: 研究框架，非生产目的<br />
-❌ <strong>OpenManus + 稳定 multi-agent</strong>: Flow 系统标注为不稳定  </p>
+<div class="admonition danger">
+<p class="admonition-title">不推荐的组合</p>
+<ul>
+<li><strong>OpenAI Agents SDK + 需要 RAG</strong>: 无内置 RAG，选 LangChain</li>
+<li><strong>Claude Agent SDK + 跨 LLM</strong>: Claude-only，选 OpenAI SDK</li>
+<li><strong>SWE-agent + 生产应用</strong>: 研究框架，非生产目的</li>
+<li><strong>OpenManus + 稳定 multi-agent</strong>: Flow 系统标注为不稳定</li>
+</ul>
+</div>
 <hr />
 <h2 id="11">11) 参考资源<a class="headerlink" href="#11" title="Permanent link">&para;</a></h2>
 <h3 id="111">11.1 深度调研文档（本次调研产出）<a class="headerlink" href="#111" title="Permanent link">&para;</a></h3>
@@ -3635,7 +3657,8 @@
 <hr />
 <h2 id="_1">总结<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
 <p>本调研基于 <strong>2026-02-26</strong>的深度代码分析，覆盖 12 个主流 Agent 框架，总计审查<strong>~400 KB</strong> 源码文档。</p>
-<p><strong>核心发现</strong>:</p>
+<div class="admonition success">
+<p class="admonition-title">核心发现</p>
 <ol>
 <li><strong>Python SDK 双雄</strong>: OpenAI Agents SDK（provider-agnostic，完整特性）vs. Claude Agent SDK（强 Hooks，Claude-only）</li>
 <li><strong>终端 CLI 多样化</strong>: OpenCode（100% 开源）、Codex（最强安全）、Kimi（ACP IDE）、Gemini（Google）、Qwen（Skills）各有千秋</li>
@@ -3643,7 +3666,11 @@
 <li><strong>Security 领袖</strong>: Codex CLI 唯一提供 OS-level Sandbox（Seatbelt/Landlock/Windows）</li>
 <li><strong>研究框架</strong>: SWE-agent 专注 benchmark，OpenManus Flow 系统不稳定</li>
 </ol>
-<p><strong>选择建议</strong>: 根据 <strong>需求（功能）</strong>+<strong>技术栈（语言）</strong>+<strong>安全级别</strong> 三维度综合决策，详见第 6 节决策树。</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">选择建议</p>
+<p>根据 <strong>需求（功能）</strong> + <strong>技术栈（语言）</strong> + <strong>安全级别</strong> 三维度综合决策，详见第 6 节决策树。</p>
+</div>
 <hr />
 <p><strong>调研团队</strong>: 深度技术调研组<br />
 <strong>调研日期</strong>: 2026-02-26<br />
